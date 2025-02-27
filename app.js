@@ -280,7 +280,7 @@ L'équipe Kolwaz Shop`
 });
 
 // Démarrage du serveur
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Serveur démarré sur le port ${PORT}`);
+const port = process.env.PORT || 3000;
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Serveur en ligne sur le port ${port}`);
 });
