@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kolwaz Shop - Votre Boutique en Ligne</title>
+  <style>
+   /* Global */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #F4F7FA;
+      color: #333;
+      line-height: 1.6;
+      opacity: 0;
+      animation: fadeIn 1s forwards;
+    }
+    a { text-decoration: none; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* En-tête supérieur */
+    .top-header {
+      background-color: #131921;
+      color: #fff;
+      padding: 15px 20px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .top-header .logo {
+      font-size: 27px;
+      font-weight: bold;
+      color: #febd69;
+    }
+
+    /* Barre de recherche centrée */
+    .search-bar-container {
+      background-color: #fff;
+      padding: 20px 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .search-container {
+      display: inline-flex;
+      width: 90%;
+      max-width: 500px;
+    }
+    .search-container input {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-right: none;
+      border-radius: 5px 0 0 5px;
+      font-size: 16px;
+      transition: border 0.3s;
+    }
+    .search-container input:focus {
+      border-color: #febd69;
+      outline: none;
+    }
+    .search-container button {
+      padding: 10px 15px;
+      border: 2px solid #febd69;
+      background-color: #febd69;
+      color: #111;
+      font-weight: bold;
+      border-radius: 0 5px 5px 0;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .search-container button:hover {
+      background-color: #f8a94b;
+    }
+
+    /* Boutons d'authentification */
+    .auth-buttons {
+      position: absolute;
+      top: 100px;
+      right: 10px;
+    }
+    .auth-buttons .btn {
+      padding: 10px 20px;
+      margin-right: 10px;
+      background-color: orange;
+      color: white;
+      text-decoration: none;
+      border-radius: 20px;
+      font-size: 14px;
+    }
+    .auth-buttons .btn:hover {
+      background-color: darkorange;
+    }
+
+    /* Navigation principale */
+    .navbar {
+      background-color: #232f3e;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .navbar a {
+      color: #fff;
+      margin: 0 20px;
+      font-size: 16px;
+      font-weight: bold;
+      transition: color 0.3s;
+      position: relative;
+    }
+    .navbar a:hover { color: #febd69; }
+    /* Badge compteur sur le Panier */
+    #cartCount {
+      position: absolute;
+      top: -5px;
+      right: -10px;
+      background-color: red;
+      color: white;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 10px;
+    }
+
+    /* Boutons de catégories */
+    .category-buttons {
+      background-color: #232f3e;
+      padding: 10px 0;
+      text-align: center;
+    }
+    .category-buttons button {
+      background-color: transparent;
+      color: #fff;
+      padding: 8px 15px;
+      margin: 0 10px;
+      font-size: 12px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .category-buttons button:hover {
+      background-color: #febd69;
+      color: #232f3e;
+    }
+
+    /* Section Produits */
+    main section {
+      background-color: #f8d7db;
+      padding: 40px 0;
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 100%;
+      padding: 20px;
+    }
+    .grid-item {
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 300px;
+      transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
+    }
+    .grid-item:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+    .grid-item img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 5px;
+      transition: transform 0.3s ease;
+      word-wrap: break-word;
+    }
+    .grid-item img:hover { transform: scale(1.05); }
+    .grid-item .product-name {
+      font-size: 14px;
+      font-weight: bold;
+      margin-top: auto;
+    }
+    .grid-item .product-price {
+      font-size: 12px;
+      color: #ff9900;
+      font-weight: bold;
+    }
+    .grid-item button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background-color 0.3s;
+    }
+    .grid-item .add-to-cart {
+      background-color: #ff9900;
+      color: #fff;
+    }
+    .grid-item .add-to-cart:hover { background-color: #e68a00; }
+    /* Bouton Détail transparent */
+    .grid-item .details-button {
+      background: transparent;
+      border: 1px solid #007bff;
+      color: #007bff;
+      border-radius: 5px;
+      padding: 8px 12px;
+      margin-left: 5px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .grid-item .details-button:hover {
+      background-color: #007bff;
+      color: #fff;
+    }
+
+    /* Section de détail intégrée */
+    #detailSection {
+      display: none;
+      padding: 20px;
+      background-color: #fff;
+      margin: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .detail-main {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .detail-photo,
+    .detail-info {
+      flex: 1;
+      min-width: 300px;
+    }
+    .detail-photo img {
+      width: 100%;
+      border-radius: 8px;
+    }
+    .detail-info h1 {
+      margin-top: 0;
+    }
+    .similar-products {
+      margin-top: 30px;
+    }
+    .similar-products h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    .similar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+    }
+    .similar-item {
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .similar-item:hover {
+      transform: scale(1.05);
+    }
+    .similar-item img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+    .action-buttons-detail {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .action-buttons-detail a {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: orange;
+      color: white;
+      text-decoration: none;
+      border-radius: 20px;
+      font-size: 16px;
+      margin: 0 10px;
+      transition: background-color 0.3s;
+    }
+    .action-buttons-detail a:hover {
+      background-color: darkorange;
+    }
+
+    /* Pied de page */
+    footer {
+      position: relative;
+      margin-top: 40px;
+      background-color: #131921;
+      color: #fff;
+      padding: 40px 20px;
+      font-size: 14px;
+    }
+    .footer-container {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .footer-column {
+      flex: 1;
+      min-width: 250px;
+      margin: 10px;
+    }
+    .footer-column h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+    .footer-column p {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .footer-bottom {
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      padding-top: 10px;
+    }
+
+    /* Toaster Notification */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 14px;
+      display: none;
+      z-index: 1000;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .notification.show { display: block; opacity: 1; }
+
+    /* Adaptation pour petits écrans */
+    @media (max-width: 600px) {
+      .search-container { width: 90%; }
+      .navbar a { margin: 0 10px; font-size: 14px; }
+      .grid-container { padding: 10px; }
+      .grid-item { height: auto; }
+      .detail-main { flex-direction: column; }
+      .auth-buttons { top: 50px; right: 5px; }
+    }
+    .new-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: #ff0000;
+      color: #fff;
+      padding: 5px 10px;
+      font-size: 0.8em;
+      border-radius: 5px;
+    }
+    .senegal-flag {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 50px;
+    }
+    .senegal-flag img {
+      width: 100%;
+      height: auto;
+    }
+    .location-indicator {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+    }
+    .location-indicator img {
+      width: 40px;
+      height: auto;
+    }
+    .location-text {
+      display: flex;
+      align-items: center;
+      color: white;
+    }
+    .location-text i {
+      color: white;
+      margin-right: 5px;
+    }
+    .filter-button {
+      position: absolute;
+      top: 100px;
+      left: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+    .filter-button:hover {
+      background-color: #0056b3;
+    }
+    .popular-products {
+      margin-top: 0;
+      padding: 20px;
+      position: relative;
+      top: 0;
+    }
+    .popular-carousel {
+      display: flex;
+      overflow-x: auto;
+      gap: 20px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    .popular-item {
+      flex: 0 0 auto;
+      width: 200px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      background-color: #f9f9f9;
+    }
+    .popular-item img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+    .popular-item p {
+      font-size: 16px;
+      color: #333;
+    }
+    .badge {
+      background-color: #ff9800;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 14px;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+    }
+  </style>
+</head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<body>
+<div class="location-indicator">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/f/fd/Flag_of_Senegal.svg" alt="Drapeau du Sénégal">
+    <span class="location-text">
+        <i class="fas fa-map-marker-alt"></i> Sénégal
+    </span>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</div>
+  <!-- En-tête -->
+  <header>
+    <div class="top-header">
+      <div class="logo">KOLWAZSHOP SENEGAL.DAKAR</div>
+    </div>
+    <div class="search-bar-container">
+      <div class="search-container">
+        <input type="text" id="searchBox" placeholder="Rechercher un produit...">
+        <button id="searchBtn">Rechercher</button>
+        <button class="filter-button" onclick="filterCheapProducts()">Produits vendus moins de 10 000 FCFA</button>
+      </div>
+    </div>
+    <div class="auth-buttons">
+      <a href="/espace-vendeur" class="btn">Créer un compte</a>
+      <a href="/espace-vendeur" class="btn">Se connecter</a>
+    </div>
+    <!-- Navigation principale -->
+    <nav class="navbar">
+      <a href="/">🏠 accueil</a>
+      <a href="/espace-vendeur">🛠️ Espace vendeur</a>
+      <a href="/panier" style="position: relative;">🛒 Panier<span id="cartCount">0</span></a>
+      <a href="/Administrateur">Administrateur</a>
+    </nav>
+  </header>
+  
+  <!-- Boutons de catégories -->
+  <div class="category-buttons">
+    <button class="category-button" data-category="Tous">Tous</button>
+    <button class="category-button" data-category="Homme">Homme</button>
+    <button class="category-button" data-category="Femme">Femme</button>
+    <button class="category-button" data-category="Garçon">Garçon</button>
+    <button class="category-button" data-category="Fille">Fille</button>
+    <button class="category-button" data-category="Bébé">Bébé</button>
+    <button class="category-button" data-category="Enfant">Enfant</button>
+    <button class="category-button" data-category="Sport">Sport</button>
+    <button class="category-button" data-category="Livres">Livres</button>
+    <button class="category-button" data-category="Matériels">Matériels</button>
+    <button class="category-button" data-category="Cosmétique">Cosmétique</button>
+    <button class="category-button" data-category="Accessoires">Accessoires</button>
+    <button class="category-button" data-category="Electronique">Electronique</button>
+  </div>
+  
+  <!-- Section Produits -->
+  <main>
+     <div class="popular-products">
+    <h2>Top 10 Produits Populaires</h2>
+    <div class="popular-carousel" id="popularProducts"></div>
+    </div>
+    <section>
+      <h2 style="text-align: center; margin-top: 20px; font-size: 28px; font-weight: bold; color: #333;">la livraison est gratuite</h2>
+      <div id="productGrid" class="grid-container"></div>
+    </section>
+    <!-- Section de Détail du Produit (cachée par défaut) -->
+    <div id="detailSection">
+      <div class="detail-main">
+        <div class="detail-photo">
+          <img id="detailImage" src="" alt="Photo du produit">
+        </div>
+        <div class="detail-info">
+          <h1 id="detailName">Nom du produit</h1>
+          <p id="detailDescription">Description du produit...</p>
+          <p><strong>Prix :</strong> <span id="detailPrice"></span> FCFA</p>
+          <p><strong>Vendeur :</strong> <span id="detailSeller"></span></p>
+        </div>
+      </div>
+      <div class="similar-products">
+        <h2>Produits similaires</h2>
+        <div class="similar-grid" id="similarGrid">
+          <!-- Les produits similaires seront insérés ici -->
+        </div>
+      </div>
+ <!-- Boutons d'action dans la vue détail -->
+<div class="action-buttons-detail">
+  <a href="#" onclick="hideDetailSection(); return false;">Retourner</a>
+  <a href="#" onclick="orderProduct(this); return false;">Commander</a>
+</div>
+
+<div id="review-container">
+  <h3>Donnez votre avis</h3>
+  <form id="review-form">
+    <input type="text" id="review-name" placeholder="Votre nom" required>
+    <div class="rating-container">
+      <label for="review-rating">Notez le produit :</label>
+      <select id="review-rating" required>
+        <option value="">Choisissez une note</option>
+        <option value="1">1 étoile</option>
+        <option value="2">2 étoiles</option>
+        <option value="3">3 étoiles</option>
+        <option value="4">4 étoiles</option>
+        <option value="5">5 étoiles</option>
+      </select>
+    </div>
+    <textarea id="review-comment" placeholder="Votre avis" required></textarea>
+    <button type="button" id="submit-review">Envoyer</button>
+  </form>
+  <div id="review-section">
+    <!-- Les avis clients s'afficheront ici -->
+  </div>
+</div>>
+  </div>
+</div>
+  </main>
+  
+  <!-- Pied de page -->
+  <footer>
+    <div class="footer-container">
+      <div class="footer-column about">
+        <h3>À propos de Kolwaz Shop</h3>
+        <p>Kolwaz Shop est votre boutique en ligne de confiance offrant des produits de qualité et un service exceptionnel. Découvrez notre vaste gamme et profitez d'une expérience d'achat inégalée.</p>
+        <h3>Comment commander</h3>
+        <p>1. Parcourez nos produits et sélectionnez vos coups de cœur.</p>
+        <p>2. Ajoutez-les à votre panier et vérifiez votre commande.</p>
+        <p>3. Passez commande et patientez, la livraison est gratuite.</p>
+        <p>4. Suivez votre commande en temps réel et profitez de votre achat.</p>
+      </div>
+      <div class="footer-column links">
+        <h3>Liens rapides</h3>
+        <ul>
+          <li><a href="/">Accueil</a></li>
+          <li><a href="/espace-vendeur">Espace vendeur</a></li>
+          <li><a href="/panier">Panier</a></li>
+          <li><a href="/Administrateur">Administrateur</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-column contact">
+        <h3>Comment devenir vendeur chez Kolwazshop</h3>
+        <p>Inscription et Création de Compte :</p>
+        <p>Rendez-vous sur le site de KolwazShop.</p>
+        <p>Cliquez sur "Inscription" et remplissez le formulaire avec vos informations personnelles.</p>
+        <p>Vous recevrez un e-mail de confirmation dans les 30 minutes pour activer votre compte.</p>
+        <h3>Contact</h3>
+        <p>Email : kolwazshop@gmail.com</p>
+        <p>Téléphone :</p>
+        <p>Adresse : Dakar, Sénégal</p>
+      </div>
+      <div class="footer-column social">
+        <h3>Suivez-nous</h3>
+       <ul class="social-icons" style="display: flex; list-style: none; gap: 10px;">
+    <!-- Facebook -->
+    <li>
+        <a href="#" aria-label="Facebook">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.675 0h-21.35C.597 0 0 .597 0 1.325v21.351C0 23.403.597 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.894-4.787 4.658-4.787 1.325 0 2.462.099 2.794.143v3.24l-1.917.001c-1.504 0-1.796.714-1.796 1.764v2.312h3.592l-.467 3.622h-3.125V24h6.127c.728 0 1.325-.597 1.325-1.324V1.325C24 .597 23.403 0 22.675 0z"/>
+            </svg>
+        </a>
+    </li>
+    <!-- Twitter -->
+    <li>
+        <a href="#" aria-label="Twitter">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                <path d="M23.954 4.569c-.885.394-1.83.657-2.825.775 1.014-.611 1.794-1.574 2.163-2.723-.95.555-2.005.959-3.127 1.184-.897-.957-2.173-1.555-3.591-1.555-2.717 0-4.92 2.203-4.92 4.917 0 .39.045.765.127 1.125-4.09-.205-7.719-2.165-10.148-5.144-.424.722-.666 1.56-.666 2.476 0 1.71.87 3.213 2.188 4.096-.807-.026-1.566-.248-2.229-.616v.061c0 2.385 1.693 4.374 3.946 4.828-.413.111-.849.171-1.296.171-.317 0-.626-.03-.927-.086.631 1.956 2.462 3.38 4.63 3.423-1.7 1.328-3.839 2.115-6.165 2.115-.4 0-.79-.023-1.17-.067 2.196 1.41 4.808 2.23 7.616 2.23 9.142 0 14.307-7.721 14.307-14.417 0-.22-.005-.437-.014-.653.982-.71 1.834-1.597 2.507-2.61z"/>
+            </svg>
+        </a>
+    </li>
+    <!-- Instagram -->
+    <li>
+        <a href="#" aria-label="Instagram">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2.163c3.204 0 3.584.012 4.849.07 1.366.062 2.633.327 3.608 1.302.975.975 1.24 2.242 1.302 3.608.058 1.265.069 1.645.069 4.849s-.012 3.584-.07 4.849c-.062 1.366-.327 2.633-1.302 3.608-.975.975-2.242 1.24-3.608 1.302-1.265.058-1.645.069-4.849.069s-3.584-.012-4.849-.07c-1.366-.062-2.633-.327-3.608-1.302-.975-.975-1.24-2.242-1.302-3.608-.058-1.265-.069-1.645-.069-4.849s.012-3.584.07-4.849c.062-1.366.327-2.633 1.302-3.608.975-.975 2.242-1.24 3.608-1.302 1.265-.058 1.645-.069 4.849-.069M12 0C8.741 0 8.332.012 7.052.07 5.746.128 4.57.354 3.527 1.394 2.485 2.434 2.26 3.609 2.202 4.915 2.144 6.195 2.132 6.604 2.132 9.863s.012 3.668.07 5.948c.058 1.306.283 2.481 1.325 3.521 1.042 1.041 2.217 1.266 3.521 1.325 1.28.058 1.689.07 4.948.07s3.668-.012 4.948-.07c1.306-.058 2.481-.283 3.521-1.325 1.041-1.042 1.266-2.217 1.325-3.521.058-1.28.07-1.689.07-4.948s-.012-3.668-.07-4.948c-.058-1.306-.283-2.481-1.325-3.521C19.766.354 18.591.128 17.285.07 16.005.012 15.595 0 12 0zm0 5.838c-3.408 0-6.162 2.754-6.162 6.162s2.754 6.162 6.162 6.162 6.162-2.754 6.162-6.162-2.754-6.162-6.162-6.162zm0 10.162c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm6.406-10.845c-.796 0-1.44.645-1.44 1.44s.645 1.44 1.44 1.44 1.44-.645 1.44-1.44-.645-1.44-1.44-1.44z"/>
+            </svg>
+        </a>
+    </li>
+</ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 Kolwaz Shop. Tous droits réservés.</p>
+      <p>&copy; Diasking.</p>
+    </div>
+  </footer>
+
+  <!-- Toaster notification -->
+  <div id="notification" class="notification"></div>
+  
+  <!-- Indicateur de chargement -->
+  <div id="loadingIndicator" style="display: none;">Chargement...</div>
+  <div id="productContainer"></div>
+  
+  <script>
+    let allProducts = [];
+    let cartCount = 0;
+    // Variable globale pour stocker le produit actuellement affiché en détail
+    let currentProduct = null;
+    
+    // Chargement des produits et initialisation des filtres dès le chargement de la page
+    window.onload = () => {
+      loadProducts();
+      setupCategoryFilters();
+      setupSearch();
+      setupSidebarFilters();
+    };
+
+    async function loadProducts() {
+      const loadingIndicator = document.getElementById('loadingIndicator');
+      const productContainer = document.getElementById('productContainer');
+      loadingIndicator.style.display = 'block';
+      productContainer.style.display = 'none';
+      try {
+        const response = await fetch('/api/products');
+        if (!response.ok) throw new Error('Erreur serveur');
+        const data = await response.json();
+        allProducts = data.products || [];
+        allProducts.forEach(product => {
+          product.detectedCategory = aiDetectCategory(product);
+        });
+        displayProducts(allProducts);
+      } catch (err) {
+        console.error("Erreur lors du chargement des produits:", err);
+      } finally {
+        loadingIndicator.style.display = 'none';
+        productContainer.style.display = 'block';
+      }
+    }
+function displayProducts(products) {
+  const productGrid = document.getElementById("productGrid");
+  productGrid.innerHTML = products.length
+    ? ""
+    : "<p style='text-align:center;'>Aucun produit publié pour le moment.</p>";
+  
+  products.forEach(product => {
+    const productItem = document.createElement("div");
+    productItem.className = 'grid-item';
+
+    let badgeHTML = '';
+    if (product.publishedAt) {
+      const publishedDate = new Date(product.publishedAt);
+      const now = new Date();
+      const diffTime = now - publishedDate;
+      const diffDays = diffTime / (1000 * 60 * 60 * 24);
+      if (diffDays < 7) {
+        badgeHTML = '<span class="new-badge">Nouveau</span>';
+      }
+    }
+
+    productItem.innerHTML =
+      `<div class="product-image-wrapper" style="position: relative;">
+         <img src="${product.imageUrl}" alt="${product.productName}" class="product-image">
+         ${badgeHTML}
+       </div>
+       <div class="product-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+         ${product.productName}
+       </div>
+       <div class="product-description" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+         ${product.description}
+       </div>
+       <div class="product-price">${product.price} FCFA</div>
+       <div style="margin-top: 10px;">
+         <button class="add-to-cart" onclick="addToCart('${product.productName}', ${product.price}, '${product.description}', '${product.imageUrl}', '${product.sellerEmail}', this)">Acheter</button>
+         <button class="details-button" onclick='showProductDetailView(${JSON.stringify(product)})'>Détail</button>
+       </div>`;
+    productGrid.appendChild(productItem);
+  });
+}
+
+function filterCheapProducts() {
+    const filteredProducts = allProducts.filter(product => product.price < 10000);
+    displayProducts(filteredProducts);
+}
+
+    // Recherche sur tous les produits
+    function setupSearch() {
+      const searchBtn = document.getElementById("searchBtn");
+      const searchBox = document.getElementById("searchBox");
+      searchBtn.addEventListener("click", () => {
+        const query = searchBox.value.trim().toLowerCase();
+        const filtered = allProducts.filter(product => {
+          return product.productName.toLowerCase().includes(query) ||
+                 (product.description && product.description.toLowerCase().includes(query)) ||
+                 (product.detectedCategory && product.detectedCategory.toLowerCase().includes(query));
+        });
+        displayProducts(filtered);
+      });
+      searchBox.addEventListener("keyup", (event) => {
+        if (event.key === "Enter") {
+          searchBtn.click();
+        }
+      });
+    }
+
+    // Mise en place des filtres par catégorie
+    function setupCategoryFilters() {
+      const buttons = document.querySelectorAll('.category-button');
+      buttons.forEach(button => {
+        button.addEventListener('click', () => {
+          const category = button.getAttribute('data-category');
+          if (category === 'Tous') {
+            displayProducts(allProducts);
+          } else {
+            const filtered = allProducts.filter(product => {
+              return product.detectedCategory.toLowerCase() === category.toLowerCase();
+            });
+            displayProducts(filtered);
+          }
+        });
+      });
+    }
+
+    // Fonction de détection de catégorie
+    function aiDetectCategory(product, chosenCategory) {
+      if (chosenCategory) {
+        return chosenCategory.toLowerCase();
+      }
+      const name = product.productName ? product.productName.toLowerCase() : '';
+      const description = product.description ? product.description.toLowerCase() : '';
+      const imageUrl = product.imageUrl ? product.imageUrl.toLowerCase() : '';
+      const categoriesKeywords = {
+        "Homme": ["homme", "men", "garçon", "costume", "habit", "veste", "pantalon", "chemise"],
+        "Femme": ["femme", "woman", "dame", "robe", "jupe", "blouse", "maquillage", "sac à main"],
+        "Garçon": ["garçon", "boy", "enfant garçon", "jeune homme", "ado garçon", "t-shirt garçon"],
+        "Fille": ["fille", "girl", "jeune fille", "ado fille", "robe fille", "jupe fille"],
+        "Bébé": ["bébé", "enfant", "nourrisson", "bambin"],
+        "Cosmétique": ["cosmétique", "makeup", "maquillage", "parfum", "soin"],
+        "Matériels": ["matériel", "outil", "machine"],
+        "Accessoires": ["accessoire", "sac", "ceinture", "montre", "bijoux", "lunettes"],
+        "Electronique": ["électronique", "smartphone", "ordinateur", "tablet", "tv", "caméra", "audio"],
+        "Livres": ["livre", "book", "roman", "manga", "bd", "bande dessinée", "éducation"],
+        "Sport": ["sport", "football", "basket", "tennis", "running", "fitness", "vélo", "musculation"]
+      };
+      for (const [category, keywords] of Object.entries(categoriesKeywords)) {
+        for (const keyword of keywords) {
+          if (name.includes(keyword) || description.includes(keyword) || imageUrl.includes(keyword)) {
+            return category;
+          }
+        }
+      }
+      return "Autres";
+    }
+
+    // Fonction pour ajouter au panier
+    function addToCart(name, price, description, imageUrl, sellerEmail, button) {
+      button.textContent = "Ajouté!";
+      button.disabled = true;
+      button.style.backgroundColor = "#28a745";
+      fetch('/api/add-to-cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, price, description, imageUrl, sellerEmail })
+      })
+      .then(response => response.ok ? response.json() : Promise.reject('Erreur API'))
+      .then(data => {
+        if (data.success) {
+          console.log("Produit ajouté au panier avec succès!");
+          cartCount++;
+          updateCartCount();
+        } else {
+          throw new Error("Erreur lors de l'ajout au panier");
+        }
+      })
+      .catch(err => {
+        console.error("Échec lors de l'ajout au panier:", err);
+        button.textContent = "Réessayer";
+        button.disabled = false;
+      });
+      showNotification(`${name} ajouté au panier!`);
+    }
+
+    function updateCartCount() {
+      document.getElementById("cartCount").textContent = cartCount;
+    }
+
+    // Affichage de la notification temporaire
+    function showNotification(message) {
+      const notification = document.getElementById("notification");
+      if (!notification) return;
+      notification.textContent = message;
+      notification.classList.add("show");
+      setTimeout(() => notification.classList.remove("show"), 3000);
+    }
+
+    // Affichage du détail du produit dans la section intégrée
+    function showProductDetailView(product) {
+      // Stocker le produit actuellement affiché
+      currentProduct = product;
+      // Masquer la grille de produits
+      document.getElementById("productGrid").style.display = "none";
+      // Afficher la section de détail
+      document.getElementById("detailSection").style.display = "block";
+      // Mettre à jour les informations du produit
+      document.getElementById("detailImage").src = product.imageUrl;
+      document.getElementById("detailImage").alt = product.productName;
+      document.getElementById("detailName").innerText = product.productName;
+      document.getElementById("detailDescription").innerText = product.description;
+      document.getElementById("detailPrice").innerText = product.price;
+      document.getElementById("detailSeller").innerText = product.sellerEmail || "Inconnu";
+      
+      // Filtrer et afficher des produits similaires (même catégorie, hors du produit sélectionné)
+      let similarProducts = allProducts.filter(p => p.detectedCategory === product.detectedCategory && p._id !== product._id);
+      displaySimilarProducts(similarProducts);
+    }
+
+    function displaySimilarProducts(products) {
+      const similarGrid = document.getElementById("similarGrid");
+      similarGrid.innerHTML = "";
+      if (products.length === 0) {
+        similarGrid.innerHTML = "<p>Aucun produit similaire trouvé.</p>";
+        return;
+      }
+      products.forEach(prod => {
+        const div = document.createElement("div");
+        div.className = "similar-item";
+        div.innerHTML = `<img src="${prod.imageUrl}" alt="${prod.productName}">
+                         <p>${prod.productName}</p>
+                         <p>${prod.price} FCFA</p>`;
+        div.onclick = function() {
+          showProductDetailView(prod);
+        }
+        similarGrid.appendChild(div);
+      });
+    }
+
+    // Fonction pour masquer la section de détail et revenir à la grille de produits
+    function hideDetailSection() {
+      document.getElementById("detailSection").style.display = "none";
+      document.getElementById("productGrid").style.display = "grid";
+    }
+
+    // Fonction pour le bouton Commander, qui ajoute le produit affiché au panier
+    function orderProduct(button) {
+      if (!currentProduct) return;
+      addToCart(
+        currentProduct.productName,
+        currentProduct.price,
+        currentProduct.description,
+        currentProduct.imageUrl,
+        currentProduct.sellerEmail,
+        button
+      );
+    }
+
+    // Filtrer les produits par mot-clé à partir de la sidebar (si présente)
+    function filterProductsByKeyword(keyword) {
+      const searchText = keyword.toLowerCase();
+      const filtered = allProducts.filter(product => {
+        return (product.productName && product.productName.toLowerCase().includes(searchText)) ||
+               (product.description && product.description.toLowerCase().includes(searchText)) ||
+               (product.detectedCategory && product.detectedCategory.toLowerCase().includes(searchText));
+      });
+      displayProducts(filtered);
+    }
+      document.addEventListener("DOMContentLoaded", function () {
+        let carousel = document.querySelector(".popular-carousel");
+        setInterval(() => {
+            carousel.scrollBy({ left: 200, behavior: "smooth" });
+            if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth) {
+                carousel.scrollTo({ left: 0, behavior: "smooth" });
+            }
+        }, 3000);
+    });
+// Fonction pour charger les avis d'un produit
+async function loadReviews(productId) {
+  try {
+    const response = await fetch(`/api/products/${productId}/reviews`);
+    const reviews = await response.json();
+    const reviewSection = document.getElementById("review-section");
+    if (reviews.length === 0) {
+      reviewSection.innerHTML = "<p>Aucun avis pour le moment.</p>";
+      return;
+    }
+    reviewSection.innerHTML = reviews.map(review => {
+      const stars = "★".repeat(review.rating) + "☆".repeat(5 - review.rating);
+      return `
+        <div class="review">
+          <p><strong>${review.userName}</strong> - ${stars}</p>
+          <p>${review.comment}</p>
+        </div>
+      `;
+    }).join("");
+  } catch (err) {
+    console.error("Erreur lors du chargement des avis:", err);
+  }
+}
+
+// Ajout de l'écouteur d'événement pour la soumission des avis
+document.getElementById("submit-review").addEventListener("click", async function () {
+  const userName = document.getElementById("review-name").value.trim();
+  const userRating = parseInt(document.getElementById("review-rating").value, 10);
+  const userComment = document.getElementById("review-comment").value.trim();
+
+  if (!userName || !userRating || !userComment) {
+    alert("Veuillez remplir tous les champs de l'avis.");
+    return;
+  }
+
+  // Envoi du nouvel avis vers le serveur
+  try {
+    const response = await fetch(`/api/products/${currentProduct._id}/reviews`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userName, rating: userRating, comment: userComment })
+    });
+    if (!response.ok) throw new Error("Erreur lors de l'enregistrement de l'avis");
+    // Rechargez les avis après envoi
+    loadReviews(currentProduct._id);
+    // Réinitialiser le formulaire
+    document.getElementById("review-form").reset();
+  } catch (err) {
+    console.error(err);
+    alert("Erreur lors de l'enregistrement de l'avis.");
+  }
+});
+
+// Mettez à jour votre fonction showProductDetailView pour charger les avis :
+function showProductDetailView(product) {
+  currentProduct = product;
+  document.getElementById("productGrid").style.display = "none";
+  document.getElementById("detailSection").style.display = "block";
+  document.getElementById("detailImage").src = product.imageUrl;
+  document.getElementById("detailImage").alt = product.productName;
+  document.getElementById("detailName").innerText = product.productName;
+  document.getElementById("detailDescription").innerText = product.description;
+  document.getElementById("detailPrice").innerText = product.price + " FCFA";
+  document.getElementById("detailSeller").innerText = product.sellerEmail || "Inconnu";
+  
+  // Charger les avis pour ce produit
+  loadReviews(product._id);
+  
+  let similarProducts = allProducts.filter(p => p.detectedCategory === product.detectedCategory && p._id !== product._id);
+  displaySimilarProducts(similarProducts);
+}
+    // Initialiser les filtres de la sidebar (si un tableau de filtres existe)
+    function setupSidebarFilters() {
+      const rows = document.querySelectorAll('#filterTable td');
+      rows.forEach(row => {
+        row.addEventListener('click', () => {
+          const keyword = row.textContent.trim();
+          filterProductsByKeyword(keyword);
+        });
+      });
+    }
+ document.addEventListener('DOMContentLoaded', function() {
+    loadPopularProducts();  // Charger les produits populaires dès le chargement de la page
+});
+
+async function loadPopularProducts() {
+    const response = await fetch("/api/products/popular");
+    const produits = await response.json();
+    const container = document.getElementById("popularProducts");
+
+    // Vérification s'il y a des produits populaires
+    if (produits.length === 0) {
+        container.innerHTML = "<p>Aucun produit populaire trouvé.</p>";
+        return;
+    }
+
+    // Affichage des produits populaires avec les bons champs
+    container.innerHTML = produits.map(produit => `
+        <div class="popular-item">
+            <span class="badge">Populaire</span>
+            <img src="${produit.imageUrl}" alt="${produit.productName}">
+            <p>${produit.productName}</p>
+            <p>${produit.price} FCFA</p>
+        </div>
+    `).join("");
+}
+  </script>
+</body>
+</html>

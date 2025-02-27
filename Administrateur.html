@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Kolwaz Shop</title>
+  <style>
+    /* Global */
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #131921;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    h1, h2, h3 {
+      margin: 0;
+    }
+    /* Formulaire de connexion */
+    #loginContainer {
+      max-width: 400px;
+      margin: 50px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    #loginContainer input {
+      width: 80%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    #loginContainer button {
+      padding: 10px 20px;
+      background: #131921;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #loginContainer button:hover {
+      background: #0f141a;
+    }
+    /* Statistiques */
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      margin: 20px;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .stats .box {
+      flex: 1;
+      margin: 10px;
+      padding: 20px;
+      background: #eaeaea;
+      text-align: center;
+      border-radius: 8px;
+      min-width: 200px;
+    }
+    .stats .box h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .stats .box p {
+      margin: 5px 0 0;
+      font-size: 16px;
+    }
+    /* Grid des produits */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      padding: 20px;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+    .product-card {
+      background: #fff;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    .product-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    .product-card .product-name {
+      font-size: 16px;
+      font-weight: bold;
+      margin: 10px 0 5px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .product-card .product-price {
+      font-size: 14px;
+      color: #ff9900;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .button-group {
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+    }
+    .btn-detail, .btn-delete {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      flex: 1;
+    }
+    .btn-detail {
+      background: #3498db;
+      color: #fff;
+      margin-right: 5px;
+    }
+    .btn-detail:hover {
+      background: #2980b9;
+    }
+    .btn-delete {
+      background: #e74c3c;
+      color: #fff;
+      margin-left: 5px;
+    }
+    .btn-delete:hover {
+      background: #c0392b;
+    }
+    .badge-new {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #27ae60;
+      color: #fff;
+      padding: 5px;
+      border-radius: 4px;
+      font-size: 0.8em;
+    }
+    /* Modal de suppression */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background: #fff;
+      margin: 15% auto;
+      padding: 20px;
+      width: 400px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .modal-content h3 {
+      margin-top: 0;
+    }
+    .modal-content textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      resize: vertical;
+    }
+    .modal-content .btn-group {
+      text-align: right;
+    }
+    .modal-content button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    .modal-content .cancel-btn {
+      background: #aaa;
+      color: #fff;
+    }
+    .modal-content .confirm-btn {
+      background: #27ae60;
+      color: #fff;
+    }
+    
+  </style>
+</head>
+<body>
+  <!-- Formulaire de connexion -->
+  <div id="loginContainer">
+    <h2>Accès Administrateur</h2>
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="Nom" required>
+      <input type="password" id="password" placeholder="Mot de passe" required>
+      <button type="submit">Se connecter</button>
+    </form>
+  </div>
+  
+  <!-- Contenu Administrateur (affiché après connexion) -->
+  <div id="adminContent" style="display:none;">
+    <header>
+      <h1>Page Administrateur - Kolwaz Shop</h1>
+    </header>
+    
+    <!-- Statistiques -->
+    <div class="stats">
+      <div class="box">
+        <h2 id="orderCount">0</h2>
+        <p>Commandes cette semaine</p>
+      </div>
+      <div class="box">
+        <h2 id="registrationCount">0</h2>
+        <p>Inscriptions cette semaine</p>
+      </div>
+      <div class="box">
+        <h2 id="weeklyProductCount">0</h2>
+        <p>Produits publiés cette semaine</p>
+      </div>
+      <div class="box">
+        <h2 id="activeProductCount">0</h2>
+        <p>Produits actifs sur le site</p>
+      </div>
+      <div class="box">
+        <h2 id="newProductsLast30Days">0</h2>
+        <p>Nouveaux produits (30 derniers jours)</p>
+      </div>
+      <div class="box">
+        <h2 id="totalSalesThisMonth">0</h2>
+        <p>Ventes totales ce mois-ci</p>
+      </div>
+    </div>
+    <div id="detailModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close" onclick="closeDetailModal()">&times;</span>
+    <h2 id="detailProductName">Nom du Produit</h2>
+    <img id="detailProductImage" src="" alt="Image du produit">
+    <p id="detailProductPrice">Prix</p>
+    <p id="detailProductDescription">Description</p>
+  </div>
+</div>
+    
+    <!-- Grid des produits -->
+    <div id="productGrid" class="product-grid"></div>
+
+    <!-- Modal de suppression -->
+    <div id="deleteModal" class="modal">
+      <div class="modal-content">
+        <h3>Supprimer le produit</h3>
+        <textarea id="deleteReason" placeholder="Motif de suppression"></textarea>
+        <div class="btn-group">
+          <button class="cancel-btn" onclick="closeModal()">Annuler</button>
+          <button class="confirm-btn" onclick="confirmDelete()">Supprimer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Variable globale pour la suppression
+    window.productToDelete = null;
+
+    function openModal(productId) {
+      console.log("Ouverture de la modal pour le produit :", productId);
+      window.productToDelete = productId;
+      document.getElementById("deleteModal").style.display = "block";
+    }
+
+    function closeModal() {
+      document.getElementById("deleteModal").style.display = "none";
+      window.productToDelete = null;
+      document.getElementById("deleteReason").value = "";
+    }
+
+   function confirmDelete() {
+  const reason = document.getElementById("deleteReason").value.trim();
+  if (!reason) {
+    alert("Veuillez entrer un motif de suppression.");
+    return;
+  }
+  console.log("Suppression du produit :", window.productToDelete, "pour le motif :", reason);
+  
+  fetch(`/api/product/${window.productToDelete}`, { 
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reason: reason })
+  })
+    .then(response => response.json())
+    .then(data => {
+      console.log("Réponse de la suppression :", data);
+      if (data.message) {
+        alert(data.message);
+        // Retirer la carte correspondante du DOM
+        const grid = document.getElementById("productGrid");
+        const card = grid.querySelector(`[data-id="${window.productToDelete}"]`);
+        if (card) card.remove();
+      } else {
+        alert("Erreur lors de la suppression du produit.");
+      }
+      closeModal();
+    })
+    .catch(error => {
+      console.error("Erreur lors de la suppression du produit:", error);
+      alert("Erreur lors de la suppression du produit.");
+      closeModal();
+    });
+}
+
+    function showProductDetail(productId) {
+      console.log("Fonction showProductDetail appelée pour :", productId);
+      // Implémentez ici l'affichage détaillé du produit (modal, redirection, etc.)
+    }
+
+    function fetchProducts() {
+      console.log("Début de la récupération des produits...");
+      fetch('/api/products')
+        .then(response => response.json())
+        .then(data => {
+          console.log("Données reçues :", data);
+          // Utiliser data.products si la réponse est un objet ; sinon, considérer data comme le tableau
+          const products = Array.isArray(data) ? data : data.products;
+          console.log("Tableau de produits :", products);
+          
+          if (Array.isArray(products)) {
+            const grid = document.getElementById("productGrid");
+            grid.innerHTML = ""; // Réinitialiser la grille
+            const now = new Date();
+            products.forEach(product => {
+              // Utilisation de product.productName au lieu de product.name
+              const productName = product.productName || "Produit sans nom";
+              const productDate = new Date(product.createdAt || product.date);
+              const diffHours = (now - productDate) / (1000 * 60 * 60);
+              const isNew = diffHours <= 48;
+              const card = document.createElement("div");
+              card.className = "product-card";
+              card.setAttribute("data-id", product._id);
+              card.innerHTML = `
+                <img src="${product.imageUrl || 'default-image.jpg'}" alt="${productName}">
+                <div class="product-name">${productName}</div>
+                <div class="product-price">${product.price} FCFA</div>
+                <div class="button-group">
+                  <button class="btn-detail" onclick="showProductDetail('${product._id}')">Détail</button>
+                  <button class="btn-delete" onclick="openModal('${product._id}')">Supprimer</button>
+                </div>
+              `;
+              if (isNew) {
+                const badge = document.createElement("span");
+                badge.className = "badge-new";
+                badge.innerText = "Nouveau";
+                card.appendChild(badge);
+              }
+              grid.appendChild(card);
+              console.log("Carte ajoutée pour :", productName);
+            });
+          } else {
+            console.error("Le format des produits n'est pas celui attendu :", data);
+          }
+        })
+        .catch(error => {
+          console.error("Erreur lors du chargement des produits:", error);
+          alert("Erreur lors du chargement des produits.");
+        });
+    }
+
+    function fetchAdminStats() {
+      console.log("Début de la récupération des statistiques...");
+      fetch('/api/stats')
+        .then(response => response.json())
+        .then(data => {
+          console.log("Statistiques mises à jour :", data);
+          document.getElementById("orderCount").innerText = data.ordersThisWeek || 0;
+          document.getElementById("registrationCount").innerText = data.usersThisWeek || 0;
+          document.getElementById("weeklyProductCount").innerText = data.productsThisWeek || 0;
+          document.getElementById("activeProductCount").innerText = data.activeProducts || 0;
+          document.getElementById("newProductsLast30Days").innerText = data.newProductsLast30Days || 0;
+          document.getElementById("totalSalesThisMonth").innerText = data.totalSalesThisMonth || 0;
+        })
+        .catch(error => {
+          console.error("Erreur lors du chargement des statistiques:", error);
+          alert("Erreur lors du chargement des statistiques.");
+        });
+    }
+
+    window.onload = function() {
+      document.getElementById("loginForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+        // Vérification simple pour l'exemple (à remplacer par une vérification sécurisée)
+        if (username === "Diabaldieyedieye" && password === "78902412105102002@à") {
+          document.getElementById("loginContainer").style.display = "none";
+          document.getElementById("adminContent").style.display = "block";
+          fetchProducts();
+          fetchAdminStats();
+        } else {
+          alert("Identifiants incorrects");
+        }
+      });
+    };
+  </script>
+</body>
+</html>
