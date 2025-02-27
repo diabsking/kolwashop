@@ -6,7 +6,7 @@ const moment = require('moment'); // Si tu n'as pas déjà installé Moment.js, 
 // Fonction pour supprimer les comptes non vérifiés après expiration du token
 exports.deleteUnverifiedAccounts = async () => {
   try {
-    const expirationDate = new Date(Date.now() - 59 * 60 * 1000);  // Token expiré après 5 minutes
+    const expirationDate = new Date(Date.now() - 15 * 60 * 1000);  // Token expiré après 5 minutes
     const unverifiedSellers = await Seller.find({ verified: false, createdAt: { $lt: expirationDate } });
 
     if (unverifiedSellers.length > 0) {
@@ -27,7 +27,7 @@ const transporter = nodemailer.createTransport({
   secure: true,
   auth: {
     user: 'kolwazshopp@mailo.com',   // Remplacez par votre identifiant Mailo
-    pass:   "1O0C4HbGFMSw", 
+    pass:   process.env.MAILO_PASSWORD || "1O0C4HbGFMSw"
   }
 });
 
@@ -55,15 +55,42 @@ exports.signup = async (req, res) => {
    const verificationLink = `http://localhost:3000/api/sellers/verify?token=${token}`;
     
     // Essayer d'envoyer l'email de validation
-   await transporter.sendMail({
-  from: '"Kolwaz Shop" <kolwazshopp@mailo.com>',
+  await transporter.sendMail({
+  from: 'kolwazshopp@mailo.com',
   to: email,
-  subject: "Validation de votre compte vendeur",
-  text: `Bonjour ${name},\n\nMerci de vous être inscrit sur Kolwaz Shop.\nVeuillez cliquer sur le lien suivant pour valider votre compte (lien valable 15 minutes) : ${verificationLink}\n\nCordialement,\nL'équipe Kolwaz Shop`,
+  subject: "Validation de votre compte vendeur - Règles du site",
+  text: `Bonjour ${name},
+
+Merci de vous être inscrit sur Kolwaz Shop.
+
+Pour valider votre compte, veuillez cliquer sur le lien suivant (lien valable 15 minutes) : ${verificationLink}
+
+Règles du site :
+- La livraison est effectuée par le vendeur gratuitement pour attirer les clients.
+- Un produit reste actif pendant 45 jours sur notre plateforme.
+- Vous recevrez vos commandes directement par email et vous serez responsable de leur gestion avec vos clients.
+- Vous êtes autonome dans la gestion de votre compte vendeur.
+- Il est impératif de publier des photos claires et de rédiger une description précise et complète de vos produits. En cas de manquement, l'équipe Kolwaz Shop se réserve le droit de supprimer votre annonce.
+- Respectez vos engagements de livraison et offrez un service client de qualité.
+
+Nous vous invitons à consulter nos Conditions Générales d'Utilisation pour plus de détails.
+
+Cordialement,
+L'équipe Kolwaz Shop`,
   html: `<p>Bonjour ${name},</p>
          <p>Merci de vous être inscrit sur Kolwaz Shop.</p>
-         <p>Veuillez cliquer sur le lien suivant pour valider votre compte (lien valable 24h) :</p>
+         <p>Pour valider votre compte, veuillez cliquer sur le lien suivant (lien valable 24h) :</p>
          <a href="${verificationLink}">Valider mon compte</a>
+         <h3>Règles du site</h3>
+         <ul>
+           <li>La livraison est effectuée par le vendeur gratuitement pour attirer les clients.</li>
+           <li>Un produit reste actif pendant 45 jours sur notre plateforme.</li>
+           <li>Vous recevrez vos commandes directement par email et vous serez responsable de leur gestion avec vos clients.</li>
+           <li>Vous êtes autonome dans la gestion de votre compte vendeur.</li>
+           <li>Il est impératif de publier des photos claires et de rédiger une description précise et complète. En cas de manquement, l'équipe Kolwaz Shop pourra supprimer votre annonce.</li>
+           <li>Respectez vos engagements de livraison et offrez un service client de qualité.</li>
+         </ul>
+         <p>N'hésitez pas à consulter nos <a href="URL_conditions">Conditions Générales d'Utilisation</a> pour plus de détails.</p>
          <p>Cordialement,<br>L'équipe Kolwaz Shop</p>`
 })
 .then(() => {
@@ -128,7 +155,7 @@ exports.login = async (req, res) => {
     }
 
     // Générer un token de session (valable 5 minutes)
-    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '59' });
     res.status(200).json({ message: "Connexion réussie.", token });
   } catch (error) {
     console.error("Erreur lors de la connexion :", error);
