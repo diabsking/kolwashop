@@ -25,8 +25,6 @@ app.use(session({
   saveUninitialized: true
 }));
 
-const reviewRoutes = require('./reviewRoutes');
-
 // Importer la route de récupération de compte
 const recoveryRoutes = require('./recoveryRoutes'); // chemin à adapter
 app.use(recoveryRoutes);
@@ -101,8 +99,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use("/api/sellers", sellerRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
-
-app.use(reviewRoutes);
 
 
 // Exemple d'une route utilisant le modèle Order
