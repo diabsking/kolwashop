@@ -10,7 +10,6 @@ const jwt = require("jsonwebtoken");
 const path = require("path");
 const cron = require("node-cron");
 const nodemailer = require("nodemailer");
-const statRoutes = require('./routes/statsRoutes');
 
 // Initialisation de l'application Express
 const app = express();
