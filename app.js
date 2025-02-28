@@ -24,12 +24,6 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
-
-// Importer la route de récupération de compte
-const recoveryRoutes = require('./recoveryRoutes'); // chemin à adapter
-app.use(recoveryRoutes);
-
-
 // Configuration de Mongoose
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
