@@ -14,7 +14,7 @@ const statRoutes = require('./routes/statsRoutes');
 
 // Initialisation de l'application Express
 const app = express();
-app.use('/api/admin', statRoutes);
+
 
 // Configuration des middlewares
 app.use(express.json());
@@ -77,7 +77,6 @@ const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const { cleanExpiredProducts } = require("./scheduler/cleanup");
 const sellerController = require('./controllers/sellerController');
-const statsRoutes = require('./routes/statsRoutes');
 
 // Définition des routes pour les pages statiques
 app.get("/", (req, res) => {
