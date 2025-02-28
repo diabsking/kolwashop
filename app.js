@@ -11,7 +11,6 @@ const path = require("path");
 const cron = require("node-cron");
 const nodemailer = require("nodemailer");
 const Order = require("./models/Order");
-const seller = require("./models/seller");
 
 
 // Initialisation de l'application Express
