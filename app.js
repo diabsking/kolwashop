@@ -34,11 +34,39 @@ app.use(recoveryRoutes);
 
 
 // Configuration de Mongoose
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => console.log('✅ Connexion à MongoDB Atlas réussie'))
-  .catch(err => console.error('❌ Erreur de connexion à MongoDB Atlas', err));
+const { MongoClient, ServerApiVersion } = require('mongodb');
+
+const uri = "mongodb+srv://dieyediabal75:LVwdyX7Q1j0edm9o@kolwazshop.sb976.mongodb.net/?retryWrites=true&w=majority&appName=kolwazshop";
+
+// Crée une instance de MongoClient
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+
+async function run() {
+  try {
+    // Connexion au serveur MongoDB Atlas
+    await client.connect();
+    console.log("Connexion réussie à MongoDB!");
+
+    // Vérifier la connexion avec un ping
+    await client.db("admin").command({ ping: 1 });
+    console.log("Ping réussi!");
+
+  } catch (error) {
+    console.error("Erreur de connexion à MongoDB :", error);
+  } finally {
+    // Fermer la connexion après test
+    await client.close();
+  }
+}
+
+// Exécuter le test de connexion
+run().catch(console.dir);
 
 // Importation des modèles, middlewares et routes
 const Order = require("./models/Order");
@@ -49,6 +77,7 @@ const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const { cleanExpiredProducts } = require("./scheduler/cleanup");
 const sellerController = require('./controllers/sellerController');
+const statsRoutes = require('./routes/statsRoutes');
 
 // Définition des routes pour les pages statiques
 app.get("/", (req, res) => {
@@ -69,11 +98,6 @@ app.get("/Administrateur", (req, res) => {
 
 // Servir les fichiers statiques depuis le dossier 'public'
 app.use(express.static(path.join(__dirname, 'public')));
-
-// Dans ton fichier routes ou app.js
-app.get('/espace-vendeur', (req, res) => {
-  res.render('espaceVendeur');  // Affiche la page "Espace vendeur"
-});
 
 // Déclaration des routes d'API
 app.use("/api/sellers", sellerRoutes);
@@ -250,7 +274,7 @@ app.post('/api/deleteProduct', async (req, res) => {
 
     // Préparation de l'e-mail
     const mailOptions = {
-      from: '"Kolwaz Shop" <kolwazshopp@mailo.com>',
+      from: "kolwazshopp@mailo.com",
       to: sellerEmail,
       subject: `Suppression de votre produit (ID: ${productId})`,
       text: `Bonjour,
