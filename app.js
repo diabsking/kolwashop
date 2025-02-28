@@ -60,7 +60,7 @@ async function run() {
 run().catch(console.dir);
 
 // Importation des modèles, middlewares et routes
-const Order = require("./models/Order");
+const Order = require('./models/Order');
 const { isAuthenticated, isSeller, verifyToken } = require("./middlewares/authMiddleware");
 const { parseContentType } = require("./utils.js");
 const sellerRoutes = require("./routes/sellerRoutes");
