@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Panier - Kolwaz Shop</title>
+  <link href="https://fonts.googleapis.com/css?family=Poppins:400,600&display=swap" rel="stylesheet">
+  <style>
+    /* Styles généraux */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    /* Conteneur du panier */
+    #cartGrid {
+      max-width: 800px;
+      margin: 20px auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    .cart-item {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+    }
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+    .cart-image {
+      width: 80px;
+      border-radius: 4px;
+      margin-right: 20px;
+    }
+    .cart-item div {
+      flex: 1;
+      font-size: 16px;
+    }
+    .cart-item button {
+      background: #e74c3c;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+    .cart-item button:hover {
+      background: #c0392b;
+    }
+    #total {
+      text-align: right;
+      font-size: 18px;
+      font-weight: 600;
+      margin-top: 20px;
+      color: #333;
+    }
+    /* Boutons d'action */
+    .action-buttons {
+      text-align: center;
+      margin: 20px 0;
+    }
+    .action-buttons button {
+      background: #3498db;
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 4px;
+      margin: 0 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+    .action-buttons button:hover {
+      background: #2980b9;
+    }
+    /* Formulaire de commande */
+    #orderForm {
+      max-width: 400px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      display: none;
+    }
+    #orderForm h3 {
+      margin-top: 0;
+      text-align: center;
+    }
+    #orderForm input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    #orderForm button {
+      width: 100%;
+      background: #27ae60;
+      color: #fff;
+      border: none;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+    #orderForm button:hover {
+      background: #1e8449;
+    }
+    /* Notification */
+    #notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #28a745;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      display: none;
+      font-weight: 600;
+    }
+    .spinner {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border: 2px solid white;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+  </style>
+</head>
+<body>
+  <h1>Votre Panier</h1>
+  <div id="cartGrid"></div>
+  <div id="total"></div>
+
+  <div class="action-buttons">
+    <!-- Le bouton "Ajouter un produit" redirige vers la page produits -->
+    <button onclick="redirectToindex()">Ajouter un produit</button>
+    <button onclick="showOrderForm()">Commander</button>
+  </div>
+
+  <!-- Formulaire de commande -->
+  <form id="orderForm" onsubmit="event.preventDefault(); submitOrder();">
+    <h3>Passer commande</h3>
+    <input type="email" id="email" placeholder="Votre e-mail" required>
+    <input type="text" id="address" placeholder="Votre adresse" required>
+    <input type="text" id="phoneNumber" placeholder="Votre numéro de téléphone" required>
+    <button type="submit">Valider la commande</button>
+  </form>
+
+  <div id="notification"></div>
+
+  <script>
+let cartItems = [];
+
+// Charge le panier depuis le serveur
+async function loadCart() {
+  try {
+    const response = await fetch('/api/get-cart', { headers: { 'Content-Type': 'application/json' } });
+    const data = await response.json();
+    cartItems = data.cart;
+    
+    const cartGrid = document.getElementById('cartGrid');
+    if (cartItems.length === 0) {
+      cartGrid.innerHTML = '<p>Votre panier est vide.</p>';
+      document.getElementById('total').textContent = '';
+    } else {
+      let total = cartItems.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
+      cartGrid.innerHTML = cartItems.map((item, index) => 
+        `<div class="cart-item">
+          <img src="${item.imageUrl}" alt="${item.name}" class="cart-image">
+          <div>
+            <span>${item.name} - ${item.price} FCFA</span><br>
+            <span>Quantité: 
+              <button style="background-color: blue; color: white;" onclick="changeQuantity(${index}, -1)">-</button>
+              <span id="quantity-${index}">${item.quantity || 1}</span>
+              <button style="background-color: blue; color: white;" onclick="changeQuantity(${index}, 1)">+</button>
+            </span>
+            ${item.category === 'chaussure' ? 
+              `<br><label for="size-${index}">Taille :</label>
+              <select id="size-${index}" onchange="updateSize(${index}, this.value)">
+                ${[38, 39, 40, 41, 42, 43, 44, 45].map(size => 
+                  `<option value="${size}" ${item.size === size ? 'selected' : ''}>${size}</option>`
+                ).join('')}
+              </select>` 
+            : ''}
+          </div>
+          <button onclick="removeFromCart(${index})">Supprimer</button>
+        </div>`
+      ).join('');
+      document.getElementById('total').textContent = `Total: ${total} FCFA`;
+    }
+  } catch (error) {
+    console.error('Erreur chargement panier:', error);
+  }
+}
+
+// Met à jour le total affiché dans le panier
+function updateTotal() {
+  let total = cartItems.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
+  document.getElementById('total').textContent = `Total: ${total} FCFA`;
+}
+
+// Modifie la quantité d'un produit
+async function changeQuantity(index, change) {
+  console.log(`Modification de la quantité de l'index ${index} de ${change}`);
+  
+  if (!cartItems[index]) {
+    console.error("Erreur: L'index du produit n'existe pas.");
+    return;
+  }
+  
+  const newQuantity = (cartItems[index].quantity || 1) + change;
+  
+  if (newQuantity > 0) {
+    cartItems[index].quantity = newQuantity;
+    // Mise à jour immédiate de l'affichage de la quantité
+    document.getElementById(`quantity-${index}`).textContent = newQuantity;
+    // Mise à jour immédiate du total
+    updateTotal();
+    // Mise à jour du panier côté serveur
+    await updateCartOnServer(cartItems);
+  }
+}
+
+// Met à jour la taille de la chaussure
+async function updateSize(index, size) {
+  cartItems[index].size = size;
+  await updateCartOnServer(cartItems);
+}
+
+// Supprime un produit du panier
+async function removeFromCart(index) {
+  const removedItem = cartItems.splice(index, 1)[0];
+  await updateCartOnServer(cartItems);
+  loadCart();
+  showNotification(`Produit "${removedItem.name}" supprimé du panier.`);
+}
+
+// Met à jour le panier côté serveur
+async function updateCartOnServer(cart) {
+  try {
+    const response = await fetch('/api/update-cart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cart })
+    });
+    if (!response.ok) {
+      throw new Error('Erreur lors de la mise à jour du panier sur le serveur.');
+    }
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du panier sur le serveur:", error);
+  }
+}
+
+// Redirige l'utilisateur vers la page index.html pour ajouter un produit
+function redirectToindex() {
+  window.location.href = 'index.html'; // Rediriger vers index.html
+}
+
+// Affiche le formulaire de commande
+function showOrderForm() {
+  document.getElementById("orderForm").style.display = "block";
+}
+
+// Soumet la commande
+async function submitOrder() {
+  const email = document.getElementById('email').value;
+  const address = document.getElementById('address').value;
+  const phoneNumber = document.getElementById('phoneNumber').value;
+  const submitButton = document.querySelector('#orderForm button[type="submit"]');
+
+  if (!email || !address || !phoneNumber) {
+    alert("Veuillez fournir votre e-mail, votre adresse et votre numéro de téléphone.");
+    return;
+  }
+
+  if (cartItems.length === 0) {
+    alert("Votre panier est vide.");
+    return;
+  }
+
+  // Désactiver le bouton et afficher le chargement
+  submitButton.disabled = true;
+  submitButton.innerHTML = 'Commande en cours... <span class="spinner"></span>';
+
+  try {
+    const response = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, address, phoneNumber, cartItems })
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur lors de la validation de la commande.');
+    }
+
+    // Confirmation de commande
+    showNotification("Commande validée !");
+    
+    // Réinitialisation du panier
+    cartItems = [];
+    await updateCartOnServer(cartItems);
+    loadCart();
+
+    // Réinitialisation des champs du formulaire
+    document.getElementById('email').value = '';
+    document.getElementById('address').value = '';
+    document.getElementById('phoneNumber').value = '';
+    document.getElementById("orderForm").style.display = "none";
+
+  } catch (error) {
+    console.error("Erreur lors de la validation de la commande :", error);
+    alert("Erreur lors de la validation de la commande.");
+  } finally {
+    // Réactiver le bouton et remettre son texte initial
+    submitButton.disabled = false;
+    submitButton.innerHTML = 'Valider la commande';
+  }
+}
+// Affiche une notification temporaire
+function showNotification(message) {
+  const notification = document.getElementById("notification");
+  notification.textContent = message;
+  notification.style.display = "block";
+  setTimeout(() => notification.style.display = "none", 3000);
+}
+
+window.onload = loadCart;
+  </script>
+</body>
+</html>
