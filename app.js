@@ -12,7 +12,6 @@ const cron = require("node-cron");
 const nodemailer = require("nodemailer");
 const Order = require("./models/Order");
 
-
 // Initialisation de l'application Express
 const app = express();
 
@@ -28,39 +27,12 @@ app.use(session({
 }));
 
 // Configuration de Mongoose
-const { MongoClient, ServerApiVersion } = require('mongodb');
-
-const uri = "mongodb+srv://dieyediabal75:LVwdyX7Q1j0edm9o@kolwazshop.sb976.mongodb.net/?retryWrites=true&w=majority&appName=kolwazshop";
-
-// Crée une instance de MongoClient
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-
-async function run() {
-  try {
-    // Connexion au serveur MongoDB Atlas
-    await client.connect();
-    console.log("Connexion réussie à MongoDB!");
-
-    // Vérifier la connexion avec un ping
-    await client.db("admin").command({ ping: 1 });
-    console.log("Ping réussi!");
-
-  } catch (error) {
-    console.error("Erreur de connexion à MongoDB :", error);
-  } finally {
-    // Fermer la connexion après test
-    await client.close();
-  }
-}
-
-// Exécuter le test de connexion
-run().catch(console.dir);
+mongoose.connect("mongodb://localhost:27017/kolwaz-shop", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log("Connexion réussie à MongoDB en local"))
+.catch((err) => console.log("Erreur de connexion à MongoDB:", err));
 
 // Importation des modèles, middlewares et routes
 const { isAuthenticated, isSeller, verifyToken } = require("./middlewares/authMiddleware");
