@@ -31,7 +31,7 @@ mongoose.connect('mongodb://tiny-jars-pump.loca.lt:27017/kolwazshop', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
-.then(() => console.log("Connexion réussie à MongoDB en local"))
+.then(() => console.log(« Connexion réussie à MongoDB en local »))
 .catch((err) => console.log("Erreur de connexion à MongoDB:", err));
 
 // Importation des modèles, middlewares et routes
