@@ -27,10 +27,10 @@ app.use(session({
 }));
 
 // Configuration de Mongoose
-mongoose.connect("mongodb://localhost:27017/kolwaz-shop", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose.connect('mongodb://tiny-jars-pump.loca.lt:27017/kolwazshop', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+});
 .then(() => console.log("Connexion réussie à MongoDB en local"))
 .catch((err) => console.log("Erreur de connexion à MongoDB:", err));
 
