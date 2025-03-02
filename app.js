@@ -27,7 +27,7 @@ app.use(session({
 }));
 
 // Configuration de Mongoose
-mongoose.connect('mongodb://tiny-jars-pump.loca.lt:27017/kolwazshop', {
+mongoose.connect('mongodb://mean-plants-fold.loca.lt:27017/kolwazshop', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
