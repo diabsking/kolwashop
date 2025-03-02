@@ -1,12 +1,13 @@
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 const Seller = require('../models/seller'); 
-const moment = require('moment'); // Si tu n'as pas déjà installé Moment.js, utilise 'npm install moment'
+const bcrypt = require('bcryptjs');
 
 // Fonction pour supprimer les comptes non vérifiés après expiration du token
+// (Note : cette fonction n'est plus utilisée si tous les comptes sont créés comme vérifiés)
 exports.deleteUnverifiedAccounts = async () => {
   try {
-    const expirationDate = new Date(Date.now() - 15 * 60 * 1000);  // Token expiré après 5 minutes
+    const expirationDate = new Date(Date.now() - 5 * 60 * 1000);  // 5 minutes
     const unverifiedSellers = await Seller.find({ verified: false, createdAt: { $lt: expirationDate } });
 
     if (unverifiedSellers.length > 0) {
@@ -27,14 +28,13 @@ const transporter = nodemailer.createTransport({
   secure: true,
   auth: {
     user: 'kolwazshopp@mailo.com',   // Remplacez par votre identifiant Mailo
-    pass:   process.env.MAILO_PASSWORD || "1O0C4HbGFMSw"
+    pass: process.env.MAILO_PASSWORD || "1O0C4HbGFMSw"
   }
 });
 
 /**
- * Inscription d'un vendeur avec envoi d'email de validation.
- * L'email est envoyé avec un token expirant en 5 minutes.
- * Seul un email envoyé avec succès permettra de créer le compte.
+ * Inscription d'un vendeur avec envoi d'email de confirmation.
+ * Le compte est créé et marqué comme vérifié immédiatement.
  */
 exports.signup = async (req, res) => {
   const { name, email, password, storeName } = req.body;
@@ -50,60 +50,38 @@ exports.signup = async (req, res) => {
       return res.status(400).json({ message: "Ce compte existe déjà." });
     }
     
-   // Générer un token de vérification avec une expiration de 24 heures
-   const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '24h' });
-   const verificationLink = `http://localhost:3000/api/sellers/verify?token=${token}`;
+    // Hachage du mot de passe avant de créer le compte
+    const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Essayer d'envoyer l'email de validation
-  await transporter.sendMail({
-  from: 'kolwazshopp@mailo.com',
-  to: email,
-  subject: "Validation de votre compte vendeur - Règles du site",
-  text: `Bonjour ${name},
+    // Création du compte vendeur dans la BDD et marquage immédiat comme vérifié
+    const newSeller = new Seller({
+      name,
+      email,
+      password: hashedPassword,
+      storeName,
+      verified: true
+    });
+    await newSeller.save();
+    
+    // Envoi de l'email de confirmation d'inscription
+    await transporter.sendMail({
+      from: 'kolwazshopp@mailo.com',
+      to: email,
+      subject: "Création de votre compte vendeur sur Kolwaz Shop",
+      text: `Bonjour ${name},
 
-Merci de vous être inscrit sur Kolwaz Shop.
-
-Pour valider votre compte, veuillez cliquer sur le lien suivant (lien valable 15 minutes) : ${verificationLink}
-
-Règles du site :
-- La livraison est effectuée par le vendeur gratuitement pour attirer les clients.
-- Un produit reste actif pendant 45 jours sur notre plateforme.
-- Vous recevrez vos commandes directement par email et vous serez responsable de leur gestion avec vos clients.
-- Vous êtes autonome dans la gestion de votre compte vendeur.
-- Il est impératif de publier des photos claires et de rédiger une description précise et complète de vos produits. En cas de manquement, l'équipe Kolwaz Shop se réserve le droit de supprimer votre annonce.
-- Respectez vos engagements de livraison et offrez un service client de qualité.
-
-Nous vous invitons à consulter nos Conditions Générales d'Utilisation pour plus de détails.
+Votre compte vendeur sur Kolwaz Shop a été créé avec succès.
+Vous pouvez désormais vous connecter et commencer à utiliser la plateforme.
 
 Cordialement,
 L'équipe Kolwaz Shop`,
-  html: `<p>Bonjour ${name},</p>
-         <p>Merci de vous être inscrit sur Kolwaz Shop.</p>
-         <p>Pour valider votre compte, veuillez cliquer sur le lien suivant (lien valable 24h) :</p>
-         <a href="${verificationLink}">Valider mon compte</a>
-         <h3>Règles du site</h3>
-         <ul>
-           <li>La livraison est effectuée par le vendeur gratuitement pour attirer les clients.</li>
-           <li>Un produit reste actif pendant 45 jours sur notre plateforme.</li>
-           <li>Vous recevrez vos commandes directement par email et vous serez responsable de leur gestion avec vos clients.</li>
-           <li>Vous êtes autonome dans la gestion de votre compte vendeur.</li>
-           <li>Il est impératif de publier des photos claires et de rédiger une description précise et complète. En cas de manquement, l'équipe Kolwaz Shop pourra supprimer votre annonce.</li>
-           <li>Respectez vos engagements de livraison et offrez un service client de qualité.</li>
-         </ul>
-         <p>N'hésitez pas à consulter nos <a href="URL_conditions">Conditions Générales d'Utilisation</a> pour plus de détails.</p>
-         <p>Cordialement,<br>L'équipe Kolwaz Shop</p>`
-})
-.then(() => {
-  console.log("Email envoyé avec succès");
-})
-.catch(err => {
-  console.error("Erreur lors de l'envoi de l'email :", err);
-});
-    // Si l'envoi de l'email est réussi, créer le compte vendeur dans la BDD
-    const newSeller = new Seller({ name, email, password, storeName, verified: false });
-    await newSeller.save();
+      html: `<p>Bonjour ${name},</p>
+             <p>Votre compte vendeur sur Kolwaz Shop a été créé avec succès.</p>
+             <p>Vous pouvez désormais vous connecter et commencer à utiliser la plateforme.</p>
+             <p>Cordialement,<br>L'équipe Kolwaz Shop</p>`
+    });
     
-    return res.status(200).json({ message: "Inscription réussie. Veuillez vérifier votre email pour valider votre compte." });
+    return res.status(200).json({ message: "Inscription réussie. Un email de confirmation vous a été envoyé." });
   } catch (error) {
     console.error("Erreur lors de l'inscription :", error);
     return res.status(500).json({ message: "Erreur lors de l'inscription. Veuillez réessayer." });
@@ -112,14 +90,33 @@ L'équipe Kolwaz Shop`,
 
 /**
  * Validation du compte via le token envoyé par email.
+ * (Cette fonction reste disponible au cas où vous souhaiteriez revenir à une vérification par email ultérieurement)
  */
 exports.verify = async (req, res) => {
-  const { token } = req.query;
+  let { token } = req.query;
   if (!token) {
     return res.status(400).send("Token manquant.");
   }
+
+  let actualToken = token;
+
+  // Si le token commence par "http", c'est une URL imbriquée contenant le vrai token
+  if (token.startsWith("http")) {
+    try {
+      const decodedUrl = decodeURIComponent(token);
+      const nestedUrl = new URL(decodedUrl);
+      actualToken = nestedUrl.searchParams.get('token');
+      if (!actualToken) {
+        throw new Error("Token non trouvé dans l'URL imbriquée.");
+      }
+    } catch (e) {
+      console.error("Erreur d'extraction du token imbriqué :", e);
+      return res.status(400).send("Token invalide ou expiré.");
+    }
+  }
+
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(actualToken, process.env.JWT_SECRET);
     const email = decoded.email;
 
     const seller = await Seller.findOne({ email });
@@ -149,16 +146,18 @@ exports.login = async (req, res) => {
     if (!seller.verified) {
       return res.status(400).json({ message: "Votre compte n'est pas validé. Veuillez vérifier votre email." });
     }
-    // Pour plus de sécurité, utilisez un module comme bcrypt pour comparer le mot de passe haché
-    if (seller.password !== password) {
+
+    // Comparaison du mot de passe fourni avec le mot de passe haché stocké
+    const isMatch = await bcrypt.compare(password, seller.password);
+    if (!isMatch) {
       return res.status(400).json({ message: "Mot de passe incorrect." });
     }
 
-    // Générer un token de session (valable 5 minutes)
-    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '59' });
+    // Génération d'un token de session (valable 24 heures)
+    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '24h' });
     res.status(200).json({ message: "Connexion réussie.", token });
   } catch (error) {
     console.error("Erreur lors de la connexion :", error);
     return res.status(500).json({ message: "Erreur lors de la connexion." });
-}
-}; 
+  }
+};
