@@ -27,12 +27,13 @@ app.use(session({
 }));
 
 // Configuration de Mongoose
-mongoose.connect('mongodb://localhost:27017/kolwazshop', {
-    connectTimeoutMS: 30000,
-    serverSelectionTimeoutMS: 30000
-})
-.then(() => console.log("Connexion réussie à MongoDB sur localhost"))
-.catch((err) => console.log("Erreur de connexion à MongoDB :", err.message));
+mongoose.connect('mongodb+srv://senfood75:XtKqPqZjBgmA5z2N@cluster1.te14d.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1')
+    .then(() => {
+        console.log('Connexion à MongoDB Atlas réussie');
+    })
+    .catch((error) => {
+        console.error('Erreur de connexion à MongoDB Atlas', error);
+    });
 
 // Importation des modèles, middlewares et routes
 const { isAuthenticated, isSeller, verifyToken } = require("./middlewares/authMiddleware");
