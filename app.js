@@ -27,9 +27,12 @@ app.use(session({
 }));
 
 // Configuration de Mongoose
-mongoose.connect('mongodb://serveo.net:27017/kolwazshop')
-    .then(() => console.log("Connexion réussie à MongoDB via Serveo"))
-    .catch((err) => console.log("Erreur de connexion à MongoDB:", err));s
+mongoose.connect('mongodb://localhost:27017/kolwazshop', {
+    connectTimeoutMS: 30000,
+    serverSelectionTimeoutMS: 30000
+})
+.then(() => console.log("Connexion réussie à MongoDB sur localhost"))
+.catch((err) => console.log("Erreur de connexion à MongoDB :", err.message));
 
 // Importation des modèles, middlewares et routes
 const { isAuthenticated, isSeller, verifyToken } = require("./middlewares/authMiddleware");
