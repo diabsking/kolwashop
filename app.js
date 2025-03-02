@@ -27,7 +27,7 @@ app.use(session({
 }));
 
 // Configuration de Mongoose
-mongoose.connect('mongodb://dele.loca.lt:27017/kolwazshop')
+mongoose.connect('mongodb://dele.loca.lt:27017/kolwaz-shop')
     .then(() => console.log("Connexion réussie à MongoDB via Localtunnel"))
     .catch((err) => console.log("Erreur de connexion à MongoDB:", err));
 
