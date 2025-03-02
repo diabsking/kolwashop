@@ -30,8 +30,6 @@ app.use(session({
 const mongoURI = 'mongodb+srv://senfood75:2tzzELuHlxge6eQ8@cluster1.te14d.mongodb.net/kolwazshop?retryWrites=true&w=majority&appName=Cluster1';
 
 mongoose.connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
     connectTimeoutMS: 30000,
     serverSelectionTimeoutMS: 30000
 }).then(() => {
