@@ -27,9 +27,9 @@ app.use(session({
 }));
 
 // Configuration de Mongoose
-mongoose.connect('mongodb://mean-plants-fold.loca.lt:27017/kolwazshop')
-.then(() => console.log("Connexion réussie à MongoDB en local"))
-.catch((err) => console.log("Erreur de connexion à MongoDB:", err));
+mongoose.connect('mongodb://smooth-mirrors-yell.loca.lt:27017/kolwazshop')
+  .then(() => console.log("Connexion réussie à MongoDB via Localtunnel"))
+  .catch((err) => console.log("Erreur de connexion à MongoDB:", err));
 
 // Importation des modèles, middlewares et routes
 const { isAuthenticated, isSeller, verifyToken } = require("./middlewares/authMiddleware");
