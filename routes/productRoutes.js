@@ -53,4 +53,7 @@ router.put('/update/:id', isAuthenticated, upload.single('image'), productContro
 // Route pour supprimer un produit
 router.delete('/delete/:id', isAuthenticated, productController.deleteProduct);
 
+// Route pour ajouter un produit avec image
+router.post('/add', upload.single('image'), addProduct);
+
 module.exports = router;

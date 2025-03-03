@@ -161,11 +161,11 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage });
 
-// Route pour publier un produit avec image sur Cloudinary
-app.post('/api/products', upload.single('image'), async (req, res) => {
+/// Fonction pour ajouter un produit
+const addProduct = async (req, res) => {
     try {
         const { name, description, price } = req.body;
-        const imageUrl = req.file.path; // URL Cloudinary
+        const imageUrl = req.file.path;
 
         const newProduct = new Product({
             name,
@@ -177,9 +177,11 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
         await newProduct.save();
         res.status(201).json({ message: "Produit ajouté avec succès !" });
     } catch (error) {
-        res.status(500).json({ message: "Erreur lors de l'ajout du produit" });
+        res.status(500).json({ message: "Erreur lors de l'ajout du produit", error });
     }
-});
+};
+
+module.exports = { addProduct, upload };
 
 // Récupération de tous les produits pour affichage sur la page d'accueil
 exports.getAllProducts = async (req, res) => {
