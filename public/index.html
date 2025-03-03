@@ -462,6 +462,23 @@
       top: 10px;
       left: 10px;
     }
+    .loading-container {
+  text-align: center;
+  margin: 20px 0;
+}
+.spinner {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(0, 0, 0, 0.3);
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
   </style>
 </head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -525,6 +542,11 @@
       <h2 style="text-align: center; margin-top: 20px; font-size: 28px; font-weight: bold; color: #333;">la livraison est gratuite</h2>
       <div id="productGrid" class="grid-container"></div>
     </section>
+    <div id="loadingIndicator" class="loading-container">
+  <div class="spinner"></div>
+  <p>Chargement des produits...</p>
+</div>
+<div id="productContainer" style="display: none;"></div>
     <!-- Section de Détail du Produit (cachée par défaut) -->
     <div id="detailSection">
       <div class="detail-main">
@@ -666,27 +688,37 @@
       setupSidebarFilters();
     };
 
-    async function loadProducts() {
-      const loadingIndicator = document.getElementById('loadingIndicator');
-      const productContainer = document.getElementById('productContainer');
-      loadingIndicator.style.display = 'block';
-      productContainer.style.display = 'none';
-      try {
-        const response = await fetch('/api/products');
-        if (!response.ok) throw new Error('Erreur serveur');
-        const data = await response.json();
-        allProducts = data.products || [];
-        allProducts.forEach(product => {
-          product.detectedCategory = aiDetectCategory(product);
-        });
-        displayProducts(allProducts);
-      } catch (err) {
-        console.error("Erreur lors du chargement des produits:", err);
-      } finally {
-        loadingIndicator.style.display = 'none';
-        productContainer.style.display = 'block';
-      }
-    }
+async function loadProducts() {
+  const loadingIndicator = document.getElementById('loadingIndicator');
+  const productContainer = document.getElementById('productContainer');
+
+  // Afficher l'indicateur de chargement et masquer les produits
+  loadingIndicator.style.display = 'block';
+  productContainer.style.display = 'none';
+
+  try {
+    // Simuler un délai de chargement (ex: 1.5 secondes)
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // Récupération des produits depuis l'API
+    const response = await fetch('/api/products');
+    if (!response.ok) throw new Error('Erreur serveur');
+    const data = await response.json();
+    allProducts = data.products || [];
+
+    allProducts.forEach(product => {
+      product.detectedCategory = aiDetectCategory(product);
+    });
+
+    displayProducts(allProducts);
+  } catch (err) {
+    console.error("Erreur lors du chargement des produits:", err);
+  } finally {
+    // Cacher l'indicateur de chargement et afficher les produits
+    loadingIndicator.style.display = 'none';
+    productContainer.style.display = 'block';
+  }
+}
 function displayProducts(products) {
   const productGrid = document.getElementById("productGrid");
   productGrid.innerHTML = products.length
