@@ -68,7 +68,7 @@ exports.publishProduct = async (req, res) => {
         .json({ message: "Tous les champs sont requis, y compris l'image et la catégorie!" });
     }
 
-    const imagePath = /uploads/${imageFile.filename};
+   const imagePath = `/uploads/${imageFile.filename}`;
     if (!validateProductImage(imagePath)) {
       console.error("Image non conforme:", imagePath);
       return res
