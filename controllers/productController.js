@@ -24,14 +24,26 @@ cloudinary.config({
     api_key: '892817559812262',
     api_secret: 'wx0QCh5x2hm7pCq7q__DGeT6ZR4'
 });
+
 // Fonction pour simuler le traitement d'un paiement via Wave
 async function processWavePayment(amount, phoneNumber) {
-  console.log(Paiement de ${amount} FCFA via Wave au ${phoneNumber}...);
-  return new Promise((resolve) =>
-    setTimeout(() => resolve({ success: true }), 1000)
-  ); // Simulation d'un paiement réussi
-}
+  console.log(`Paiement de ${amount} FCFA via Wave au ${phoneNumber}...`);
 
+  // Simuler un délai de traitement
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      // Simuler un succès ou un échec du paiement aléatoirement (pour test)
+      const isPaymentSuccessful = Math.random() > 0.2;  // 80% de chances de succès
+      if (isPaymentSuccessful) {
+        console.log("Paiement réussi !");
+        resolve({ success: true });
+      } else {
+        console.error("Échec du paiement via Wave.");
+        reject({ success: false, message: "Le paiement a échoué." });
+      }
+    }, 1000);
+  });
+}
 // Contrôleur pour publier un produit
 exports.publishProduct = async (req, res) => {
   try {
