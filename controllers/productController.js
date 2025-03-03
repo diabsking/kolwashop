@@ -142,6 +142,45 @@ exports.publishProduct = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+const cloudinary = require('cloudinary').v2;
+cloudinary.config({
+    cloud_name: 'dw9stpq7f',
+    api_key: '892817559812262',
+    api_secret: 'wx0QCh5x2hm7pCq7q__DGeT6ZR4'
+});
+const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'kolwaz_products',
+        format: async () => 'png', // ou jpg
+        public_id: (req, file) => file.originalname
+    }
+});
+
+const upload = multer({ storage });
+
+// Route pour publier un produit avec image sur Cloudinary
+app.post('/api/products', upload.single('image'), async (req, res) => {
+    try {
+        const { name, description, price } = req.body;
+        const imageUrl = req.file.path; // URL Cloudinary
+
+        const newProduct = new Product({
+            name,
+            description,
+            price,
+            image: imageUrl
+        });
+
+        await newProduct.save();
+        res.status(201).json({ message: "Produit ajouté avec succès !" });
+    } catch (error) {
+        res.status(500).json({ message: "Erreur lors de l'ajout du produit" });
+    }
+});
 
 // Récupération de tous les produits pour affichage sur la page d'accueil
 exports.getAllProducts = async (req, res) => {
