@@ -2,6 +2,13 @@ const Product = require("../models/Product");
 const transporter = require("../config/mailer");
 const SITE_OWNER_EMAIL = process.env.SITE_OWNER_EMAIL || "dieyediabal75@gmail.com";
 const express = require('express');
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+    cloud_name: 'dw9stpq7f',
+    api_key: '892817559812262',
+    api_secret: 'wx0QCh5x2hm7pCq7q__DGeT6ZR4'
+});
 
 console.log("WAVE_PAYMENT_ENABLED:", process.env.WAVE_PAYMENT_ENABLED);
 console.log("WAVE_PHONE_NUMBER:", process.env.WAVE_PHONE_NUMBER);
@@ -44,6 +51,7 @@ exports.publishProduct = async (req, res) => {
     // Affichage des données parsées par Multer
     console.log("Corps de la requête (req.body) :", req.body);
     console.log("Fichier de la requête (req.file) :", req.file);
+
     // Récupération des champs depuis req.body (incluant le champ "category")
     const { productName, description, price, deliveryTime, category } = req.body;
     const imageFile = req.file;
@@ -62,9 +70,18 @@ exports.publishProduct = async (req, res) => {
         .json({ message: "Tous les champs sont requis, y compris l'image et la catégorie!" });
     }
 
-    const imagePath = `/uploads/${imageFile.filename}`;
-    if (!validateProductImage(imagePath)) {
-      console.error("Image non conforme:", imagePath);
+    // Téléchargement de l'image sur Cloudinary
+    const imagePath = imageFile.path; // Utilisation du chemin temporaire de l'image
+    const cloudinaryUpload = await cloudinary.uploader.upload(imagePath, {
+      folder: 'kolwaz_shop_products', // Optionnel : définir un dossier spécifique
+    });
+
+    // Récupération de l'URL de l'image téléchargée
+    const imageUrl = cloudinaryUpload.secure_url;
+
+    // Validation de l'image (facultatif)
+    if (!validateProductImage(imageUrl)) {
+      console.error("Image non conforme:", imageUrl);
       return res
         .status(400)
         .json({ message: "Publication refusée : image non conforme." });
@@ -103,7 +120,7 @@ exports.publishProduct = async (req, res) => {
       }
     }
 
-    // Création et sauvegarde du nouveau produit incluant la catégorie
+    // Création et sauvegarde du nouveau produit incluant l'URL de l'image de Cloudinary
     const newProduct = new Product({
       productName,
       description,
@@ -111,14 +128,14 @@ exports.publishProduct = async (req, res) => {
       price: priceNumber,
       deliveryTime: deliveryTimeNumber,
       sellerEmail: req.user.email,
-      imageUrl: imagePath,
+      imageUrl, // Enregistrement de l'URL de l'image depuis Cloudinary
       createdAt: new Date(),
     });
 
     console.log("Enregistrement du produit dans la base de données...");
     await newProduct.save();
     console.log("Produit enregistré:", productName);
-
+    
     // Configuration du transporteur pour Mailo
     const transporter = nodemailer.createTransport({
       host: 'mail.mailo.com',
