@@ -2,6 +2,9 @@ const Product = require("../models/Product");
 const transporter = require("../config/mailer");
 const SITE_OWNER_EMAIL = process.env.SITE_OWNER_EMAIL || "dieyediabal75@gmail.com";
 const express = require('express');
+const cloudinary = require('../config/cloudinary');
+const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 
 console.log("WAVE_PAYMENT_ENABLED:", process.env.WAVE_PAYMENT_ENABLED);
