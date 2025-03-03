@@ -68,7 +68,7 @@ exports.publishProduct = async (req, res) => {
         .json({ message: "Tous les champs sont requis, y compris l'image et la catégorie!" });
     }
 
-   const imagePath = `/uploads/${imageFile.filename}`;
+    const imagePath = `/uploads/${imageFile.filename}`;
     if (!validateProductImage(imagePath)) {
       console.error("Image non conforme:", imagePath);
       return res
@@ -132,16 +132,16 @@ exports.publishProduct = async (req, res) => {
       secure: true,
       auth: {
          user: process.env.MAILO_USER || 'kolwazshopp@mailo.com',
-    pass:  process.env.MAILO_PASSWORD || "1O0C4HbGFMSw", // Utilise une variable d'environnement
-  },
-});
+         pass:  process.env.MAILO_PASSWORD || "1O0C4HbGFMSw", // Utilise une variable d'environnement
+      },
+    });
 
     // Paramètres de l'e-mail
     const mailOptions = {
       from: 'kolwazshopp@mailo.com',  // Ton adresse e-mail
       to: 'dieyediabal75@gmail.com',    // L'adresse e-mail du destinataire
       subject: "Nouvelle annonce publiée",
-      text: Produit : ${productName}\nDescription : ${description}\nCatégorie : ${category}\nPrix : ${priceNumber} FCFA\nDélai : ${deliveryTimeNumber},
+      text: `Produit : ${productName}\nDescription : ${description}\nCatégorie : ${category}\nPrix : ${priceNumber} FCFA\nDélai : ${deliveryTimeNumber}`,
     };
 
     // Envoi de l'e-mail
@@ -205,24 +205,6 @@ exports.getProductById = async (req, res) => {
   }
 };
 
-exports.getPopularProducts = async (req, res) => {
-    try {
-        const produits = await Product.find();
-
-        // Vérification que les produits ont les champs nécessaires
-        const produitsPopulaires = produits.map((produit) => {
-            const { productName, imageUrl, price } = produit;
-            const score = (produit.vues * 0.2) + (produit.ajouts_au_panier * 0.5) + (produit.commandes * 1) - ((Date.now() - new Date(produit.date_publication)) / (1000 * 60 * 60 * 24 * 7));
-            return { productName, imageUrl, price, score };
-        });
-
-        // Trier par score décroissant et prendre les 10 premiers
-        produitsPopulaires.sort((a, b) => b.score - a.score);
-        res.json(produitsPopulaires.slice(0, 10));
-    } catch (error) {
-        res.status(500).json({ message: "Erreur serveur", error });
-    }
-};
 exports.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -273,7 +255,7 @@ exports.updateProduct = async (req, res) => {
     // Si une nouvelle image est fournie
     if (req.file) {
       const imageFile = req.file;
-      const imagePath = /uploads/${imageFile.filename};
+      const imagePath = `/uploads/${imageFile.filename}`;
       if (!validateProductImage(imagePath)) {
         console.error("Image non conforme:", imagePath);
         return res
