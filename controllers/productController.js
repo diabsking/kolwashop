@@ -18,12 +18,6 @@ function validateProductImage(imagePath) {
   }
   return true;
 }
-const cloudinary = require('cloudinary').v2;
-cloudinary.config({
-    cloud_name: 'dw9stpq7f',
-    api_key: '892817559812262',
-    api_secret: 'wx0QCh5x2hm7pCq7q__DGeT6ZR4'
-});
 
 // Fonction pour simuler le traitement d'un paiement via Wave
 async function processWavePayment(amount, phoneNumber) {
@@ -202,6 +196,23 @@ exports.getProductById = async (req, res) => {
   } catch (err) {
     console.error("Erreur lors de la récupération du produit:", err.message);
     res.status(500).json({ error: err.message });
+  }
+};
+exports.getPopularProducts = async (req, res) => {
+  try {
+    const produits = await Product.find();
+
+    // Calcul d'un score basé sur plusieurs critères
+    const produitsPopulaires = produits.map((produit) => {
+      const { productName, imageUrl, price } = produit;
+      const score = (produit.vues * 0.2) + (produit.ajouts_au_panier * 0.5) + (produit.commandes * 1) - ((Date.now() - new Date(produit.date_publication)) / (1000 * 60 * 60 * 24 * 7));
+      return { productName, imageUrl, price, score };
+    });
+
+    produitsPopulaires.sort((a, b) => b.score - a.score);
+    res.json(produitsPopulaires.slice(0, 10));
+  } catch (error) {
+    res.status(500).json({ message: "Erreur serveur", error });
   }
 };
 
