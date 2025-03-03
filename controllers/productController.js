@@ -35,7 +35,7 @@ async function processWavePayment(amount, phoneNumber) {
 }
 
 // Contrôleur pour publier un produit
-exports.publishProduct = async (req, res) => {
+exports.publishProduct = async (req, res) => {  // <-- Ajoutez 'async' ici
   try {
     console.log("Corps de la requête (req.body) :", req.body);
     console.log("Fichier de la requête (req.file) :", req.file);
@@ -113,7 +113,7 @@ exports.publishProduct = async (req, res) => {
     });
 
     console.log("Enregistrement du produit dans la base de données...");
-    await newProduct.save();
+    await newProduct.save();  // <-- Assurez-vous d'avoir 'await' dans une fonction 'async'
     console.log("Produit enregistré:", productName);
 
     // Réponse de succès
@@ -130,7 +130,7 @@ exports.publishProduct = async (req, res) => {
   }
 };
 
-    console.log("Enregistrement du produit dans la base de données...");
+ console.log("Enregistrement du produit dans la base de données...");
     await newProduct.save();
     console.log("Produit enregistré:", productName);
 
