@@ -27,13 +27,11 @@
       text-align: center;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-    .top-header .logo {
-      font-size: 27px;
-      font-weight: bold;
-      color: #febd69;
-    }
-
-    /* Barre de recherche centrée */
+  .logo {
+  font-size: 20px; /* Taille réduite */
+  font-weight: bold;
+}
+/* Barre de recherche centrée */
     .search-bar-container {
       background-color: #fff;
       padding: 20px 0;
@@ -72,25 +70,6 @@
       background-color: #f8a94b;
     }
 
-    /* Boutons d'authentification */
-    .auth-buttons {
-      position: absolute;
-      top: 100px;
-      right: 10px;
-    }
-    .auth-buttons .btn {
-      padding: 10px 20px;
-      margin-right: 10px;
-      background-color: orange;
-      color: white;
-      text-decoration: none;
-      border-radius: 20px;
-      font-size: 14px;
-    }
-    .auth-buttons .btn:hover {
-      background-color: darkorange;
-    }
-
     /* Navigation principale */
     .navbar {
       background-color: #232f3e;
@@ -121,90 +100,73 @@
       font-size: 10px;
     }
 
-    /* Boutons de catégories */
-    .category-buttons {
-      background-color: #232f3e;
-      padding: 10px 0;
-      text-align: center;
-    }
-    .category-buttons button {
-      background-color: transparent;
-      color: #fff;
-      padding: 8px 15px;
-      margin: 0 10px;
-      font-size: 12px;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background-color 0.3s, color 0.3s;
-    }
-    .category-buttons button:hover {
-      background-color: #febd69;
-      color: #232f3e;
-    }
+  /* Menu déroulant des catégories */
+.category-buttons {
+  display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 10px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border-bottom: 1px solid #ccc;
+}
 
-    /* Section Produits */
-    main section {
-      background-color: #f8d7db;
-      padding: 40px 0;
+.category-button {
+  flex: 0 0 auto;
+  margin-right: 10px;
+  padding: 10px 20px;
+  background-color: #fff;
+  color: #333;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  border: none; /* Enlever les bordures */
+}
+
+.category-button:hover {
+  background-color: #f0f0f0;
+}
+
+     /* Grille des produits */
+    .grid-container-wrapper {
+      overflow: auto; /* Active le défilement horizontal et vertical */
+      width: 100%;
+      max-height: 600px; /* Hauteur maximale pour forcer le défilement vertical si besoin */
     }
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      grid-template-columns: repeat(10, 200px); /* 10 produits par ligne, largeur fixe pour chaque produit */
       gap: 20px;
-      width: 100%;
-      max-width: 100%;
       padding: 20px;
+      width: max-content; /* Définit la largeur totale en fonction du contenu */
     }
     .grid-item {
       background-color: #fff;
       padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       text-align: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      height: 300px;
-      transition: transform 0.3s, box-shadow 0.3s;
-      position: relative;
+      transition: transform 0.3s;
     }
     .grid-item:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      transform: translateY(-5px);
     }
     .grid-item img {
       width: 100%;
-      height: 200px;
+      height: 150px;
       object-fit: cover;
-      border-radius: 5px;
-      transition: transform 0.3s ease;
-      word-wrap: break-word;
+      border-radius: 4px;
     }
-    .grid-item img:hover { transform: scale(1.05); }
-    .grid-item .product-name {
+    .product-name {
+      font-size: 16px;
+      margin: 10px 0;
+      font-weight: bold;
+    }
+    .product-price {
+      color: #333;
       font-size: 14px;
       font-weight: bold;
-      margin-top: auto;
     }
-    .grid-item .product-price {
-      font-size: 12px;
-      color: #ff9900;
-      font-weight: bold;
-    }
-    .grid-item button {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 12px;
-      transition: background-color 0.3s;
-    }
-    .grid-item .add-to-cart {
-      background-color: #ff9900;
-      color: #fff;
-    }
-    .grid-item .add-to-cart:hover { background-color: #e68a00; }
     /* Bouton Détail transparent */
     .grid-item .details-button {
       background: transparent;
@@ -248,36 +210,65 @@
     .detail-info h1 {
       margin-top: 0;
     }
-    .similar-products {
-      margin-top: 30px;
-    }
-    .similar-products h2 {
-      font-size: 20px;
-      margin-bottom: 10px;
-    }
-    .similar-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 20px;
-    }
-    .similar-item {
-      background: #fff;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      text-align: center;
-      cursor: pointer;
-      transition: transform 0.3s;
-    }
-    .similar-item:hover {
-      transform: scale(1.05);
-    }
-    .similar-item img {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-      border-radius: 5px;
-    }
+   .similar-products {
+  margin-top: 30px;
+}
+
+.similar-products h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.similar-grid {
+  display: flex; /* Utilisation de flexbox pour les produits */
+  flex-wrap: wrap; /* Permet d'afficher plusieurs lignes */
+  gap: 20px; /* Espacement entre les produits */
+  overflow: auto; /* Permet à la grille de défiler à la fois horizontalement et verticalement */
+  max-height: 500px; /* Limite la hauteur du conteneur pour activer le défilement vertical */
+  padding: 10px;
+}
+
+.similar-item {
+  flex: 0 0 calc(10% - 20px); /* Affiche 10 produits par ligne avec un espacement de 20px */
+  background: #fff;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.similar-item:hover {
+  transform: scale(1.05);
+}
+
+.similar-item img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.action-buttons-detail {
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* Style pour les barres de défilement */
+.similar-grid::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.similar-grid::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 5px;
+}
+
+.similar-grid::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
     .action-buttons-detail {
       margin-top: 20px;
       text-align: center;
@@ -368,16 +359,6 @@
       padding: 5px 10px;
       font-size: 0.8em;
       border-radius: 5px;
-    }
-    .senegal-flag {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      width: 50px;
-    }
-    .senegal-flag img {
-      width: 100%;
-      height: auto;
     }
     .location-indicator {
       position: absolute;
@@ -483,35 +464,22 @@
 </head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <body>
-<div class="location-indicator">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/f/fd/Flag_of_Senegal.svg" alt="Drapeau du Sénégal">
-    <span class="location-text">
-        <i class="fas fa-map-marker-alt"></i> Sénégal
-    </span>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</div>
   <!-- En-tête -->
   <header>
     <div class="top-header">
-      <div class="logo">KOLWAZSHOP SENEGAL.DAKAR</div>
+      <div class="logo">KOLWAZSHOP</div>
     </div>
     <div class="search-bar-container">
       <div class="search-container">
         <input type="text" id="searchBox" placeholder="Rechercher un produit...">
         <button id="searchBtn">Rechercher</button>
-        <button class="filter-button" onclick="filterCheapProducts()">Produits vendus moins de 10 000 FCFA</button>
       </div>
-    </div>
-    <div class="auth-buttons">
-      <a href="/espace-vendeur" class="btn">Créer un compte</a>
-      <a href="/espace-vendeur" class="btn">Se connecter</a>
     </div>
     <!-- Navigation principale -->
     <nav class="navbar">
       <a href="/">🏠 accueil</a>
       <a href="/espace-vendeur">🛠️ Espace vendeur</a>
       <a href="/panier" style="position: relative;">🛒 Panier<span id="cartCount">0</span></a>
-      <a href="/Administrateur">Administrateur</a>
     </nav>
   </header>
   
@@ -535,7 +503,9 @@
   <!-- Section Produits -->
   <main>
      <div class="popular-products">
-    <h2>Top 10 Produits Populaires</h2>
+   <h2 style="text-align: center; margin-top: 20px; font-size: 18px; font-weight: bold; color: #333;">
+  Produits Populaires
+</h2>
     <div class="popular-carousel" id="popularProducts"></div>
     </div>
     <section>
@@ -543,7 +513,9 @@
   <div class="spinner"></div>
   <p>Chargement des produits...</p>
   </div> 
-      <h2 style="text-align: center; margin-top: 20px; font-size: 28px; font-weight: bold; color: #333;">la livraison est gratuite</h2>
+     <h2 style="text-align: center; margin-top: 20px; font-size: 18px; font-weight: bold; color: #333;">
+  La livraison est gratuite
+</h2>
       <div id="productGrid" class="grid-container"></div>
     </section>
 <div id="productContainer" style="display: none;"></div>
@@ -724,11 +696,12 @@ function displayProducts(products) {
   productGrid.innerHTML = products.length
     ? ""
     : "<p style='text-align:center;'>Aucun produit publié pour le moment.</p>";
-  
+
   products.forEach(product => {
     const productItem = document.createElement("div");
     productItem.className = 'grid-item';
 
+    // Ajout du badge "Nouveau" si le produit a été publié récemment
     let badgeHTML = '';
     if (product.publishedAt) {
       const publishedDate = new Date(product.publishedAt);
@@ -740,6 +713,16 @@ function displayProducts(products) {
       }
     }
 
+    // Formatage de la date de publication
+    let formattedDate = '';
+    if (product.publishedAt) {
+      const publishedDate = new Date(product.publishedAt);
+      formattedDate = `${publishedDate.toLocaleDateString('fr-FR')}`;
+    }
+
+    // Ajout de la catégorie du produit
+    const categoryHTML = product.category ? `<div class="product-category">${product.category}</div>` : '';
+
     productItem.innerHTML =
       `<div class="product-image-wrapper" style="position: relative;">
          <img src="${product.imageUrl}" alt="${product.productName}" class="product-image">
@@ -748,10 +731,12 @@ function displayProducts(products) {
        <div class="product-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
          ${product.productName}
        </div>
+       ${categoryHTML}
        <div class="product-description" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
          ${product.description}
        </div>
        <div class="product-price">${product.price} FCFA</div>
+       <div class="product-date">Publié le: ${formattedDate}</div>
        <div style="margin-top: 10px;">
          <button class="add-to-cart" onclick="addToCart('${product.productName}', ${product.price}, '${product.description}', '${product.imageUrl}', '${product.sellerEmail}', this)">Acheter</button>
          <button class="details-button" onclick='showProductDetailView(${JSON.stringify(product)})'>Détail</button>
@@ -875,26 +860,77 @@ function filterCheapProducts() {
       setTimeout(() => notification.classList.remove("show"), 3000);
     }
 
-    // Affichage du détail du produit dans la section intégrée
-    function showProductDetailView(product) {
-      // Stocker le produit actuellement affiché
-      currentProduct = product;
-      // Masquer la grille de produits
-      document.getElementById("productGrid").style.display = "none";
-      // Afficher la section de détail
-      document.getElementById("detailSection").style.display = "block";
-      // Mettre à jour les informations du produit
-      document.getElementById("detailImage").src = product.imageUrl;
-      document.getElementById("detailImage").alt = product.productName;
-      document.getElementById("detailName").innerText = product.productName;
-      document.getElementById("detailDescription").innerText = product.description;
-      document.getElementById("detailPrice").innerText = product.price;
-      document.getElementById("detailSeller").innerText = product.sellerEmail || "Inconnu";
-      
-      // Filtrer et afficher des produits similaires (même catégorie, hors du produit sélectionné)
-      let similarProducts = allProducts.filter(p => p.detectedCategory === product.detectedCategory && p._id !== product._id);
-      displaySimilarProducts(similarProducts);
+   // Affichage du détail du produit dans la section intégrée
+function showProductDetailView(product) {
+  // Stocker le produit actuellement affiché
+  currentProduct = product;
+  
+  // Masquer la grille de produits
+  document.getElementById("productGrid").style.display = "none";
+  
+  // Afficher la section de détail
+  document.getElementById("detailSection").style.display = "block";
+  
+  // Mettre à jour les informations du produit
+  document.getElementById("detailImage").src = product.imageUrl;
+  document.getElementById("detailImage").alt = product.productName;
+  document.getElementById("detailName").innerText = product.productName;
+  document.getElementById("detailDescription").innerText = product.description;
+  document.getElementById("detailPrice").innerText = `${product.price} FCFA`;
+  
+  // Afficher le vendeur
+  document.getElementById("detailSeller").innerText = product.sellerEmail || "Inconnu";
+
+  // Afficher la catégorie
+  const categoryHTML = product.category ? `<div class="product-category">${product.category}</div>` : '';
+  document.getElementById("detailCategory").innerHTML = categoryHTML;
+
+  // Ajouter le badge "Nouveau" si le produit a été publié récemment
+  let badgeHTML = '';
+  if (product.publishedAt) {
+    const publishedDate = new Date(product.publishedAt);
+    const now = new Date();
+    const diffTime = now - publishedDate;
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+    if (diffDays < 7) {
+      badgeHTML = '<span class="new-badge">Nouveau</span>';
     }
+  }
+  document.getElementById("detailBadge").innerHTML = badgeHTML;
+
+  // Afficher la date de publication
+  let formattedDate = '';
+  if (product.publishedAt) {
+    const publishedDate = new Date(product.publishedAt);
+    formattedDate = `${publishedDate.toLocaleDateString('fr-FR')}`;
+  }
+  document.getElementById("detailDate").innerText = `Publié le: ${formattedDate}`;
+
+// Filtrer et afficher des produits similaires (même catégorie, hors du produit sélectionné)
+let similarProducts = allProducts.filter(p => p.detectedCategory === product.detectedCategory && p._id !== product._id);
+displaySimilarProducts(similarProducts.slice(0, 20)); // Limiter à 20 produits
+
+function displaySimilarProducts(products) {
+  const similarGrid = document.getElementById("similarGrid");
+  similarGrid.innerHTML = "";
+  
+  if (products.length === 0) {
+    similarGrid.innerHTML = "<p>Aucun produit similaire trouvé.</p>";
+    return;
+  }
+
+  products.forEach(prod => {
+    const div = document.createElement("div");
+    div.className = "similar-item";
+    div.innerHTML = `<img src="${prod.imageUrl}" alt="${prod.productName}">
+                     <p>${prod.productName}</p>
+                     <p>${prod.price} FCFA</p>`;
+    div.onclick = function() {
+      showProductDetailView(prod);
+    };
+    similarGrid.appendChild(div);
+  });
+}
 
     function displaySimilarProducts(products) {
       const similarGrid = document.getElementById("similarGrid");
