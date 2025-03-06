@@ -518,9 +518,6 @@
 </h2>
       <div id="productGrid" class="grid-container"></div>
     </section>
-    <div id="detailCategory"></div>
-<div id="detailBadge"></div>
-<div id="detailDate"></div>
 <div id="productContainer" style="display: none;"></div>
     <!-- Section de Détail du Produit (cachée par défaut) -->
     <div id="detailSection">
@@ -531,6 +528,9 @@
         <div class="detail-info">
           <h1 id="detailName">Nom du produit</h1>
           <p id="detailDescription">Description du produit...</p>
+          <div id="detailCategory"></div>
+<div id="detailBadge"></div>
+<div id="detailDate"></div>
           <p><strong>Prix :</strong> <span id="detailPrice"></span> FCFA</p>
           <p><strong>Vendeur :</strong> <span id="detailSeller"></span></p>
         </div>
@@ -649,7 +649,7 @@
   <div id="loadingIndicator" style="display: none;">Chargement...</div>
   <div id="productContainer"></div>
   
-  <script>
+ <script>
     let allProducts = [];
     let cartCount = 0;
     // Variable globale pour stocker le produit actuellement affiché en détail
@@ -699,12 +699,11 @@ function displayProducts(products) {
   productGrid.innerHTML = products.length
     ? ""
     : "<p style='text-align:center;'>Aucun produit publié pour le moment.</p>";
-
+  
   products.forEach(product => {
     const productItem = document.createElement("div");
     productItem.className = 'grid-item';
 
-    // Ajout du badge "Nouveau" si le produit a été publié récemment
     let badgeHTML = '';
     if (product.publishedAt) {
       const publishedDate = new Date(product.publishedAt);
@@ -716,16 +715,6 @@ function displayProducts(products) {
       }
     }
 
-    // Formatage de la date de publication
-    let formattedDate = '';
-    if (product.publishedAt) {
-      const publishedDate = new Date(product.publishedAt);
-      formattedDate = `${publishedDate.toLocaleDateString('fr-FR')}`;
-    }
-
-    // Ajout de la catégorie du produit
-    const categoryHTML = product.category ? `<div class="product-category">${product.category}</div>` : '';
-
     productItem.innerHTML =
       `<div class="product-image-wrapper" style="position: relative;">
          <img src="${product.imageUrl}" alt="${product.productName}" class="product-image">
@@ -734,12 +723,10 @@ function displayProducts(products) {
        <div class="product-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
          ${product.productName}
        </div>
-       ${categoryHTML}
        <div class="product-description" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
          ${product.description}
        </div>
        <div class="product-price">${product.price} FCFA</div>
-       <div class="product-date">Publié le: ${formattedDate}</div>
        <div style="margin-top: 10px;">
          <button class="add-to-cart" onclick="addToCart('${product.productName}', ${product.price}, '${product.description}', '${product.imageUrl}', '${product.sellerEmail}', this)">Acheter</button>
          <button class="details-button" onclick='showProductDetailView(${JSON.stringify(product)})'>Détail</button>
@@ -863,77 +850,26 @@ function filterCheapProducts() {
       setTimeout(() => notification.classList.remove("show"), 3000);
     }
 
-   // Affichage du détail du produit dans la section intégrée
-function showProductDetailView(product) {
-  // Stocker le produit actuellement affiché
-  currentProduct = product;
-  
-  // Masquer la grille de produits
-  document.getElementById("productGrid").style.display = "none";
-  
-  // Afficher la section de détail
-  document.getElementById("detailSection").style.display = "block";
-  
-  // Mettre à jour les informations du produit
-  document.getElementById("detailImage").src = product.imageUrl;
-  document.getElementById("detailImage").alt = product.productName;
-  document.getElementById("detailName").innerText = product.productName;
-  document.getElementById("detailDescription").innerText = product.description;
-  document.getElementById("detailPrice").innerText = `${product.price} FCFA`;
-  
-  // Afficher le vendeur
-  document.getElementById("detailSeller").innerText = product.sellerEmail || "Inconnu";
-
-  // Afficher la catégorie
-  const categoryHTML = product.category ? `<div class="product-category">${product.category}</div>` : '';
-  document.getElementById("detailCategory").innerHTML = categoryHTML;
-
-  // Ajouter le badge "Nouveau" si le produit a été publié récemment
-  let badgeHTML = '';
-  if (product.publishedAt) {
-    const publishedDate = new Date(product.publishedAt);
-    const now = new Date();
-    const diffTime = now - publishedDate;
-    const diffDays = diffTime / (1000 * 60 * 60 * 24);
-    if (diffDays < 7) {
-      badgeHTML = '<span class="new-badge">Nouveau</span>';
+    // Affichage du détail du produit dans la section intégrée
+    function showProductDetailView(product) {
+      // Stocker le produit actuellement affiché
+      currentProduct = product;
+      // Masquer la grille de produits
+      document.getElementById("productGrid").style.display = "none";
+      // Afficher la section de détail
+      document.getElementById("detailSection").style.display = "block";
+      // Mettre à jour les informations du produit
+      document.getElementById("detailImage").src = product.imageUrl;
+      document.getElementById("detailImage").alt = product.productName;
+      document.getElementById("detailName").innerText = product.productName;
+      document.getElementById("detailDescription").innerText = product.description;
+      document.getElementById("detailPrice").innerText = product.price;
+      document.getElementById("detailSeller").innerText = product.sellerEmail || "Inconnu";
+      
+      // Filtrer et afficher des produits similaires (même catégorie, hors du produit sélectionné)
+      let similarProducts = allProducts.filter(p => p.detectedCategory === product.detectedCategory && p._id !== product._id);
+      displaySimilarProducts(similarProducts);
     }
-  }
-  document.getElementById("detailBadge").innerHTML = badgeHTML;
-
-  // Afficher la date de publication
-  let formattedDate = '';
-  if (product.publishedAt) {
-    const publishedDate = new Date(product.publishedAt);
-    formattedDate = `${publishedDate.toLocaleDateString('fr-FR')}`;
-  }
-  document.getElementById("detailDate").innerText = `Publié le: ${formattedDate}`;
-
-// Filtrer et afficher des produits similaires (même catégorie, hors du produit sélectionné)
-let similarProducts = allProducts.filter(p => p.detectedCategory === product.detectedCategory && p._id !== product._id);
-displaySimilarProducts(similarProducts.slice(0, 20)); // Limiter à 20 produits
-
-function displaySimilarProducts(products) {
-  const similarGrid = document.getElementById("similarGrid");
-  similarGrid.innerHTML = "";
-  
-  if (products.length === 0) {
-    similarGrid.innerHTML = "<p>Aucun produit similaire trouvé.</p>";
-    return;
-  }
-
-  products.forEach(prod => {
-    const div = document.createElement("div");
-    div.className = "similar-item";
-    div.innerHTML = `<img src="${prod.imageUrl}" alt="${prod.productName}">
-                     <p>${prod.productName}</p>
-                     <p>${prod.price} FCFA</p>`;
-    div.onclick = function() {
-      showProductDetailView(prod);
-    };
-    similarGrid.appendChild(div);
-  });
-}
 
     function displaySimilarProducts(products) {
       const similarGrid = document.getElementById("similarGrid");
