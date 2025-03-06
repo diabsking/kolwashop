@@ -127,46 +127,68 @@
   background-color: #f0f0f0;
 }
 
-     /* Grille des produits */
-    .grid-container-wrapper {
-      overflow: auto; /* Active le défilement horizontal et vertical */
-      width: 100%;
-      max-height: 600px; /* Hauteur maximale pour forcer le défilement vertical si besoin */
+    /* Section Produits */
+    main section {
+      background-color: #f8d7db;
+      padding: 40px 0;
     }
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(10, 200px); /* 10 produits par ligne, largeur fixe pour chaque produit */
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 20px;
+      width: 100%;
+      max-width: 100%;
       padding: 20px;
-      width: max-content; /* Définit la largeur totale en fonction du contenu */
     }
     .grid-item {
       background-color: #fff;
       padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       text-align: center;
-      transition: transform 0.3s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 300px;
+      transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
     }
     .grid-item:hover {
-      transform: translateY(-5px);
+      transform: translateY(-10px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     }
     .grid-item img {
       width: 100%;
-      height: 150px;
+      height: 200px;
       object-fit: cover;
-      border-radius: 4px;
+      border-radius: 5px;
+      transition: transform 0.3s ease;
+      word-wrap: break-word;
     }
-    .product-name {
-      font-size: 16px;
-      margin: 10px 0;
-      font-weight: bold;
-    }
-    .product-price {
-      color: #333;
+    .grid-item img:hover { transform: scale(1.05); }
+    .grid-item .product-name {
       font-size: 14px;
       font-weight: bold;
+      margin-top: auto;
     }
+    .grid-item .product-price {
+      font-size: 12px;
+      color: #ff9900;
+      font-weight: bold;
+    }
+    .grid-item button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background-color 0.3s;
+    }
+    .grid-item .add-to-cart {
+      background-color: #ff9900;
+      color: #fff;
+    }
+    .grid-item .add-to-cart:hover { background-color: #e68a00; }
     /* Bouton Détail transparent */
     .grid-item .details-button {
       background: transparent;
@@ -210,65 +232,36 @@
     .detail-info h1 {
       margin-top: 0;
     }
-   .similar-products {
-  margin-top: 30px;
-}
-
-.similar-products h2 {
-  font-size: 20px;
-  margin-bottom: 10px;
-}
-
-.similar-grid {
-  display: flex; /* Utilisation de flexbox pour les produits */
-  flex-wrap: wrap; /* Permet d'afficher plusieurs lignes */
-  gap: 20px; /* Espacement entre les produits */
-  overflow: auto; /* Permet à la grille de défiler à la fois horizontalement et verticalement */
-  max-height: 500px; /* Limite la hauteur du conteneur pour activer le défilement vertical */
-  padding: 10px;
-}
-
-.similar-item {
-  flex: 0 0 calc(10% - 20px); /* Affiche 10 produits par ligne avec un espacement de 20px */
-  background: #fff;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  text-align: center;
-  cursor: pointer;
-  transition: transform 0.3s;
-}
-
-.similar-item:hover {
-  transform: scale(1.05);
-}
-
-.similar-item img {
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 5px;
-}
-
-.action-buttons-detail {
-  margin-top: 20px;
-  text-align: center;
-}
-
-/* Style pour les barres de défilement */
-.similar-grid::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.similar-grid::-webkit-scrollbar-thumb {
-  background-color: #888;
-  border-radius: 5px;
-}
-
-.similar-grid::-webkit-scrollbar-thumb:hover {
-  background-color: #555;
-}
+    .similar-products {
+      margin-top: 30px;
+    }
+    .similar-products h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    .similar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+    }
+    .similar-item {
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .similar-item:hover {
+      transform: scale(1.05);
+    }
+    .similar-item img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
     .action-buttons-detail {
       margin-top: 20px;
       text-align: center;
@@ -287,7 +280,6 @@
     .action-buttons-detail a:hover {
       background-color: darkorange;
     }
-
     /* Pied de page */
     footer {
       position: relative;
