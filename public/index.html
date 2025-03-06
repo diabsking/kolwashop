@@ -155,8 +155,8 @@
       display: grid;
       grid-template-columns: repeat(10, 1fr);
       gap: 20px;
-      width: 50%;
-      max-width: 50%;
+      width: 100%;
+      max-width: 100%;
       padding: 20px;
       margin: 0 auto;
     }
@@ -174,7 +174,6 @@
     }
     .grid-item:hover {
       transform: translateY(-10px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     }
     .grid-item img {
       width: 100%;
@@ -207,22 +206,26 @@
       color: #fff;
     }
     .grid-item .add-to-cart:hover { background-color: #e68a00; }
-    /* Bouton Détail transparent */
-    .grid-item .details-button {
-      background: transparent;
-      border: 1px solid #007bff;
-      color: #007bff;
-      border-radius: 5px;
-      padding: 8px 12px;
-      margin-left: 5px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: background-color 0.3s, color 0.3s;
-    }
-    .grid-item .details-button:hover {
-      background-color: #007bff;
-      color: #fff;
-    }
+   /* Bouton Détail plein largeur */
+.grid-item .details-button {
+  background: #007bff; /* Fond bleu */
+  border: none; /* Supprime le contour */
+  color: #fff; /* Texte blanc */
+  border-radius: 5px;
+  padding: 10px 0; /* Ajuste la hauteur */
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%; /* Le bouton prend toute la largeur */
+  text-align: center;
+}
+
+.grid-item .details-button:hover {
+  background-color: #0056b3; /* Bleu plus foncé au survol */
+}
+    .button-acheter {
+  display: none !important; /* Masque complètement le bouton */
+}
 
     /* Section de détail intégrée */
     #detailSection {
@@ -263,8 +266,8 @@
       display: grid;
       grid-template-columns: repeat(10, 1fr);
       gap: 20px;
-      width: 50%;
-      max-width: 50%;
+      width: 100%;
+      max-width: 100%;
       padding: 20px;
       margin: 0 auto;
     }
@@ -272,7 +275,6 @@
       background: #fff;
       padding: 15px;
       border-radius: 5px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       text-align: center;
       display: flex;
       flex-direction: column;
@@ -282,7 +284,6 @@
     }
     .similar-item:hover {
       transform: translateY(-10px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     }
     .similar-item img {
       width: 100%;
