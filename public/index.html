@@ -538,23 +538,23 @@ footer {
 
 /* Responsive: Affichage spécifique pour les écrans d'ordinateurs */
 @media only screen and (min-width: 1024px) {
-  /* Contrainte du conteneur pour forcer 6 cm de marge à gauche et à droite */
+  /* Contrainte du conteneur avec 7 produits par ligne */
   .grid-container,
   .similar-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 5 colonnes fixes */
+    grid-template-columns: repeat(7, 1fr); /* 7 colonnes fixes */
     gap: 20px;
-    width: calc(100% - 12cm); /* Largeur calculée pour laisser 6 cm de chaque côté */
+    width: calc(100% - 12cm); /* Largeur ajustée avec marges de 6 cm */
     margin-left: 6cm;
     margin-right: 6cm;
-    overflow-x: hidden; /* Pas de défilement horizontal */
+    overflow-x: hidden;
     box-sizing: border-box;
   }
-  
-  /* Augmentation de la hauteur pour que le texte apparaisse bien */
+
+  /* Ajustement des éléments pour bien afficher les textes */
   .grid-item,
   .similar-item {
-    min-height: 300px;  /* Hauteur augmentée */
+    min-height: 320px; /* Hauteur augmentée */
     box-sizing: border-box;
     padding: 10px;
     overflow: hidden;
@@ -562,26 +562,36 @@ footer {
     word-wrap: break-word;
     text-overflow: ellipsis;
   }
-  
+
   /* Masquer le bouton "Acheter" */
   .grid-item .add-to-cart,
   .similar-item .add-to-cart {
     display: none;
   }
-  
-  /* Bouton "Détail" centré avec une taille de police plus grande */
+
+  /* Bouton "Détail" centré, plus grand et transparent */
   .grid-item .details-button {
     display: block;
-    margin: 20px auto;   /* Centrage horizontal avec marge en haut et en bas */
-    font-size: 18px;     /* Texte agrandi */
+    background: transparent; /* Fond transparent */
+    border: none; /* Supprime la bordure */
+    color: #007bff; /* Texte en bleu */
+    font-size: 18px; /* Texte agrandi */
+    font-weight: bold;
     padding: 10px 20px;
     text-align: center;
+    margin: 20px auto;
+    cursor: pointer;
+    transition: color 0.3s;
   }
-  
+
+  .grid-item .details-button:hover {
+    color: #0056b3; /* Assombrit le texte au survol */
+  }
+
   .detail-main {
     flex-direction: row;
   }
-  
+
   /* S'assurer que l'écran reste fixe avec un défilement vertical uniquement */
   html, body {
     overflow-x: hidden;
