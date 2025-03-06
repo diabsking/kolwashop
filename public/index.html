@@ -127,85 +127,78 @@
   background-color: #f0f0f0;
 }
 
-    /* Section Produits */
-    main section {
-      background-color: #f8d7db;
-      padding: 40px 0;
-    }
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 20px;
-      width: 100%;
-      max-width: 100%;
-      padding: 20px;
-    }
-    .grid-item {
-      background-color: #fff;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      height: 300px;
-      transition: transform 0.3s, box-shadow 0.3s;
-      position: relative;
-    }
-    .grid-item:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    }
-    .grid-item img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 5px;
-      transition: transform 0.3s ease;
-      word-wrap: break-word;
-    }
-    .grid-item img:hover { transform: scale(1.05); }
-    .grid-item .product-name {
-      font-size: 14px;
-      font-weight: bold;
-      margin-top: auto;
-    }
-    .grid-item .product-price {
-      font-size: 12px;
-      color: #ff9900;
-      font-weight: bold;
-    }
-    .grid-item button {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 12px;
-      transition: background-color 0.3s;
-    }
-    .grid-item .add-to-cart {
-      background-color: #ff9900;
-      color: #fff;
-    }
-    .grid-item .add-to-cart:hover { background-color: #e68a00; }
-    /* Bouton Détail transparent */
-    .grid-item .details-button {
-      background: transparent;
-      border: 1px solid #007bff;
-      color: #007bff;
-      border-radius: 5px;
-      padding: 8px 12px;
-      margin-left: 5px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: background-color 0.3s, color 0.3s;
-    }
-    .grid-item .details-button:hover {
-      background-color: #007bff;
-      color: #fff;
-    }
-
+/* Section Produits */
+main section {
+  background-color: #ffffff;
+  padding: 40px 0;
+}
+.grid-container {
+  display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.grid-item {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  text-align: center;
+  display: inline-block;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 4cm;
+  height: 300px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
+  margin: 0 10px;
+}
+.grid-item:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+.grid-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 5px;
+  transition: transform 0.3s ease;
+  word-wrap: break-word;
+}
+.grid-item img:hover { transform: scale(1.05); }
+.grid-item .product-name {
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: auto;
+}
+.grid-item .product-price {
+  font-size: 12px;
+  color: #ff9900;
+  font-weight: bold;
+}
+.grid-item button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s;
+}
+/* Bouton Détail transparent */
+.grid-item .details-button {
+  background: transparent;
+  border: none;
+  color: #007bff;
+  border-radius: 5px;
+  padding: 8px 12px;
+  margin-left: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+.grid-item .details-button:hover {
+  background-color: #007bff;
+  color: #fff;
+}
     /* Section de détail intégrée */
     #detailSection {
       display: none;
@@ -634,18 +627,18 @@
   <div id="productContainer"></div>
   
  <script>
-    let allProducts = [];
-    let cartCount = 0;
-    // Variable globale pour stocker le produit actuellement affiché en détail
-    let currentProduct = null;
-    
-    // Chargement des produits et initialisation des filtres dès le chargement de la page
-    window.onload = () => {
-      loadProducts();
-      setupCategoryFilters();
-      setupSearch();
-      setupSidebarFilters();
-    };
+  let allProducts = [];
+let cartCount = 0;
+// Variable globale pour stocker le produit actuellement affiché en détail
+let currentProduct = null;
+
+// Chargement des produits et initialisation des filtres dès le chargement de la page
+window.onload = () => {
+  loadProducts();
+  setupCategoryFilters();
+  setupSearch();
+  setupSidebarFilters();
+};
 
 async function loadProducts() {
   const loadingIndicator = document.getElementById('loadingIndicator');
@@ -665,10 +658,6 @@ async function loadProducts() {
     const data = await response.json();
     allProducts = data.products || [];
 
-    allProducts.forEach(product => {
-      product.detectedCategory = aiDetectCategory(product);
-    });
-
     displayProducts(allProducts);
   } catch (err) {
     console.error("Erreur lors du chargement des produits:", err);
@@ -678,16 +667,18 @@ async function loadProducts() {
     productContainer.style.display = 'block';
   }
 }
+
 function displayProducts(products) {
   const productGrid = document.getElementById("productGrid");
   productGrid.innerHTML = products.length
     ? ""
     : "<p style='text-align:center;'>Aucun produit publié pour le moment.</p>";
-  
+
   products.forEach(product => {
     const productItem = document.createElement("div");
     productItem.className = 'grid-item';
 
+    // Ajout du badge "Nouveau" si le produit a été publié récemment
     let badgeHTML = '';
     if (product.publishedAt) {
       const publishedDate = new Date(product.publishedAt);
@@ -699,21 +690,32 @@ function displayProducts(products) {
       }
     }
 
+    // Formatage de la date de publication
+    let formattedDate = '';
+    if (product.publishedAt) {
+      const publishedDate = new Date(product.publishedAt);
+      formattedDate = `${publishedDate.toLocaleDateString('fr-FR')}`;
+    }
+
+    // Récupération et affichage de la catégorie du produit depuis la base de données
+    const categoryHTML = product.category ? `<div class="product-category" style="font-weight: bold;">${product.category}</div>` : '';
+
     productItem.innerHTML =
       `<div class="product-image-wrapper" style="position: relative;">
-         <img src="${product.imageUrl}" alt="${product.productName}" class="product-image">
+         <img src="${product.imageUrl}" alt="${product.productName}" class="product-image" style="width: 4cm; height: 4cm;">
          ${badgeHTML}
        </div>
-       <div class="product-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+       <div class="product-name" style="font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
          ${product.productName}
        </div>
-       <div class="product-description" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+       ${categoryHTML}
+       <div class="product-description" style="font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
          ${product.description}
        </div>
-       <div class="product-price">${product.price} FCFA</div>
+       <div class="product-price" style="font-weight: bold;">${product.price} FCFA</div>
+       <div class="product-date" style="font-weight: bold;">Publié le: ${formattedDate}</div>
        <div style="margin-top: 10px;">
-         <button class="add-to-cart" onclick="addToCart('${product.productName}', ${product.price}, '${product.description}', '${product.imageUrl}', '${product.sellerEmail}', this)">Acheter</button>
-         <button class="details-button" onclick='showProductDetailView(${JSON.stringify(product)})'>Détail</button>
+         <button class="details-button" style="font-weight: bold; background: none; border: none; font-size: 16px;" onclick='showProductDetailView(${JSON.stringify(product)})'>Détail</button>
        </div>`;
     productGrid.appendChild(productItem);
   });
