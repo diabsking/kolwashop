@@ -147,160 +147,224 @@
 .category-button:hover {
   background-color: #f0f0f0;
 }
- /* Section Produits */
-    main section {
-      background-color: #f8d7db;
-      padding: 40px 0;
-    }
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 20px;
-      width: 100%;
-      max-width: 100%;
-      padding: 20px;
-    }
-    .grid-item {
-      background-color: #fff;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      height: 300px;
-      transition: transform 0.3s, box-shadow 0.3s;
-      position: relative;
-    }
-    .grid-item:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    }
-    .grid-item img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 5px;
-      transition: transform 0.3s ease;
-      word-wrap: break-word;
-    }
-    .grid-item img:hover { transform: scale(1.05); }
-    .grid-item .product-name {
-      font-size: 14px;
-      font-weight: bold;
-      margin-top: auto;
-    }
-    .grid-item .product-price {
-      font-size: 12px;
-      color: #ff9900;
-      font-weight: bold;
-    }
-    .grid-item button {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 12px;
-      transition: background-color 0.3s;
-    }
-    .grid-item .add-to-cart {
-      background-color: #ff9900;
-      color: #fff;
-    }
-    .grid-item .add-to-cart:hover { background-color: #e68a00; }
-    /* Bouton Détail transparent */
-    .grid-item .details-button {
-      background: transparent;
-      border: 1px solid #007bff;
-      color: #007bff;
-      border-radius: 5px;
-      padding: 8px 12px;
-      margin-left: 5px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: background-color 0.3s, color 0.3s;
-    }
-    .grid-item .details-button:hover {
-      background-color: #007bff;
-      color: #fff;
-    }
+/* Section Produits */
+main section {
+  background-color: #ffffff; /* Blanc */
+  padding: 40px 0;
+}
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 100%;
+  padding: 20px;
+}
+.grid-item {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 300px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
+}
+.grid-item:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+.grid-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 5px;
+  transition: transform 0.3s ease;
+  word-wrap: break-word;
+}
+.grid-item img:hover { transform: scale(1.05); }
+.grid-item .product-name {
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: auto;
+}
+.grid-item .product-price {
+  font-size: 12px;
+  color: #ff9900;
+  font-weight: bold;
+}
+.grid-item button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s;
+}
+.grid-item .add-to-cart {
+  background-color: #ff9900;
+  color: #fff;
+}
+.grid-item .add-to-cart:hover { background-color: #e68a00; }
+/* Bouton Détail transparent */
+.grid-item .details-button {
+  background: transparent;
+  border: 1px solid #007bff;
+  color: #007bff;
+  border-radius: 5px;
+  padding: 8px 12px;
+  margin-left: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+.grid-item .details-button:hover {
+  background-color: #007bff;
+  color: #fff;
+}
 
-    /* Section de détail intégrée */
-    #detailSection {
-      display: none;
-      padding: 20px;
-      background-color: #fff;
-      margin: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    .detail-main {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-    }
-    .detail-photo,
-    .detail-info {
-      flex: 1;
-      min-width: 300px;
-    }
-    .detail-photo img {
-      width: 100%;
-      border-radius: 8px;
-    }
-    .detail-info h1 {
-      margin-top: 0;
-    }
-    .similar-products {
-      margin-top: 30px;
-    }
-    .similar-products h2 {
-      font-size: 20px;
-      margin-bottom: 10px;
-    }
-    .similar-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 20px;
-    }
-    .similar-item {
-      background: #fff;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      text-align: center;
-      cursor: pointer;
-      transition: transform 0.3s;
-    }
-    .similar-item:hover {
-      transform: scale(1.05);
-    }
-    .similar-item img {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-      border-radius: 5px;
-    }
-    .action-buttons-detail {
-      margin-top: 20px;
-      text-align: center;
-    }
-    .action-buttons-detail a {
-      display: inline-block;
-      padding: 10px 20px;
-      background-color: orange;
-      color: white;
-      text-decoration: none;
-      border-radius: 20px;
-      font-size: 16px;
-      margin: 0 10px;
-      transition: background-color 0.3s;
-    }
-    .action-buttons-detail a:hover {
-      background-color: darkorange;
-    }
+/* Section de détail intégrée */
+#detailSection {
+  display: none;
+  padding: 20px;
+  background-color: #fff;
+  margin: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+.detail-main {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.detail-photo,
+.detail-info {
+  flex: 1;
+  min-width: 300px;
+}
+.detail-photo img {
+  width: 100%;
+  border-radius: 8px;
+}
+.detail-info h1 {
+  margin-top: 0;
+}
+.similar-products {
+  margin-top: 30px;
+}
+.similar-products h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
 
+/* Modification : la grille des produits similaires suit la même logique que la grille principale */
+.similar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 100%;
+  padding: 20px;
+}
+
+.similar-item {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 300px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
+}
+
+.similar-item:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.similar-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 5px;
+  transition: transform 0.3s ease;
+  word-wrap: break-word;
+}
+
+.similar-item img:hover { transform: scale(1.05); }
+.similar-item .product-name {
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: auto;
+}
+.similar-item .product-price {
+  font-size: 12px;
+  color: #ff9900;
+  font-weight: bold;
+}
+.similar-item button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s;
+}
+.similar-item .add-to-cart {
+  background-color: #ff9900;
+  color: #fff;
+}
+.similar-item .add-to-cart:hover { background-color: #e68a00; }
+
+/* Responsive: Adaptation pour les petits écrans */
+@media (max-width: 600px) {
+  .grid-container,
+  .similar-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 10px;
+    padding: 10px;
+  }
+  .grid-item,
+  .similar-item {
+    flex: 0 0 auto;
+    width: 220px;
+    height: auto;
+  }
+}
+
+.action-buttons-detail {
+  margin-top: 20px;
+  text-align: center;
+}
+.action-buttons-detail a {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: orange;
+  color: white;
+  text-decoration: none;
+  border-radius: 20px;
+  font-size: 16px;
+  margin: 0 10px;
+  transition: background-color 0.3s;
+}
+.action-buttons-detail a:hover {
+  background-color: darkorange;
+}
+
+.logo {
+  font-size: 16px; /* Taille réduite */
+  font-weight: bold;
+  color: #fff; /* Texte en blanc */
+}
     /* Pied de page */
     footer {
       position: relative;
@@ -483,6 +547,7 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
   </style>
 </head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -526,7 +591,7 @@
   <!-- Section Produits -->
   <main>
      <div class="popular-products">
-    <h2>Produits Populaires</h2>
+    <h2 style="font-size: 15px;">Produits Populaires</h2>
     <div class="popular-carousel" id="popularProducts"></div>
     </div>
     <section>
@@ -534,7 +599,7 @@
   <div class="spinner"></div>
   <p>Chargement des produits...</p>
   </div> 
-      <h2 style="text-align: center; margin-top: 20px; font-size: 28px; font-weight: bold; color: #333;">la livraison est gratuite</h2>
+      <h2 style="text-align: center; margin-top: 10px; font-size: 15px; font-weight: bold; color: #333;">la livraison est gratuite</h2>
       <div id="productGrid" class="grid-container"></div>
     </section>
 <div id="productContainer" style="display: none;"></div>
