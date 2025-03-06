@@ -140,7 +140,7 @@ a { text-decoration: none; }
   background-color: #f0f0f0;
 }
 
- /* Section Produits */
+     /* Section Produits */
     main section {
       background-color: #f8d7db;
       padding: 40px 0;
@@ -343,13 +343,6 @@ footer {
       .auth-buttons { top: 50px; right: 5px; }
     }
 
-  .similar-grid {
-    display: flex;
-    gap: 10px;
-    overflow-x: auto;
-  }
-}
-
 /* Autres ajustements */
 .new-badge {
   position: absolute;
@@ -361,6 +354,32 @@ footer {
   font-size: 0.8em;
   border-radius: 5px;
 }
+  .popular-carousel {
+      display: flex;
+      overflow-x: auto;
+      gap: 20px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    .popular-item {
+      flex: 0 0 auto;
+      width: 200px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      background-color: #f9f9f9;
+    }
+    .popular-item img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+    .popular-item p {
+      font-size: 16px;
+      color: #333;
+    }
 
 .location-indicator {
   position: absolute;
@@ -403,7 +422,8 @@ footer {
 .filter-button:hover {
   background-color: #0056b3;
 }
-</style>
+ </style>
+</head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <body>
   <!-- En-tête -->
@@ -415,6 +435,7 @@ footer {
       <div class="search-container">
         <input type="text" id="searchBox" placeholder="Rechercher un produit...">
         <button id="searchBtn">Rechercher</button>
+        <button class="filter-button" onclick="filterCheapProducts()">Produits vendus moins de 10 000 FCFA</button>
       </div>
     </div>
     <!-- Navigation principale -->
@@ -422,6 +443,7 @@ footer {
       <a href="/">🏠 accueil</a>
       <a href="/espace-vendeur">🛠️ Espace vendeur</a>
       <a href="/panier" style="position: relative;">🛒 Panier<span id="cartCount">0</span></a>
+      <a href="/Administrateur">Administrateur</a>
     </nav>
   </header>
   
@@ -503,7 +525,7 @@ footer {
   <div id="review-section">
     <!-- Les avis clients s'afficheront ici -->
   </div>
-</div>
+</div>>
   </div>
 </div>
   </main>
@@ -584,19 +606,19 @@ footer {
   <div id="loadingIndicator" style="display: none;">Chargement...</div>
   <div id="productContainer"></div>
   
- <script>
-let allProducts = [];
-let cartCount = 0;
-// Variable globale pour stocker le produit actuellement affiché en détail
-let currentProduct = null;
-
-// Chargement des produits et initialisation des filtres dès le chargement de la page
-window.onload = () => {
-  loadProducts();
-  setupCategoryFilters();
-  setupSearch();
-  setupSidebarFilters();
-};
+  <script>
+    let allProducts = [];
+    let cartCount = 0;
+    // Variable globale pour stocker le produit actuellement affiché en détail
+    let currentProduct = null;
+    
+    // Chargement des produits et initialisation des filtres dès le chargement de la page
+    window.onload = () => {
+      loadProducts();
+      setupCategoryFilters();
+      setupSearch();
+      setupSidebarFilters();
+    };
 
 async function loadProducts() {
   const loadingIndicator = document.getElementById('loadingIndicator');
@@ -616,6 +638,10 @@ async function loadProducts() {
     const data = await response.json();
     allProducts = data.products || [];
 
+    allProducts.forEach(product => {
+      product.detectedCategory = aiDetectCategory(product);
+    });
+
     displayProducts(allProducts);
   } catch (err) {
     console.error("Erreur lors du chargement des produits:", err);
@@ -625,18 +651,16 @@ async function loadProducts() {
     productContainer.style.display = 'block';
   }
 }
-
 function displayProducts(products) {
   const productGrid = document.getElementById("productGrid");
   productGrid.innerHTML = products.length
     ? ""
     : "<p style='text-align:center;'>Aucun produit publié pour le moment.</p>";
-
+  
   products.forEach(product => {
     const productItem = document.createElement("div");
     productItem.className = 'grid-item';
 
-    // Ajout du badge "Nouveau" si le produit a été publié récemment
     let badgeHTML = '';
     if (product.publishedAt) {
       const publishedDate = new Date(product.publishedAt);
@@ -648,32 +672,21 @@ function displayProducts(products) {
       }
     }
 
-    // Formatage de la date de publication
-    let formattedDate = '';
-    if (product.publishedAt) {
-      const publishedDate = new Date(product.publishedAt);
-      formattedDate = `${publishedDate.toLocaleDateString('fr-FR')}`;
-    }
-
-    // Récupération et affichage de la catégorie du produit depuis la base de données
-    const categoryHTML = product.category ? `<div class="product-category" style="font-weight: bold;">${product.category}</div>` : '';
-
     productItem.innerHTML =
       `<div class="product-image-wrapper" style="position: relative;">
-         <img src="${product.imageUrl}" alt="${product.productName}" class="product-image" style="width: 4cm; height: 4cm;">
+         <img src="${product.imageUrl}" alt="${product.productName}" class="product-image">
          ${badgeHTML}
        </div>
-       <div class="product-name" style="font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+       <div class="product-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
          ${product.productName}
        </div>
-       ${categoryHTML}
-       <div class="product-description" style="font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+       <div class="product-description" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
          ${product.description}
        </div>
-       <div class="product-price" style="font-weight: bold;">${product.price} FCFA</div>
-       <div class="product-date" style="font-weight: bold;">Publié le: ${formattedDate}</div>
+       <div class="product-price">${product.price} FCFA</div>
        <div style="margin-top: 10px;">
-         <button class="details-button" style="font-weight: bold; background: none; border: none; font-size: 16px;" onclick='showProductDetailView(${JSON.stringify(product)})'>Détail</button>
+         <button class="add-to-cart" onclick="addToCart('${product.productName}', ${product.price}, '${product.description}', '${product.imageUrl}', '${product.sellerEmail}', this)">Acheter</button>
+         <button class="details-button" onclick='showProductDetailView(${JSON.stringify(product)})'>Détail</button>
        </div>`;
     productGrid.appendChild(productItem);
   });
@@ -794,65 +807,65 @@ function filterCheapProducts() {
       setTimeout(() => notification.classList.remove("show"), 3000);
     }
 
- // Affichage du détail du produit dans la section intégrée
-function showProductDetailView(product) {
-  // Stocker le produit actuellement affiché
-  currentProduct = product;
-  // Masquer la grille de produits
-  document.getElementById("productGrid").style.display = "none";
-  // Afficher la section de détail
-  document.getElementById("detailSection").style.display = "block";
-  // Mettre à jour les informations du produit
-  document.getElementById("detailImage").src = product.imageUrl;
-  document.getElementById("detailImage").alt = product.productName;
-  document.getElementById("detailName").innerText = product.productName;
-  document.getElementById("detailDescription").innerText = product.description;
-  document.getElementById("detailPrice").innerText = product.price + ' FCFA';
-  document.getElementById("detailSeller").innerText = product.sellerEmail || "Inconnu";
-  
-  // Filtrer et afficher des produits similaires (même catégorie, hors du produit sélectionné)
-  let similarProducts = allProducts.filter(p => p.detectedCategory === product.detectedCategory && p._id !== product._id);
-  displaySimilarProducts(similarProducts);
-}
-
-function displaySimilarProducts(products) {
-  const similarGrid = document.getElementById("similarGrid");
-  similarGrid.innerHTML = "";
-  if (products.length === 0) {
-    similarGrid.innerHTML = "<p>Aucun produit similaire trouvé.</p>";
-    return;
-  }
-  products.forEach(prod => {
-    const div = document.createElement("div");
-    div.className = "similar-item";
-    div.innerHTML = `<img src="${prod.imageUrl}" alt="${prod.productName}">
-                     <p style="font-weight: bold;">${prod.productName}</p>
-                     <p style="font-weight: bold;">${prod.price} FCFA</p>`;
-    div.onclick = function() {
-      showProductDetailView(prod);
+    // Affichage du détail du produit dans la section intégrée
+    function showProductDetailView(product) {
+      // Stocker le produit actuellement affiché
+      currentProduct = product;
+      // Masquer la grille de produits
+      document.getElementById("productGrid").style.display = "none";
+      // Afficher la section de détail
+      document.getElementById("detailSection").style.display = "block";
+      // Mettre à jour les informations du produit
+      document.getElementById("detailImage").src = product.imageUrl;
+      document.getElementById("detailImage").alt = product.productName;
+      document.getElementById("detailName").innerText = product.productName;
+      document.getElementById("detailDescription").innerText = product.description;
+      document.getElementById("detailPrice").innerText = product.price;
+      document.getElementById("detailSeller").innerText = product.sellerEmail || "Inconnu";
+      
+      // Filtrer et afficher des produits similaires (même catégorie, hors du produit sélectionné)
+      let similarProducts = allProducts.filter(p => p.detectedCategory === product.detectedCategory && p._id !== product._id);
+      displaySimilarProducts(similarProducts);
     }
-    similarGrid.appendChild(div);
-  });
-}
 
-// Fonction pour masquer la section de détail et revenir à la grille de produits
-function hideDetailSection() {
-  document.getElementById("detailSection").style.display = "none";
-  document.getElementById("productGrid").style.display = "grid";
-}
+    function displaySimilarProducts(products) {
+      const similarGrid = document.getElementById("similarGrid");
+      similarGrid.innerHTML = "";
+      if (products.length === 0) {
+        similarGrid.innerHTML = "<p>Aucun produit similaire trouvé.</p>";
+        return;
+      }
+      products.forEach(prod => {
+        const div = document.createElement("div");
+        div.className = "similar-item";
+        div.innerHTML = `<img src="${prod.imageUrl}" alt="${prod.productName}">
+                         <p>${prod.productName}</p>
+                         <p>${prod.price} FCFA</p>`;
+        div.onclick = function() {
+          showProductDetailView(prod);
+        }
+        similarGrid.appendChild(div);
+      });
+    }
 
-// Fonction pour le bouton Commander, qui ajoute le produit affiché au panier
-function orderProduct(button) {
-  if (!currentProduct) return;
-  addToCart(
-    currentProduct.productName,
-    currentProduct.price,
-    currentProduct.description,
-    currentProduct.imageUrl,
-    currentProduct.sellerEmail,
-    button
-  );
-}
+    // Fonction pour masquer la section de détail et revenir à la grille de produits
+    function hideDetailSection() {
+      document.getElementById("detailSection").style.display = "none";
+      document.getElementById("productGrid").style.display = "grid";
+    }
+
+    // Fonction pour le bouton Commander, qui ajoute le produit affiché au panier
+    function orderProduct(button) {
+      if (!currentProduct) return;
+      addToCart(
+        currentProduct.productName,
+        currentProduct.price,
+        currentProduct.description,
+        currentProduct.imageUrl,
+        currentProduct.sellerEmail,
+        button
+      );
+    }
 
     // Filtrer les produits par mot-clé à partir de la sidebar (si présente)
     function filterProductsByKeyword(keyword) {
