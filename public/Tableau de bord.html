@@ -106,9 +106,9 @@
   /* Grille des produits */
   #productList {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Affiche 4 produits par ligne sur les téléphones */
-    gap: 16px;
-    margin: 20px;
+    grid-template-columns: repeat(4, 1fr); /* Affiche 3 produits par ligne sur les téléphones */
+    gap: 14px;
+    margin: 5px;
   }
   @media screen and (max-width: 1200px) {
     #productList {
@@ -134,8 +134,8 @@
   /* Style de chaque produit */
   .product-item {
     border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 16px;
+    border-radius: 4px;
+    padding: 10px;
     text-align: center;
     background-color: #fff;
     transition: box-shadow 0.3s, transform 0.3s;
@@ -147,7 +147,7 @@
   }
   .product-item img {
     width: 100%;
-    height: 150px;
+    height: 90px;
     object-fit: cover;
     border-radius: 4px;
     margin-bottom: 10px;
@@ -163,7 +163,7 @@
 
   /* Boutons dans chaque produit */
   .product-item button {
-    margin: 3px;
+    margin: 2px;
     padding: 4px 8px;
     font-size: 0.8em;
     cursor: pointer;
