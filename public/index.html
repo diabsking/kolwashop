@@ -97,14 +97,7 @@ a { text-decoration: none; }
       align-items: center;
       justify-content: center;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-     width: 100%; /* Assure que la barre occupe toute la largeur */
     }
-    /* Augmenter la longueur de la navbar uniquement sur les téléphones */
-@media only screen and (max-width: 768px) {
-  .navbar {
-    width: 100vw; /* Utilise toute la largeur de l'écran */
-  }
-}
     .navbar a {
       color: #fff;
       margin: 0 20px;
@@ -114,6 +107,12 @@ a { text-decoration: none; }
       position: relative;
     }
     .navbar a:hover { color: #febd69; }
+       /* Augmenter la longueur de la navbar uniquement sur les téléphones */
+@media only screen and (max-width: 768px) {
+  .navbar {
+    width: 100vw; /* Utilise toute la largeur de l'écran */
+  }
+}
 /* Effet de survol supprimé */
 /* .navbar a:hover { color: #febd69; } */
 /* Badge compteur sur le Panier */
