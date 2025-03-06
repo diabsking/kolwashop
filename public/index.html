@@ -535,31 +535,44 @@ footer {
   100% { transform: rotate(360deg); }
 }
 
-/* Responsive: Adaptation spéciale pour les écrans plus larges (ordinateurs) */
-@media (min-width: 601px) {
+/* Styles spécifiques pour les écrans d'ordinateurs */
+@media only screen and (min-width: 1024px) {
+  /* Conteneurs produits et produits similaires */
   .grid-container,
   .similar-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* Affichage de 5 produits par ligne */
+    grid-template-columns: repeat(5, 1fr);  /* 5 colonnes fixes */
     gap: 20px;
-    max-width: 1200px; /* Limite la largeur pour éviter le dépassement */
-    margin: 0 auto; /* Centre le conteneur sur l'écran */
-    overflow-x: hidden; /* Empêche le défilement horizontal */
+    max-width: 1200px;    /* Limite la largeur pour éviter le débordement horizontal */
+    margin: 0 auto;       /* Centre le conteneur */
+    overflow-x: hidden;   /* Désactive le défilement horizontal */
+    padding: 20px;
+    box-sizing: border-box;
   }
-  
-  /* Assurer que le texte reste dans le conteneur */
+
+  /* Pour que le contenu ne dépasse pas dans chaque produit */
   .grid-item,
   .similar-item {
+    box-sizing: border-box;
+    padding: 10px;
     overflow: hidden;
-    white-space: normal;
-    word-wrap: break-word;
-    text-overflow: ellipsis;
+    white-space: normal;      /* Permet le retour à la ligne */
+    word-wrap: break-word;    /* Force la coupure des mots si nécessaire */
+    text-overflow: ellipsis;  /* Ajoute des points de suspension si le texte est trop long */
   }
   
-  .detail-main {
-    flex-direction: row; 
+  /* Si besoin, ajuster la hauteur des items pour uniformiser l'affichage */
+  .grid-item,
+  .similar-item {
+    min-height: 250px;
+  }
+  
+  /* Assurer un défilement vertical si le contenu dépasse */
+  body {
+    overflow-y: auto;
   }
 }
+  
   .navbar {
     padding: 15px 30px;
   }
