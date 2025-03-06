@@ -97,7 +97,14 @@ a { text-decoration: none; }
       align-items: center;
       justify-content: center;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+     width: 100%; /* Assure que la barre occupe toute la largeur */
     }
+    /* Augmenter la longueur de la navbar uniquement sur les téléphones */
+@media only screen and (max-width: 768px) {
+  .navbar {
+    width: 100vw; /* Utilise toute la largeur de l'écran */
+  }
+}
     .navbar a {
       color: #fff;
       margin: 0 20px;
@@ -355,12 +362,6 @@ main section {
 }
 /* Effet de survol supprimé */
 /* .action-buttons-detail a:hover { background-color: darkorange; } */
-
-.logo {
-  font-size: 18px; 
-  color: white; 
-  font-weight: bold; 
-}
 /* Pied de page */
 footer {
   position: relative;
@@ -613,7 +614,9 @@ footer {
   <!-- En-tête -->
   <header>
     <div class="top-header">
-      <div class="logo">KOLWAZSHOP</div>
+     <div class="logo" style="font-size: 20px; font-weight: bold; color: #fff;">
+  KOLWAZSHOP
+</div>
     </div>
     <div class="search-bar-container">
       <div class="search-container">
