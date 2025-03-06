@@ -627,7 +627,7 @@ main section {
   <div id="productContainer"></div>
   
  <script>
-  let allProducts = [];
+let allProducts = [];
 let cartCount = 0;
 // Variable globale pour stocker le produit actuellement affiché en détail
 let currentProduct = null;
@@ -836,65 +836,65 @@ function filterCheapProducts() {
       setTimeout(() => notification.classList.remove("show"), 3000);
     }
 
-    // Affichage du détail du produit dans la section intégrée
-    function showProductDetailView(product) {
-      // Stocker le produit actuellement affiché
-      currentProduct = product;
-      // Masquer la grille de produits
-      document.getElementById("productGrid").style.display = "none";
-      // Afficher la section de détail
-      document.getElementById("detailSection").style.display = "block";
-      // Mettre à jour les informations du produit
-      document.getElementById("detailImage").src = product.imageUrl;
-      document.getElementById("detailImage").alt = product.productName;
-      document.getElementById("detailName").innerText = product.productName;
-      document.getElementById("detailDescription").innerText = product.description;
-      document.getElementById("detailPrice").innerText = product.price;
-      document.getElementById("detailSeller").innerText = product.sellerEmail || "Inconnu";
-      
-      // Filtrer et afficher des produits similaires (même catégorie, hors du produit sélectionné)
-      let similarProducts = allProducts.filter(p => p.detectedCategory === product.detectedCategory && p._id !== product._id);
-      displaySimilarProducts(similarProducts);
-    }
+ // Affichage du détail du produit dans la section intégrée
+function showProductDetailView(product) {
+  // Stocker le produit actuellement affiché
+  currentProduct = product;
+  // Masquer la grille de produits
+  document.getElementById("productGrid").style.display = "none";
+  // Afficher la section de détail
+  document.getElementById("detailSection").style.display = "block";
+  // Mettre à jour les informations du produit
+  document.getElementById("detailImage").src = product.imageUrl;
+  document.getElementById("detailImage").alt = product.productName;
+  document.getElementById("detailName").innerText = product.productName;
+  document.getElementById("detailDescription").innerText = product.description;
+  document.getElementById("detailPrice").innerText = product.price + ' FCFA';
+  document.getElementById("detailSeller").innerText = product.sellerEmail || "Inconnu";
+  
+  // Filtrer et afficher des produits similaires (même catégorie, hors du produit sélectionné)
+  let similarProducts = allProducts.filter(p => p.detectedCategory === product.detectedCategory && p._id !== product._id);
+  displaySimilarProducts(similarProducts);
+}
 
-    function displaySimilarProducts(products) {
-      const similarGrid = document.getElementById("similarGrid");
-      similarGrid.innerHTML = "";
-      if (products.length === 0) {
-        similarGrid.innerHTML = "<p>Aucun produit similaire trouvé.</p>";
-        return;
-      }
-      products.forEach(prod => {
-        const div = document.createElement("div");
-        div.className = "similar-item";
-        div.innerHTML = `<img src="${prod.imageUrl}" alt="${prod.productName}">
-                         <p>${prod.productName}</p>
-                         <p>${prod.price} FCFA</p>`;
-        div.onclick = function() {
-          showProductDetailView(prod);
-        }
-        similarGrid.appendChild(div);
-      });
+function displaySimilarProducts(products) {
+  const similarGrid = document.getElementById("similarGrid");
+  similarGrid.innerHTML = "";
+  if (products.length === 0) {
+    similarGrid.innerHTML = "<p>Aucun produit similaire trouvé.</p>";
+    return;
+  }
+  products.forEach(prod => {
+    const div = document.createElement("div");
+    div.className = "similar-item";
+    div.innerHTML = `<img src="${prod.imageUrl}" alt="${prod.productName}">
+                     <p style="font-weight: bold;">${prod.productName}</p>
+                     <p style="font-weight: bold;">${prod.price} FCFA</p>`;
+    div.onclick = function() {
+      showProductDetailView(prod);
     }
+    similarGrid.appendChild(div);
+  });
+}
 
-    // Fonction pour masquer la section de détail et revenir à la grille de produits
-    function hideDetailSection() {
-      document.getElementById("detailSection").style.display = "none";
-      document.getElementById("productGrid").style.display = "grid";
-    }
+// Fonction pour masquer la section de détail et revenir à la grille de produits
+function hideDetailSection() {
+  document.getElementById("detailSection").style.display = "none";
+  document.getElementById("productGrid").style.display = "grid";
+}
 
-    // Fonction pour le bouton Commander, qui ajoute le produit affiché au panier
-    function orderProduct(button) {
-      if (!currentProduct) return;
-      addToCart(
-        currentProduct.productName,
-        currentProduct.price,
-        currentProduct.description,
-        currentProduct.imageUrl,
-        currentProduct.sellerEmail,
-        button
-      );
-    }
+// Fonction pour le bouton Commander, qui ajoute le produit affiché au panier
+function orderProduct(button) {
+  if (!currentProduct) return;
+  addToCart(
+    currentProduct.productName,
+    currentProduct.price,
+    currentProduct.description,
+    currentProduct.imageUrl,
+    currentProduct.sellerEmail,
+    button
+  );
+}
 
     // Filtrer les produits par mot-clé à partir de la sidebar (si présente)
     function filterProductsByKeyword(keyword) {
