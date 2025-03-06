@@ -535,22 +535,31 @@ footer {
   100% { transform: rotate(360deg); }
 }
 
-/* Responsive: Adaptation pour les écrans plus larges (ordinateurs) */
+/* Responsive: Adaptation spéciale pour les écrans plus larges (ordinateurs) */
 @media (min-width: 601px) {
   .grid-container,
   .similar-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 5 colonnes sur les grands écrans */
+    grid-template-columns: repeat(5, 1fr); /* Affichage de 5 produits par ligne */
     gap: 20px;
-    max-width: 1200px; /* Limite la largeur pour éviter de dépasser l'écran */
-    margin: 0 auto; /* Centre le conteneur */
+    max-width: 1200px; /* Limite la largeur pour éviter le dépassement */
+    margin: 0 auto; /* Centre le conteneur sur l'écran */
+    overflow-x: hidden; /* Empêche le défilement horizontal */
+  }
+  
+  /* Assurer que le texte reste dans le conteneur */
+  .grid-item,
+  .similar-item {
+    overflow: hidden;
+    white-space: normal;
+    word-wrap: break-word;
+    text-overflow: ellipsis;
   }
   
   .detail-main {
     flex-direction: row; 
   }
 }
-  
   .navbar {
     padding: 15px 30px;
   }
