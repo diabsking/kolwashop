@@ -147,68 +147,107 @@
       100% { transform: rotate(360deg); }
     }
 
-    /* Styles Responsive */
-    @media (max-width: 768px) {
-      #cartGrid {
-        padding: 10px;
-      }
-      .cart-item {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .cart-image {
-        width: 60px;
-        margin-right: 0;
-        margin-bottom: 10px;
-      }
-      .cart-item div {
-        font-size: 14px;
-      }
-      .action-buttons button {
-        padding: 10px 15px;
-        font-size: 14px;
-      }
-      #orderForm {
-        padding: 15px;
-      }
-      #orderForm input {
-        font-size: 14px;
-      }
-      #orderForm button {
-        font-size: 14px;
-        padding: 10px;
-      }
-    }
+  /* Styles Responsive */
+@media (max-width: 768px) {
+  #cartGrid {
+    padding: 10px;
+    width: 100%; /* Utilise toute la largeur disponible */
+    box-sizing: border-box; /* Assure que le padding ne dépasse pas de l'écran */
+  }
 
-    @media (max-width: 480px) {
-      h1 {
-        font-size: 24px;
-      }
-      #cartGrid {
-        padding: 5px;
-      }
-      .cart-item {
-        padding: 10px;
-      }
-      .cart-image {
-        width: 50px;
-      }
-      .cart-item div {
-        font-size: 12px;
-      }
-      .action-buttons button {
-        padding: 8px 10px;
-        font-size: 12px;
-      }
-      #orderForm input {
-        font-size: 12px;
-        padding: 8px;
-      }
-      #orderForm button {
-        font-size: 12px;
-        padding: 10px;
-      }
-    }
+  .cart-item {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px; /* Plus de padding pour un espacement correct */
+  }
+
+  .cart-image {
+    width: 60px;
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+  .cart-item div {
+    font-size: 14px;
+    text-align: left;
+  }
+
+  .action-buttons button {
+    padding: 10px 15px;
+    font-size: 14px;
+    width: 100%; /* Boutons en pleine largeur */
+  }
+
+  #orderForm {
+    padding: 15px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  #orderForm input {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  #orderForm button {
+    font-size: 14px;
+    padding: 10px;
+    width: 100%; /* Bouton en pleine largeur */
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 22px; /* Taille de texte réduite */
+  }
+
+  #cartGrid {
+    padding: 5px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .cart-item {
+    padding: 10px;
+    width: 100%; /* Prend toute la largeur disponible */
+    box-sizing: border-box;
+  }
+
+  .cart-image {
+    width: 50px;
+  }
+
+  .cart-item div {
+    font-size: 12px; /* Taille de texte réduite */
+    text-align: left;
+  }
+
+  .action-buttons button {
+    padding: 8px 10px;
+    font-size: 12px;
+    width: 100%; /* Boutons plein écran */
+  }
+
+  #orderForm input {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  #orderForm button {
+    font-size: 12px;
+    padding: 10px;
+    width: 100%; /* Bouton pleine largeur */
+  }
+
+  #notification {
+    font-size: 14px;
+    padding: 8px 15px;
+    width: 90%;
+    top: 10px;
+    right: 5%;
+    font-weight: 600;
+  }
+}
   </style>
 </head>
 <body>
