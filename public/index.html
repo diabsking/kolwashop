@@ -5,143 +5,140 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kolwaz Shop - Votre Boutique en Ligne</title>
   <style>
-  /* Global */
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #F4F7FA;
-      color: #333;
-      line-height: 1.6;
-      opacity: 0;
-      animation: fadeIn 1s forwards;
-    }
-    a { text-decoration: none; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+/* Global */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #F4F7FA;
+  color: #333;
+  line-height: 1.6;
+  opacity: 0;
+  animation: fadeIn 1s forwards;
+}
 
-    /* En-tête supérieur */
-    .top-header {
-      background-color: #131921;
-      color: #fff;
-      padding: 15px 20px;
-      text-align: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    .top-header .logo {
-      font-size: 27px;
-      font-weight: bold;
-      color: #febd69;
-    }
+a { text-decoration: none; }
 
-    /* Barre de recherche centrée */
-    .search-bar-container {
-      background-color: #fff;
-      padding: 20px 0;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    .search-container {
-      display: inline-flex;
-      width: 90%;
-      max-width: 500px;
-    }
-    .search-container input {
-      width: 100%;
-      padding: 10px;
-      border: 2px solid #ddd;
-      border-right: none;
-      border-radius: 5px 0 0 5px;
-      font-size: 16px;
-      transition: border 0.3s;
-    }
-    .search-container input:focus {
-      border-color: #febd69;
-      outline: none;
-    }
-    .search-container button {
-      padding: 10px 15px;
-      border: 2px solid #febd69;
-      background-color: #febd69;
-      color: #111;
-      font-weight: bold;
-      border-radius: 0 5px 5px 0;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    .search-container button:hover {
-      background-color: #f8a94b;
-    }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* Boutons d'authentification */
-    .auth-buttons {
-      position: absolute;
-      top: 100px;
-      right: 10px;
-    }
-    .auth-buttons .btn {
-      padding: 10px 20px;
-      margin-right: 10px;
-      background-color: orange;
-      color: white;
-      text-decoration: none;
-      border-radius: 20px;
-      font-size: 14px;
-    }
-    .auth-buttons .btn:hover {
-      background-color: darkorange;
-    }
+/* En-tête supérieur */
+.top-header {
+  background-color: #131921;
+  color: #fff;
+  padding: 15px 20px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
 
-    /* Navigation principale */
-    .navbar {
-      background-color: #232f3e;
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .navbar a {
-      color: #fff;
-      margin: 0 20px;
-      font-size: 16px;
-      font-weight: bold;
-      transition: color 0.3s;
-      position: relative;
-    }
-    .navbar a:hover { color: #febd69; }
-    /* Badge compteur sur le Panier */
-    #cartCount {
-      position: absolute;
-      top: -5px;
-      right: -10px;
-      background-color: red;
-      color: white;
-      border-radius: 50%;
-      padding: 2px 6px;
-      font-size: 10px;
-    }
+.logo {
+  font-size: 20px; /* Taille réduite */
+  font-weight: bold;
+}
 
-    /* Boutons de catégories */
-    .category-buttons {
-      background-color: #232f3e;
-      padding: 10px 0;
-      text-align: center;
-    }
-    .category-buttons button {
-      background-color: transparent;
-      color: #fff;
-      padding: 8px 15px;
-      margin: 0 10px;
-      font-size: 12px;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background-color 0.3s, color 0.3s;
-    }
-    .category-buttons button:hover {
-      background-color: #febd69;
-      color: #232f3e;
-    }
+/* Barre de recherche centrée */
+.search-bar-container {
+  background-color: #fff;
+  padding: 20px 0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.search-container {
+  display: inline-flex;
+  width: 90%;
+  max-width: 500px;
+}
+
+.search-container input {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-right: none;
+  border-radius: 5px 0 0 5px;
+  font-size: 16px;
+  transition: border 0.3s;
+}
+
+.search-container input:focus {
+  border-color: #febd69;
+  outline: none;
+}
+
+.search-container button {
+  padding: 10px 15px;
+  border: 2px solid #febd69;
+  background-color: #febd69;
+  color: #111;
+  font-weight: bold;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.search-container button:hover {
+  background-color: #f8a94b;
+}
+
+/* Navigation principale */
+.navbar {
+  background-color: #232f3e;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.navbar a {
+  color: #fff;
+  margin: 0 20px;
+  font-size: 16px;
+  font-weight: bold;
+  transition: color 0.3s;
+  position: relative;
+}
+
+.navbar a:hover { color: #febd69; }
+
+/* Badge compteur sur le Panier */
+#cartCount {
+  position: absolute;
+  top: -5px;
+  right: -10px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 10px;
+}
+
+/* Menu déroulant des catégories */
+.category-buttons {
+  display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 10px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border-bottom: 1px solid #ccc;
+}
+
+.category-button {
+  flex: 0 0 auto;
+  margin-right: 10px;
+  padding: 10px 20px;
+  background-color: #fff;
+  color: #333;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  border: none; /* Enlever les bordures */
+}
+
+.category-button:hover {
+  background-color: #f0f0f0;
+}
+
 
     /* Section Produits */
     main section {
@@ -297,60 +294,146 @@
       background-color: darkorange;
     }
 
-    /* Pied de page */
-    footer {
-      position: relative;
-      margin-top: 40px;
-      background-color: #131921;
-      color: #fff;
-      padding: 40px 20px;
-      font-size: 14px;
-    }
-    .footer-container {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-    }
-    .footer-column {
-      flex: 1;
-      min-width: 250px;
-      margin: 10px;
-    }
-    .footer-column h3 {
-      margin-top: 0;
-      margin-bottom: 10px;
-      font-size: 16px;
-    }
-    .footer-column p {
-      font-size: 14px;
-      line-height: 1.5;
-    }
-    .footer-bottom {
-      text-align: center;
-      border-top: 1px solid rgba(255, 255, 255, 0.2);
-      padding-top: 10px;
-    }
 
-    /* Toaster Notification */
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background-color: #28a745;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 5px;
-      font-size: 14px;
-      display: none;
-      z-index: 1000;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      opacity: 0;
-      transition: opacity 0.5s ease;
-    }
-    .notification.show { display: block; opacity: 1; }
+/* Section de détail intégrée */
+#detailSection {
+  display: none;
+  padding: 20px;
+  background-color: #fff;
+  margin: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
 
-    /* Adaptation pour petits écrans */
+.detail-main {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.detail-photo,
+.detail-info {
+  flex: 1;
+  min-width: 300px;
+}
+
+.detail-photo img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.detail-info h1 {
+  margin-top: 0;
+}
+
+.similar-products {
+  margin-top: 30px;
+}
+
+.similar-products h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.similar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.similar-item {
+  background: #fff;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.similar-item:hover {
+  transform: scale(1.05);
+}
+
+.similar-item img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.action-buttons-detail {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.action-buttons-detail a {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: orange;
+  color: white;
+  text-decoration: none;
+  border-radius: 20px;
+  font-size: 16px;
+  margin: 0 10px;
+  transition: background-color 0.3s;
+}
+
+.action-buttons-detail a:hover {
+  background-color: darkorange;
+}
+
+/* Pied de page */
+footer {
+  position: relative;
+  margin-top: 40px;
+  background-color: #131921;
+  color: #fff;
+  padding: 40px 20px;
+  font-size: 14px;
+}
+
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.footer-column {
+  flex: 1;
+  min-width: 250px;
+  margin: 10px;
+}
+
+.footer-column h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.footer-column p {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.footer-bottom {
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding-top: 10px;
+}
+
+/* Toaster Notification */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #28a745;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 
+   }
+   /* Adaptation pour petits écrans */
     @media (max-width: 600px) {
       .search-container { width: 90%; }
       .navbar a { margin: 0 10px; font-size: 14px; }
@@ -368,16 +451,6 @@
       padding: 5px 10px;
       font-size: 0.8em;
       border-radius: 5px;
-    }
-    .senegal-flag {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      width: 50px;
-    }
-    .senegal-flag img {
-      width: 100%;
-      height: auto;
     }
     .location-indicator {
       position: absolute;
