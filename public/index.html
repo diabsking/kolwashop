@@ -89,23 +89,24 @@ a { text-decoration: none; }
 /* Effet de survol supprimé */
 /* .auth-buttons .btn:hover { background-color: darkorange; } */
 
-/* Navigation principale */
-.navbar {
-  background-color: #232f3e;
-  padding: 12px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* Ombre supprimée */
-}
-.navbar a {
-  color: #fff;
-  margin: 0 20px;
-  font-size: 16px;
-  font-weight: bold;
-  transition: color 0.3s;
-  position: relative;
-}
+ /* Navigation principale */
+    .navbar {
+      background-color: #232f3e;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .navbar a {
+      color: #fff;
+      margin: 0 20px;
+      font-size: 16px;
+      font-weight: bold;
+      transition: color 0.3s;
+      position: relative;
+    }
+    .navbar a:hover { color: #febd69; }
 /* Effet de survol supprimé */
 /* .navbar a:hover { color: #febd69; } */
 /* Badge compteur sur le Panier */
@@ -160,7 +161,7 @@ main section {
 }
 .grid-item {
   background-color: #fff;
-  padding: 15px;
+  padding: 10px;
   border-radius: 5px;
   /* Ombre supprimée */
   text-align: center;
@@ -207,18 +208,17 @@ main section {
 .grid-item .add-to-cart:hover { 
   background-color: #ff9900;
 }
+.grid-item .add-to-cart {
+  display: none; /* Cache le bouton Ajouter au panier */
+}
 
-/* Bouton Détail transparent sans contour */
 .grid-item .details-button {
-  background: transparent;
-  border: none; /* Contour supprimé */
-  color: #007bff;
-  border-radius: 5px;
-  padding: 8px 12px;
-  margin-left: 5px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
+  display: block; /* Assure que le bouton est bien visible */
+  width: 100%; /* Occupe toute la largeur */
+  text-align: center; /* Centre le texte */
+  font-size: 16px; /* Augmente la taille du texte */
+  font-weight: bold; /* Met le texte en gras */
+  padding: 10px; /* Ajuste le padding */
 }
 /* Effet de survol supprimé */
 /* .grid-item .details-button:hover { background-color: #007bff; color: #fff; } */
@@ -476,6 +476,7 @@ footer {
 /* Effet de survol supprimé */
 /* .filter-button:hover { background-color: #0056b3; } */
 .popular-products {
+  background-color: #fff; /* Fond blanc */
   margin-top: 0;
   padding: 20px;
   position: relative;
@@ -535,41 +536,55 @@ footer {
   100% { transform: rotate(360deg); }
 }
 
-/* Styles spécifiques pour les écrans d'ordinateurs */
+/* Responsive: Affichage spécifique pour les écrans d'ordinateurs */
 @media only screen and (min-width: 1024px) {
-  /* Conteneurs produits et produits similaires */
+  /* Contrainte du conteneur pour forcer 6 cm de marge à gauche et à droite */
   .grid-container,
   .similar-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);  /* 5 colonnes fixes */
+    grid-template-columns: repeat(5, 1fr); /* 5 colonnes fixes */
     gap: 20px;
-    max-width: 1200px;    /* Limite la largeur pour éviter le débordement horizontal */
-    margin: 0 auto;       /* Centre le conteneur */
-    overflow-x: hidden;   /* Désactive le défilement horizontal */
-    padding: 20px;
+    width: calc(100% - 12cm); /* Largeur calculée pour laisser 6 cm de chaque côté */
+    margin-left: 6cm;
+    margin-right: 6cm;
+    overflow-x: hidden; /* Pas de défilement horizontal */
     box-sizing: border-box;
   }
-
-  /* Pour que le contenu ne dépasse pas dans chaque produit */
+  
+  /* Augmentation de la hauteur pour que le texte apparaisse bien */
   .grid-item,
   .similar-item {
+    min-height: 300px;  /* Hauteur augmentée */
     box-sizing: border-box;
     padding: 10px;
     overflow: hidden;
-    white-space: normal;      /* Permet le retour à la ligne */
-    word-wrap: break-word;    /* Force la coupure des mots si nécessaire */
-    text-overflow: ellipsis;  /* Ajoute des points de suspension si le texte est trop long */
+    white-space: normal;
+    word-wrap: break-word;
+    text-overflow: ellipsis;
   }
   
-  /* Si besoin, ajuster la hauteur des items pour uniformiser l'affichage */
-  .grid-item,
-  .similar-item {
-    min-height: 250px;
+  /* Masquer le bouton "Acheter" */
+  .grid-item .add-to-cart,
+  .similar-item .add-to-cart {
+    display: none;
   }
   
-  /* Assurer un défilement vertical si le contenu dépasse */
-  body {
-    overflow-y: auto;
+  /* Bouton "Détail" centré avec une taille de police plus grande */
+  .grid-item .details-button {
+    display: block;
+    margin: 20px auto;   /* Centrage horizontal avec marge en haut et en bas */
+    font-size: 18px;     /* Texte agrandi */
+    padding: 10px 20px;
+    text-align: center;
+  }
+  
+  .detail-main {
+    flex-direction: row;
+  }
+  
+  /* S'assurer que l'écran reste fixe avec un défilement vertical uniquement */
+  html, body {
+    overflow-x: hidden;
   }
 }
   
