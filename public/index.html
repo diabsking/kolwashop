@@ -206,23 +206,22 @@
       color: #fff;
     }
     .grid-item .add-to-cart:hover { background-color: #e68a00; }
-   /* Bouton Détail plein largeur */
-.grid-item .details-button {
-  background: #007bff; /* Fond bleu */
-  border: none; /* Supprime le contour */
-  color: #fff; /* Texte blanc */
-  border-radius: 5px;
-  padding: 10px 0; /* Ajuste la hauteur */
-  font-size: 14px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  width: 100%; /* Le bouton prend toute la largeur */
-  text-align: center;
-}
-
-.grid-item .details-button:hover {
-  background-color: #0056b3; /* Bleu plus foncé au survol */
-}
+    /* Bouton Détail transparent */
+    .grid-item .details-button {
+      background: transparent;
+      border: 1px solid #007bff;
+      color: #007bff;
+      border-radius: 5px;
+      padding: 8px 12px;
+      margin-left: 5px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .grid-item .details-button:hover {
+      background-color: #007bff;
+      color: #fff;
+    }
     .button-acheter {
   display: none !important; /* Masque complètement le bouton */
 }
@@ -359,10 +358,10 @@
     }
 
     .logo {
-      font-size: 14px;
-      font-weight: bold;
-      color: #fff;
-    }
+  font-size: 18px; 
+  color: white; 
+  font-weight: bold; 
+}
     /* Pied de page */
     footer {
       position: relative;
@@ -537,7 +536,27 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-
+/* Responsive: Adaptation pour les écrans plus larges (ordinateurs) */
+@media (min-width: 601px) {
+  .grid-container,
+  .similar-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr); /* 4 colonnes sur les grands écrans */
+    gap: 20px;
+  }
+  
+  .detail-main {
+    flex-direction: row; 
+  }
+  
+  .navbar {
+    padding: 15px 30px; /* Largeur de la barre de navigation ajustée */
+  }
+  
+  .search-container {
+    width: 60%; /* Plus large sur écran d'ordinateur */
+  }
+}
   </style>
 </head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
