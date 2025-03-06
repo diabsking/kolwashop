@@ -209,20 +209,21 @@ main section {
   color: #fff;
 }
 .grid-item .add-to-cart:hover { background-color: #e68a00; }
-/* Bouton Détail transparent avec modifications */
+/* Bouton Détail transparent */
 .grid-item .details-button {
   background: transparent;
-  border: none;             /* Contour enlevé */
-  color: #000;              /* Texte en foncé */
+  border: 1px solid #007bff;
+  color: #007bff;
   border-radius: 5px;
   padding: 8px 12px;
   margin-left: 5px;
   font-size: 12px;
   cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
 }
 .grid-item .details-button:hover {
-  background: transparent;  /* Pas d'effet survol */
-  color: #000;
+  background-color: #007bff;
+  color: #fff;
 }
 
 /* Section de détail intégrée */
@@ -322,22 +323,6 @@ main section {
 }
 .similar-item .add-to-cart:hover { background-color: #e68a00; }
 
-/* Bouton Détail pour les produits similaires avec modifications */
-.similar-item .details-button {
-  background: transparent;
-  border: none;             /* Contour enlevé */
-  color: #000;              /* Texte en foncé */
-  border-radius: 5px;
-  padding: 8px 12px;
-  margin-left: 5px;
-  font-size: 12px;
-  cursor: pointer;
-}
-.similar-item .details-button:hover {
-  background: transparent;
-  color: #000;
-}
-
 /* Responsive: Adaptation pour les petits écrans */
 @media (max-width: 600px) {
   .grid-container,
@@ -374,6 +359,7 @@ main section {
 .action-buttons-detail a:hover {
   background-color: darkorange;
 }
+
 .logo {
   font-size: 16px; /* Taille réduite */
   font-weight: bold;
