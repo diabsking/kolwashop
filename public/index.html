@@ -33,41 +33,44 @@ a { text-decoration: none; }
   color: #febd69;
 }
 
-/* Barre de recherche centrée */
-.search-bar-container {
-  background-color: #fff;
-  padding: 20px 0;
-  /* Ombre supprimée */
-  text-align: center;
-}
-.search-container {
-  display: inline-flex;
-  width: 90%;
-  max-width: 500px;
-}
-.search-container input {
-  width: 100%;
-  padding: 10px;
-  border: 2px solid #ddd;
-  border-right: none;
-  border-radius: 5px 0 0 5px;
-  font-size: 16px;
-  transition: border 0.3s;
-}
-.search-container input:focus {
-  border-color: #febd69;
-  outline: none;
-}
-.search-container button {
-  padding: 10px 15px;
-  border: 2px solid #febd69;
-  background-color: #febd69;
-  color: #111;
-  font-weight: bold;
-  border-radius: 0 5px 5px 0;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
+   /* Barre de recherche centrée */
+    .search-bar-container {
+      background-color: #fff;
+      padding: 20px 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .search-container {
+      display: inline-flex;
+      width: 90%;
+      max-width: 500px;
+    }
+    .search-container input {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-right: none;
+      border-radius: 5px 0 0 5px;
+      font-size: 16px;
+      transition: border 0.3s;
+    }
+    .search-container input:focus {
+      border-color: #febd69;
+      outline: none;
+    }
+    .search-container button {
+      padding: 10px 15px;
+      border: 2px solid #febd69;
+      background-color: #febd69;
+      color: #111;
+      font-weight: bold;
+      border-radius: 0 5px 5px 0;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .search-container button:hover {
+      background-color: #f8a94b;
+    }
 /* Effet de survol supprimé */
 /* .search-container button:hover { background-color: #f8a94b; } */
 
@@ -106,13 +109,6 @@ a { text-decoration: none; }
       transition: color 0.3s;
       position: relative;
     }
-    .navbar a:hover { color: #febd69; }
-       /* Augmenter la longueur de la navbar uniquement sur les téléphones */
-@media only screen and (max-width: 768px) {
-  .navbar {
-    width: 100vw; /* Utilise toute la largeur de l'écran */
-  }
-}
 /* Effet de survol supprimé */
 /* .navbar a:hover { color: #febd69; } */
 /* Badge compteur sur le Panier */
@@ -613,7 +609,7 @@ footer {
   <!-- En-tête -->
   <header>
     <div class="top-header">
-     <div class="logo" style="font-size: 20px; font-weight: bold; color: #fff;">
+     <div class="logo" style="font-size: 10px; font-weight: bold; color: #fff;">
   KOLWAZSHOP
 </div>
     </div>
@@ -720,11 +716,6 @@ footer {
       <div class="footer-column about">
         <h3>À propos de Kolwaz Shop</h3>
         <p>Kolwaz Shop est votre boutique en ligne de confiance offrant des produits de qualité et un service exceptionnel. Découvrez notre vaste gamme et profitez d'une expérience d'achat inégalée.</p>
-        <h3>Comment commander</h3>
-        <p>1. Parcourez nos produits et sélectionnez vos coups de cœur.</p>
-        <p>2. Ajoutez-les à votre panier et vérifiez votre commande.</p>
-        <p>3. Passez commande et patientez, la livraison est gratuite.</p>
-        <p>4. Suivez votre commande en temps réel et profitez de votre achat.</p>
       </div>
       <div class="footer-column links">
         <h3>Liens rapides</h3>
@@ -740,12 +731,6 @@ footer {
         <h3>Comment devenir vendeur chez Kolwazshop</h3>
         <p>Inscription et Création de Compte :</p>
         <p>Rendez-vous sur le site de KolwazShop.</p>
-        <p>Cliquez sur "Inscription" et remplissez le formulaire avec vos informations personnelles.</p>
-        <p>Vous recevrez un e-mail de confirmation dans les 30 minutes pour activer votre compte.</p>
-        <h3>Contact</h3>
-        <p>Email : kolwazshop@gmail.com</p>
-        <p>Téléphone :</p>
-        <p>Adresse : Dakar, Sénégal</p>
       </div>
       <div class="footer-column social">
         <h3>Suivez-nous</h3>
