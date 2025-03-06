@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kolwaz Shop - Votre Boutique en Ligne</title>
   <style>
+/<style>
 /* Global */
 body {
   font-family: Arial, sans-serif;
@@ -139,193 +140,79 @@ a { text-decoration: none; }
   background-color: #f0f0f0;
 }
 
-
-    /* Section Produits */
-    main section {
-      background-color: #f8d7db;
-      padding: 40px 0;
-    }
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 20px;
-      width: 100%;
-      max-width: 100%;
-      padding: 20px;
-    }
-    .grid-item {
-      background-color: #fff;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      height: 300px;
-      transition: transform 0.3s, box-shadow 0.3s;
-      position: relative;
-    }
-    .grid-item:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    }
-    .grid-item img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 5px;
-      transition: transform 0.3s ease;
-      word-wrap: break-word;
-    }
-    .grid-item img:hover { transform: scale(1.05); }
-    .grid-item .product-name {
-      font-size: 14px;
-      font-weight: bold;
-      margin-top: auto;
-    }
-    .grid-item .product-price {
-      font-size: 12px;
-      color: #ff9900;
-      font-weight: bold;
-    }
-    .grid-item button {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 12px;
-      transition: background-color 0.3s;
-    }
-    .grid-item .add-to-cart {
-      background-color: #ff9900;
-      color: #fff;
-    }
-    .grid-item .add-to-cart:hover { background-color: #e68a00; }
-    /* Bouton Détail transparent */
-    .grid-item .details-button {
-      background: transparent;
-      border: 1px solid #007bff;
-      color: #007bff;
-      border-radius: 5px;
-      padding: 8px 12px;
-      margin-left: 5px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: background-color 0.3s, color 0.3s;
-    }
-    .grid-item .details-button:hover {
-      background-color: #007bff;
-      color: #fff;
-    }
-
-    /* Section de détail intégrée */
-    #detailSection {
-      display: none;
-      padding: 20px;
-      background-color: #fff;
-      margin: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    .detail-main {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-    }
-    .detail-photo,
-    .detail-info {
-      flex: 1;
-      min-width: 300px;
-    }
-    .detail-photo img {
-      width: 100%;
-      border-radius: 8px;
-    }
-    .detail-info h1 {
-      margin-top: 0;
-    }
-    .similar-products {
-      margin-top: 30px;
-    }
-    .similar-products h2 {
-      font-size: 20px;
-      margin-bottom: 10px;
-    }
-    .similar-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 20px;
-    }
-    .similar-item {
-      background: #fff;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      text-align: center;
-      cursor: pointer;
-      transition: transform 0.3s;
-    }
-    .similar-item:hover {
-      transform: scale(1.05);
-    }
-    .similar-item img {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-      border-radius: 5px;
-    }
-    .action-buttons-detail {
-      margin-top: 20px;
-      text-align: center;
-    }
-    .action-buttons-detail a {
-      display: inline-block;
-      padding: 10px 20px;
-      background-color: orange;
-      color: white;
-      text-decoration: none;
-      border-radius: 20px;
-      font-size: 16px;
-      margin: 0 10px;
-      transition: background-color 0.3s;
-    }
-    .action-buttons-detail a:hover {
-      background-color: darkorange;
-    }
-
-
-/* Section de détail intégrée */
-#detailSection {
-  display: none;
-  padding: 20px;
-  background-color: #fff;
-  margin: 20px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+/* Section Produits */
+main section {
+  background-color: #f8d7db;
+  padding: 40px 0;
 }
 
-.detail-main {
-  display: flex;
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr); /* 10 produits par ligne */
   gap: 20px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-
-.detail-photo,
-.detail-info {
-  flex: 1;
-  min-width: 300px;
-}
-
-.detail-photo img {
   width: 100%;
-  border-radius: 8px;
+  padding: 20px;
 }
 
-.detail-info h1 {
-  margin-top: 0;
+.grid-item {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 300px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
 }
 
+.grid-item:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.grid-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 5px;
+  transition: transform 0.3s ease;
+  word-wrap: break-word;
+}
+
+.grid-item img:hover { transform: scale(1.05); }
+
+.grid-item .product-name {
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: auto;
+}
+
+.grid-item .product-price {
+  font-size: 12px;
+  color: #ff9900;
+  font-weight: bold;
+}
+
+.grid-item button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s;
+}
+
+.grid-item .add-to-cart {
+  background-color: #ff9900;
+  color: #fff;
+}
+
+.grid-item .add-to-cart:hover { background-color: #e68a00; }
+
+/* Section des Produits Similaires */
 .similar-products {
   margin-top: 30px;
 }
@@ -423,136 +310,81 @@ footer {
   padding-top: 10px;
 }
 
-/* Toaster Notification */
-.notification {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background-color: #28a745;
+/* Pour les petits écrans : défilement horizontal */
+@media (max-width: 600px) {
+  .grid-container {
+    display: flex;
+    overflow-x: scroll;
+    gap: 10px;
+    width: 100%;
+    padding: 10px;
+  }
+  .grid-item {
+    min-width: 220px;
+    height: auto;
+  }
+
+  .similar-grid {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+  }
+}
+
+/* Autres ajustements */
+.new-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #ff0000;
+  color: #fff;
+  padding: 5px 10px;
+  font-size: 0.8em;
+  border-radius: 5px;
+}
+
+.location-indicator {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: bold;
   color: white;
-  padding: 10px 20px;
-  border-radius: 
-   }
-   /* Adaptation pour petits écrans */
-    @media (max-width: 600px) {
-      .search-container { width: 90%; }
-      .navbar a { margin: 0 10px; font-size: 14px; }
-      .grid-container { padding: 10px; }
-      .grid-item { height: auto; }
-      .detail-main { flex-direction: column; }
-      .auth-buttons { top: 50px; right: 5px; }
-    }
-    .new-badge {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background-color: #ff0000;
-      color: #fff;
-      padding: 5px 10px;
-      font-size: 0.8em;
-      border-radius: 5px;
-    }
-    .location-indicator {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 16px;
-      font-weight: bold;
-      color: white;
-    }
-    .location-indicator img {
-      width: 40px;
-      height: auto;
-    }
-    .location-text {
-      display: flex;
-      align-items: center;
-      color: white;
-    }
-    .location-text i {
-      color: white;
-      margin-right: 5px;
-    }
-    .filter-button {
-      position: absolute;
-      top: 100px;
-      left: 10px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      border-radius: 5px;
-      transition: background 0.3s;
-    }
-    .filter-button:hover {
-      background-color: #0056b3;
-    }
-    .popular-products {
-      margin-top: 0;
-      padding: 20px;
-      position: relative;
-      top: 0;
-    }
-    .popular-carousel {
-      display: flex;
-      overflow-x: auto;
-      gap: 20px;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-    }
-    .popular-item {
-      flex: 0 0 auto;
-      width: 200px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 10px;
-      text-align: center;
-      background-color: #f9f9f9;
-    }
-    .popular-item img {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
-      border-radius: 5px;
-    }
-    .popular-item p {
-      font-size: 16px;
-      color: #333;
-    }
-    .badge {
-      background-color: #ff9800;
-      color: white;
-      padding: 5px 10px;
-      border-radius: 5px;
-      font-size: 14px;
-      position: absolute;
-      top: 10px;
-      left: 10px;
-    }
-    .loading-container {
-  text-align: center;
-  margin: 20px 0;
 }
-.spinner {
-  display: inline-block;
-  width: 30px;
-  height: 30px;
-  border: 3px solid rgba(0, 0, 0, 0.3);
-  border-top: 3px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+
+.location-text {
+  display: flex;
+  align-items: center;
+  color: white;
 }
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+
+.location-text i {
+  color: white;
+  margin-right: 5px;
 }
-  </style>
+
+.filter-button {
+  position: absolute;
+  top: 100px;
+  left: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background 0.3s;
+}
+
+.filter-button:hover {
+  background-color: #0056b3;
+}
+</style>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <body>
   <!-- En-tête -->
