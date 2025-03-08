@@ -239,6 +239,7 @@ cron.schedule('*/2 * * * *', async () => {
         { imageUrl: { $exists: false } },
         { imageUrl: "" },
         { price: { $lte: 0 } },
+        { isOrderable: { $exists: true, $eq: false } }
       ]
     });
     console.log(`Suppression automatique : ${result.deletedCount} produit(s) supprimé(s).`);
