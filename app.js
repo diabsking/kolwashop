@@ -230,7 +230,7 @@ setInterval(() => {
 
 const deleteProductByNameAndSeller = async (productName, sellerEmail) => {
     try {
-        const result = await Product.deleteOne({ productName: Pommade capillaire, sellerEmail: diopdiabou943@gmail.com });
+        const result = await Product.deleteOne({ productName: "Pommade capillaire", sellerEmail: "diopdiabou943@gmail.com" });
 
         if (result.deletedCount > 0) {
             console.log(`✅ Produit "${productName}" supprimé avec succès pour le vendeur ${sellerEmail}.`);
