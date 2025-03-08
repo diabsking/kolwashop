@@ -282,7 +282,7 @@ L'équipe Kolwaz Shop`
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 });
-deleteProductByNameAndSeller("Pommade capillaire", "diopdiabou943@gmail.com");
+deleteProductByNameAndSeller("", "");
 
 // Démarrage du serveur
 const port = process.env.PORT || 3000;
