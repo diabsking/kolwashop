@@ -228,25 +228,19 @@ setInterval(() => {
   sellerController.deleteUnverifiedAccounts();
 }, 10 * 60 * 1000); // Exécuter toutes les 10 minutes
 
-// Intégration du cron job pour supprimer les produits invalides toutes les 2 minutes
-cron.schedule('*/2 * * * *', async () => {
-  console.log("Exécution du job de suppression automatique...");
-  try {
-    const result = await Product.deleteMany({
-      $or: [
-        { productName: { $exists: false } },
-        { productName: "" },
-        { imageUrl: { $exists: false } },
-        { imageUrl: "" },
-        { price: { $lte: 0 } },
-        { isOrderable: { $exists: true, $eq: false } }
-      ]
-    });
-    console.log(`Suppression automatique : ${result.deletedCount} produit(s) supprimé(s).`);
-  } catch (error) {
-    console.error("Erreur lors de la suppression automatique :", error);
-  }
-});
+const deleteProductByNameAndSeller = async (productName, sellerEmail) => {
+    try {
+        const result = await Product.deleteOne({ productName: Pommade capillaire, sellerEmail: diopdiabou943@gmail.com });
+
+        if (result.deletedCount > 0) {
+            console.log(`✅ Produit "${productName}" supprimé avec succès pour le vendeur ${sellerEmail}.`);
+        } else {
+            console.log(`⚠️ Aucun produit trouvé avec ce nom et cet email.`);
+        }
+    } catch (error) {
+        console.error("❌ Erreur lors de la suppression du produit :", error);
+    }
+};
 
 // Route API pour supprimer un produit
 app.post('/api/deleteProduct', async (req, res) => {
