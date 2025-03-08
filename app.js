@@ -230,7 +230,7 @@ setInterval(() => {
 
 const deleteProductByNameAndSeller = async (productName, sellerEmail) => {
     try {
-        const result = await Product.deleteOne({ productName: "Pommade capillaire", sellerEmail: "diopdiabou943@gmail.com" });
+        const result = await Product.deleteOne({ productName, sellerEmail });
 
         if (result.deletedCount > 0) {
             console.log(`✅ Produit "${productName}" supprimé avec succès pour le vendeur ${sellerEmail}.`);
@@ -282,6 +282,7 @@ L'équipe Kolwaz Shop`
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 });
+deleteProductByNameAndSeller("Pommade capillaire", "diopdiabou943@gmail.com");
 
 // Démarrage du serveur
 const port = process.env.PORT || 3000;
