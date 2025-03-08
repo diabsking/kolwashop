@@ -9,7 +9,6 @@ const productSchema = new mongoose.Schema({
   deliveryTime: { type: String, required: true },
   imageUrl: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
-  isOrderable: { type: Boolean, default: true },
 
   // Nouveaux champs pour calculer la popularité
   views: { type: Number, default: 0 }, // Nombre de vues
