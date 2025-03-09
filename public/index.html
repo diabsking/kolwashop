@@ -92,26 +92,35 @@ a { text-decoration: none; }
 /* Effet de survol supprimé */
 /* .auth-buttons .btn:hover { background-color: darkorange; } */
 
+.navbar {
+  display: flex;
+  justify-content: flex-end; /* Alignement à droite */
+  padding: 10px;
+  background-color: white; /* Fond blanc */
+  border-bottom: 2px solid #ccc;
+}
+
 .navbar a {
   position: relative;
-  font-size: 24px; /* Taille des icônes */
+  font-size: 32px; /* Icônes plus grandes */
   text-decoration: none;
-  padding: 10px;
-  display: inline-block;
+  padding: 15px;
   color: black;
+  display: flex;
+  align-items: center;
 }
 
 /* Masquer le texte des liens */
 .navbar a::after {
-  content: attr(title); /* Afficher le texte au survol */
+  content: attr(title); /* Texte affiché au survol */
   position: absolute;
-  bottom: -20px;
+  bottom: -25px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.8);
   color: white;
-  padding: 5px;
-  border-radius: 5px;
+  padding: 6px 10px;
+  border-radius: 6px;
   font-size: 14px;
   white-space: nowrap;
   opacity: 0;
@@ -124,6 +133,27 @@ a { text-decoration: none; }
   opacity: 1;
 }
 
+/* Changer la couleur des icônes en noir rempli */
+.navbar a:hover {
+  color: black;
+}
+
+/* Ajuster le panier */
+.cart-icon {
+  position: relative;
+}
+
+.cart-icon span {
+  position: absolute;
+  top: -5px;
+  right: -10px;
+  background: red;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 3px 7px;
+  border-radius: 50%;
+}
 /* Effet de survol supprimé */
 /* .navbar a:hover { color: #febd69; } */
 /* Badge compteur sur le Panier */
