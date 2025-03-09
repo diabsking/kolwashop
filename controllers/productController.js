@@ -135,7 +135,13 @@ exports.publishProduct = async (req, res) => {
     console.log("Enregistrement du produit dans la base de données...");
     await newProduct.save();
     console.log("Produit enregistré:", productName);
-    
+
+
+    // Partager le produit sur Twitter après publication
+    await shareOnTwitter(newProduct);
+    // Partager sur Instagram
+    await shareOnInstagram(newProduct);
+
     // Configuration du transporteur pour Mailo
     const transporter = nodemailer.createTransport({
       host: 'mail.mailo.com',
@@ -170,6 +176,29 @@ exports.publishProduct = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+async function shareOnTwitter(product) {
+  const url = "https://api.twitter.com/2/tweets";
+  // Crée une URL publique pour accéder au produit (à adapter selon ta route publique)
+  const productUrl = `https://kolwazshop.onrender.com/produit/${product._id}`;
+  try {
+    const response = await axios.post(
+      url,
+      {
+        text: `${product.productName} - ${product.description}\nDécouvrez ici : ${productUrl}`
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.TWITTER_BEARER_TOKEN}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+    console.log("✔ Partagé sur Twitter", response.data);
+  } catch (error) {
+    console.error("❌ Erreur Twitter", error.response?.data || error.message);
+  }
+}
 
 // Récupération de tous les produits pour affichage sur la page d'accueil
 exports.getAllProducts = async (req, res) => {
