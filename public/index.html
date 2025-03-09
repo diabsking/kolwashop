@@ -87,14 +87,16 @@ a { text-decoration: none; }
   background-color: #f8a94b;
 }
 
-/* Pour les écrans mobiles : la barre prend presque toute la largeur de l'écran */
+/* Pour les écrans mobiles : la barre prend presque toute la largeur de l'écran et le fond est blanc */
 @media (max-width: 768px) {
   .search-container {
     width: 90%;
     max-width: none;
   }
+  .search-bar-container {
+    background: #fff;
+  }
 }
-
 /* Boutons d'authentification */
 .auth-buttons {
   position: absolute;
@@ -277,8 +279,6 @@ a { text-decoration: none; }
   font-weight: bold;
   color: #555;
 }
-/* Effet de survol supprimé */
-/* .category-button:hover { background-color: #f0f0f0; } */
 
 /* Section Produits */
 main section {
@@ -664,16 +664,6 @@ footer {
     width: 180px;
   }
 }
-.badge {
-  background-color: #ff9800;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 14px;
-  position: absolute;
-  top: 10px;
-  left: 10px;
-}
 .loading-container {
   text-align: center;
   margin: 20px 0;
@@ -808,7 +798,7 @@ footer {
   <!-- Section Produits -->
   <main>
      <div class="popular-products">
-    <h2 style="font-size: 15px;">Produits Populaires</h2>
+    <h2 style="font-size: 15px;"></h2>
     <div class="popular-carousel" id="popularProducts"></div>
     </div>
     <section>
