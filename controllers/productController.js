@@ -3,6 +3,7 @@ const transporter = require("../config/mailer");
 const SITE_OWNER_EMAIL = process.env.SITE_OWNER_EMAIL || "dieyediabal75@gmail.com";
 const express = require('express');
 const cloudinary = require('cloudinary').v2;
+const { TwitterApi } = require('twitter-api-v2');
 
 cloudinary.config({
     cloud_name: 'dw9stpq7f',
