@@ -178,26 +178,24 @@ exports.publishProduct = async (req, res) => {
   }
 };
 
+const { TwitterApi } = require('twitter-api-v2');
+
+const client = new TwitterApi({
+  appKey: process.env.TWITTER_API_KEY,
+  appSecret: process.env.TWITTER_API_KEY_SECRET,
+  accessToken: process.env.TWITTER_ACCESS_TOKEN,
+  accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
+});
+
 async function shareOnTwitter(product) {
-  const url = "https://api.twitter.com/2/tweets";
-  // Crée une URL publique pour accéder au produit (à adapter selon ta route publique)
   const productUrl = `https://kolwazshop.onrender.com/produit/${product._id}`;
+  const tweetContent = `${product.productName} - ${product.description}\nDécouvrez ici : ${productUrl}`;
+
   try {
-    const response = await axios.post(
-      url,
-      {
-        text: `${product.productName} - ${product.description}\nDécouvrez ici : ${productUrl}`
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.TWITTER_BEARER_TOKEN}`,
-          "Content-Type": "application/json"
-        }
-      }
-    );
-    console.log("✔ Partagé sur Twitter", response.data);
+    const response = await client.v2.tweet(tweetContent);
+    console.log("✔ Partagé sur Twitter", response);
   } catch (error) {
-    console.error("❌ Erreur Twitter", error.response?.data || error.message);
+    console.error("❌ Erreur Twitter", error);
   }
 }
 
