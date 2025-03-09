@@ -3,7 +3,6 @@ const transporter = require("../config/mailer");
 const SITE_OWNER_EMAIL = process.env.SITE_OWNER_EMAIL || "dieyediabal75@gmail.com";
 const express = require('express');
 const cloudinary = require('cloudinary').v2;
-const axios = require('axios'); // pour CommonJS
 
 cloudinary.config({
     cloud_name: 'dw9stpq7f',
@@ -177,32 +176,6 @@ exports.publishProduct = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
-const { TwitterApi } = require('twitter-api-v2');
-require('dotenv').config();
-
-const client = new TwitterApi({
-  appKey: process.env.TWITTER_API_KEY,
-  appSecret: process.env.TWITTER_API_KEY_SECRET,
-  accessToken: process.env.TWITTER_ACCESS_TOKEN,
-  accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
-});
-
-async function shareOnTwitter(product) {
-  const productUrl = `https://kolwazshop.onrender.com/produit/${product._id}`;
-  const tweetContent = `${product.productName} - ${product.description}\nDécouvrez ici : ${productUrl}`;
-
-  try {
-    const response = await client.v2.tweet(tweetContent);
-    console.log("✔ Partagé sur Twitter", response);
-  } catch (error) {
-    console.error("❌ Erreur Twitter", error);
-  }
-}
-console.log("API Key:", process.env.TWITTER_API_KEY);
-console.log("API Secret:", process.env.TWITTER_API_KEY_SECRET);
-console.log("Access Token:", process.env.TWITTER_ACCESS_TOKEN);
-console.log("Access Secret:", process.env.TWITTER_ACCESS_TOKEN_SECRET);
 
 // Récupération de tous les produits pour affichage sur la page d'accueil
 exports.getAllProducts = async (req, res) => {
