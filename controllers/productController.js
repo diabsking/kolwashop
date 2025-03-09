@@ -54,15 +54,11 @@ const twitterClient = new TwitterApi({
   accessSecret: process.env.TWITTER_ACCESS_SECRET,
 });
 
-// Fonction pour partager un produit sur Twitter
 async function shareOnTwitter(product) {
   try {
     const productUrl = `${process.env.PRODUCT_BASE_URL}/produit/${product._id}`;
-
     const tweetText = `${product.productName} - ${product.description}\n📌 Découvrez ici : ${productUrl}`;
-
     const response = await twitterClient.v2.tweet(tweetText);
-    
     console.log("✔ Partagé sur Twitter", response);
   } catch (error) {
     console.error("❌ Erreur Twitter", error);
