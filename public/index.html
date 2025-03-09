@@ -86,11 +86,11 @@ a { text-decoration: none; }
 /* Pour les écrans mobiles */
 @media (max-width: 768px) {
   .search-container {
-    max-width: 90%; /* Augmenter la largeur sur les téléphones */
+    width: 100%; /* Étend la barre de recherche à 100% de la largeur de l'écran */
+    max-width: none; /* Supprime la limite de la largeur max */
+    padding: 0 20px; /* Ajoute de l'espace à gauche et à droite */
   }
 }
-/* Effet de survol supprimé */
-/* .search-container button:hover { background-color: #f8a94b; } */
 
 /* Boutons d'authentification */
 .auth-buttons {
@@ -154,6 +154,18 @@ a { text-decoration: none; }
 /* Changer la couleur des icônes en noir rempli */
 .navbar a:hover {
   color: black;
+}
+/* Icônes dans la barre de navigation */
+.navbar a i {
+  font-size: 24px; /* Taille de base des icônes */
+  margin-right: 8px;
+}
+
+/* Pour les écrans mobiles */
+@media (max-width: 768px) {
+  .navbar a i {
+    font-size: 30px; /* Augmentation de la taille des icônes sur les téléphones */
+  }
 }
 
 /* Ajuster le panier */
