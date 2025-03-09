@@ -45,6 +45,33 @@ async function processWavePayment(amount, phoneNumber) {
     }, 1000);
   });
 }
+
+// Nouvelle fonction pour partager sur Twitter
+async function shareOnTwitter(product) {
+  // Construire l'URL du produit à partir de son identifiant, sinon utiliser l'URL de l'image
+  const productUrl = process.env.PRODUCT_BASE_URL 
+    ? `${process.env.PRODUCT_BASE_URL}/produit/${product._id}` 
+    : product.imageUrl;
+    
+  try {
+    const response = await axios.post(
+      "https://api.twitter.com/2/tweets",
+      {
+        text: `${product.productName} - ${product.description}\nDécouvrez ici : ${productUrl}`
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.TWITTER_BEARER_TOKEN}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+    console.log("✔ Partagé sur Twitter", response.data);
+  } catch (error) {
+    console.error("❌ Erreur Twitter", error.response?.data || error.message);
+  }
+}
+
 // Contrôleur pour publier un produit
 exports.publishProduct = async (req, res) => {
   try {
@@ -136,11 +163,8 @@ exports.publishProduct = async (req, res) => {
     await newProduct.save();
     console.log("Produit enregistré:", productName);
 
-
-    // Partager le produit sur Twitter après publication
+    // Partage sur Twitter dès que la publication est réussie
     await shareOnTwitter(newProduct);
-    // Partager sur Instagram
-    await shareOnInstagram(newProduct);
 
     // Configuration du transporteur pour Mailo
     const transporter = nodemailer.createTransport({
@@ -149,14 +173,14 @@ exports.publishProduct = async (req, res) => {
       secure: true,
       auth: {
          user: process.env.MAILO_USER || 'kolwazshopp@mailo.com',
-         pass:  process.env.MAILO_PASSWORD || "1O0C4HbGFMSw", // Utilise une variable d'environnement
+         pass:  process.env.MAILO_PASSWORD || "1O0C4HbGFMSw",
       },
     });
 
     // Paramètres de l'e-mail
     const mailOptions = {
-      from: 'kolwazshopp@mailo.com',  // Ton adresse e-mail
-      to: 'dieyediabal75@gmail.com',    // L'adresse e-mail du destinataire
+      from: 'kolwazshopp@mailo.com',
+      to: 'dieyediabal75@gmail.com',
       subject: "Nouvelle annonce publiée",
       text: `Produit : ${productName}\nDescription : ${description}\nCatégorie : ${category}\nPrix : ${priceNumber} FCFA\nDélai : ${deliveryTimeNumber}`,
     };
@@ -169,6 +193,7 @@ exports.publishProduct = async (req, res) => {
         console.log("E-mail envoyé avec succès :", info.response);
       }
     });
+    
     console.log("Produit publié avec succès!");
     res.status(201).json({ message: "Produit publié avec succès!" });
   } catch (err) {
