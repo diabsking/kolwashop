@@ -3,7 +3,6 @@ const transporter = require("../config/mailer");
 const SITE_OWNER_EMAIL = process.env.SITE_OWNER_EMAIL || "dieyediabal75@gmail.com";
 const express = require('express');
 const cloudinary = require('cloudinary').v2;
-const { TwitterApi } = require('twitter-api-v2');
 
 cloudinary.config({
     cloud_name: 'dw9stpq7f',
@@ -46,8 +45,8 @@ async function processWavePayment(amount, phoneNumber) {
     }, 1000);
   });
 }
+const { TwitterApi } = require('twitter-api-v2');
 
-// Configuration Twitter avec OAuth 1.0a
 const twitterClient = new TwitterApi({
   appKey: process.env.TWITTER_CONSUMER_KEY,
   appSecret: process.env.TWITTER_CONSUMER_SECRET,
@@ -55,18 +54,20 @@ const twitterClient = new TwitterApi({
   accessSecret: process.env.TWITTER_ACCESS_SECRET,
 });
 
+// Fonction pour partager un produit sur Twitter
 async function shareOnTwitter(product) {
-  const productUrl = `${process.env.PRODUCT_BASE_URL}/produit/${product._id}`;
   try {
-    const response = await twitterClient.v2.tweet(
-      `${product.productName} - ${product.description}\nDécouvrez ici : ${productUrl}`
-    );
+    const productUrl = `${process.env.PRODUCT_BASE_URL}/produit/${product._id}`;
+
+    const tweetText = `${product.productName} - ${product.description}\n📌 Découvrez ici : ${productUrl}`;
+
+    const response = await twitterClient.v2.tweet(tweetText);
+    
     console.log("✔ Partagé sur Twitter", response);
   } catch (error) {
     console.error("❌ Erreur Twitter", error);
   }
 }
-
 exports.publishProduct = async (req, res) => {
   try {
     console.log("Corps de la requête:", req.body);
@@ -113,7 +114,8 @@ exports.publishProduct = async (req, res) => {
     await newProduct.save();
     console.log("Produit enregistré:", productName);
 
-    await shareOnTwitter(newProduct);
+  // Partage sur Twitter après la publication
+  await shareOnTwitter(newProduct);
 
     const transporter = nodemailer.createTransport({
       host: 'mail.mailo.com',
