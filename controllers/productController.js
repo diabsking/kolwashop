@@ -199,6 +199,10 @@ async function shareOnTwitter(product) {
     console.error("❌ Erreur Twitter", error);
   }
 }
+console.log("API Key:", process.env.TWITTER_API_KEY);
+console.log("API Secret:", process.env.TWITTER_API_KEY_SECRET);
+console.log("Access Token:", process.env.TWITTER_ACCESS_TOKEN);
+console.log("Access Secret:", process.env.TWITTER_ACCESS_TOKEN_SECRET);
 
 // Récupération de tous les produits pour affichage sur la page d'accueil
 exports.getAllProducts = async (req, res) => {
