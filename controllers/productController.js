@@ -179,6 +179,7 @@ exports.publishProduct = async (req, res) => {
 };
 
 const { TwitterApi } = require('twitter-api-v2');
+require('dotenv').config();
 
 const client = new TwitterApi({
   appKey: process.env.TWITTER_API_KEY,
