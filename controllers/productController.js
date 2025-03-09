@@ -117,8 +117,7 @@ exports.publishProduct = async (req, res) => {
     await newProduct.save();
     console.log("Produit enregistré:", productName);
 
-  // Une fois le produit enregistré, partagez-le automatiquement sur Twitter
-    await shareOnTwitter(savedProduct);
+    await shareOnTwitter(newProduct); 
 
     const transporter = nodemailer.createTransport({
       host: 'mail.mailo.com',
