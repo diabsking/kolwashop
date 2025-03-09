@@ -107,37 +107,52 @@ a { text-decoration: none; }
   border-radius: 20px;
   font-size: 14px;
 }
-/* Effet de survol supprimé */
-/* .auth-buttons .btn:hover { background-color: darkorange; } */
-
+/* Barre de navigation */
 .navbar {
   display: flex;
   justify-content: flex-end; /* Alignement à droite */
-  padding: 10px;
-  background-color: white; /* Fond blanc */
-  border-bottom: 2px solid #ccc;
+  padding: 15px 20px; /* Espacement confortable */
+  background-color: #ffffff; /* Fond blanc */
+  border-bottom: 2px solid #ddd; /* Ligne subtile sous la barre */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Ombre discrète pour ajouter de la profondeur */
+  transition: background-color 0.3s ease; /* Transition douce */
 }
 
+/* Effet de survol de la barre */
+.navbar:hover {
+  background-color: #f5f5f5; /* Couleur de fond lors du survol */
+}
+
+/* Liens de la navigation */
 .navbar a {
   position: relative;
-  font-size: 40px; /* Icônes agrandies */
+  font-size: 36px; /* Icônes agrandies */
   text-decoration: none;
-  padding: 15px;
-  color: black;
+  color: #333; /* Couleur de texte foncée */
   display: flex;
   align-items: center;
+  padding: 12px 20px;
+  margin: 0 10px; /* Espace entre les éléments */
+  border-radius: 8px; /* Coins arrondis pour un effet plus doux */
+  transition: color 0.3s ease, transform 0.3s ease; /* Transition pour la couleur et l'agrandissement */
 }
 
-/* Masquer le texte des liens */
+/* Changement de couleur au survol */
+.navbar a:hover {
+  color: #f44336; /* Couleur rouge attirante au survol */
+  transform: scale(1.1); /* Effet d'agrandissement au survol */
+}
+
+/* Texte masqué sur les liens, affiché au survol */
 .navbar a::after {
   content: attr(title); /* Texte affiché au survol */
   position: absolute;
-  bottom: -25px;
+  bottom: -30px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.8); /* Fond sombre avec transparence */
   color: white;
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: 6px;
   font-size: 14px;
   white-space: nowrap;
@@ -151,23 +166,23 @@ a { text-decoration: none; }
   opacity: 1;
 }
 
-/* Changer la couleur des icônes en noir rempli */
-.navbar a:hover {
-  color: black;
-}
-/* Icônes dans la barre de navigation */
+/* Icônes dans les liens de la barre de navigation */
 .navbar a i {
-  font-size: 24px; /* Taille de base des icônes */
-  margin-right: 8px;
+  font-size: 28px; /* Taille de base des icônes */
+  margin-right: 12px;
 }
 
 /* Pour les écrans mobiles */
 @media (max-width: 768px) {
+  .navbar a {
+    font-size: 32px; /* Taille plus grande sur mobile */
+    padding: 10px; /* Moins de padding pour une meilleure utilisation de l'espace */
+  }
+
   .navbar a i {
-    font-size: 30px; /* Augmentation de la taille des icônes sur les téléphones */
+    font-size: 36px; /* Augmentation de la taille des icônes sur mobile */
   }
 }
-
 /* Ajuster le panier */
 .cart-icon {
   position: relative;
