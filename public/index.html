@@ -35,9 +35,9 @@ a { text-decoration: none; }
 
 /* Barre de recherche centrée */
 .search-bar-container {
-  background-color: #fff;
-  padding: 30px 0; /* Augmentation de l'espace autour de la barre pour la descendre */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #f0f4f8, #ffffff); /* Fond en dégradé subtil */
+  padding: 40px 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   text-align: center;
 }
 
@@ -45,37 +45,41 @@ a { text-decoration: none; }
 .search-container {
   display: inline-flex;
   width: 100%;
-  max-width: 600px; /* Augmentation de la longueur de la barre */
+  max-width: 700px; /* Légère augmentation pour plus d'impact */
   margin: 0 auto;
+  border-radius: 50px; /* Forme arrondie pour un look moderne */
+  overflow: hidden; /* Pour appliquer le border-radius sur l'ensemble */
+  background-color: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Champ de saisie */
 .search-container input {
-  width: 100%;
-  padding: 12px;
-  border: 2px solid #ddd;
-  border-right: none;
-  border-radius: 5px 0 0 5px;
+  flex: 1;
+  padding: 14px 20px;
   font-size: 16px;
-  transition: border 0.3s;
+  border: none; /* Suppression des bordures pour un style épuré */
+  outline: none;
 }
 
 /* Focus sur le champ de saisie */
 .search-container input:focus {
-  border-color: #febd69;
-  outline: none;
+  box-shadow: inset 0 0 0 2px #febd69;
 }
 
 /* Bouton de recherche */
 .search-container button {
-  padding: 12px 18px;
-  border: 2px solid #febd69;
   background-color: #febd69;
-  color: #111;
+  border: none;
+  padding: 0 25px;
+  font-size: 16px;
+  color: #fff;
   font-weight: bold;
-  border-radius: 0 5px 5px 0;
   cursor: pointer;
   transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Effet hover sur le bouton */
@@ -83,12 +87,11 @@ a { text-decoration: none; }
   background-color: #f8a94b;
 }
 
-/* Pour les écrans mobiles */
+/* Pour les écrans mobiles : la barre prend presque toute la largeur de l'écran */
 @media (max-width: 768px) {
   .search-container {
-    width: 100%; /* Étend la barre de recherche à 100% de la largeur de l'écran */
-    max-width: none; /* Supprime la limite de la largeur max */
-    padding: 0 20px; /* Ajoute de l'espace à gauche et à droite */
+    width: 90%;
+    max-width: none;
   }
 }
 
@@ -743,7 +746,7 @@ footer {
     </div>
     <!-- Navigation principale -->
    <nav class="navbar">
-  <a href="/" title="Accueil">🏠</a>
+  <a href="/" title="Accueil"></a>
   <a href="/espace-vendeur" title="Espace Vendeur">👤</a>
   <a href="/panier" title="Panier" style="position: relative;">
     🛒 <span id="cartCount">0</span>
