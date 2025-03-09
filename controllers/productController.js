@@ -3,7 +3,6 @@ const transporter = require("../config/mailer");
 const SITE_OWNER_EMAIL = process.env.SITE_OWNER_EMAIL || "dieyediabal75@gmail.com";
 const express = require('express');
 const cloudinary = require('cloudinary').v2;
-const axios = require('axios');
 
 cloudinary.config({
     cloud_name: 'dw9stpq7f',
@@ -47,146 +46,91 @@ async function processWavePayment(amount, phoneNumber) {
   });
 }
 
-// Nouvelle fonction pour partager sur Twitter
+// Configuration Twitter avec OAuth 1.0a
+const twitterClient = new TwitterApi({
+  appKey: process.env.TWITTER_CONSUMER_KEY,
+  appSecret: process.env.TWITTER_CONSUMER_SECRET,
+  accessToken: process.env.TWITTER_ACCESS_TOKEN,
+  accessSecret: process.env.TWITTER_ACCESS_SECRET,
+});
+
 async function shareOnTwitter(product) {
-  // Construire l'URL du produit à partir de son identifiant, sinon utiliser l'URL de l'image
-  const productUrl = process.env.PRODUCT_BASE_URL 
-    ? `${process.env.PRODUCT_BASE_URL}/produit/${product._id}` 
-    : product.imageUrl;
-    
+  const productUrl = `${process.env.PRODUCT_BASE_URL}/produit/${product._id}`;
   try {
-    const response = await axios.post(
-      "https://api.twitter.com/2/tweets",
-      {
-        text: `${product.productName} - ${product.description}\nDécouvrez ici : ${productUrl}`
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.TWITTER_BEARER_TOKEN}`,
-          "Content-Type": "application/json"
-        }
-      }
+    const response = await twitterClient.v2.tweet(
+      `${product.productName} - ${product.description}\nDécouvrez ici : ${productUrl}`
     );
-    console.log("✔ Partagé sur Twitter", response.data);
+    console.log("✔ Partagé sur Twitter", response);
   } catch (error) {
-    console.error("❌ Erreur Twitter", error.response?.data || error.message);
+    console.error("❌ Erreur Twitter", error);
   }
 }
 
-// Contrôleur pour publier un produit
 exports.publishProduct = async (req, res) => {
   try {
-    // Affichage des données parsées par Multer
-    console.log("Corps de la requête (req.body) :", req.body);
-    console.log("Fichier de la requête (req.file) :", req.file);
+    console.log("Corps de la requête:", req.body);
+    console.log("Fichier de la requête:", req.file);
 
-    // Récupération des champs depuis req.body (incluant le champ "category")
     const { productName, description, price, deliveryTime, category } = req.body;
     const imageFile = req.file;
 
-    if (
-      !productName ||
-      !description ||
-      !price ||
-      !deliveryTime ||
-      !category ||  // Vérification de la présence de la catégorie
-      !imageFile
-    ) {
-      console.error("Tous les champs sont requis, y compris l'image et la catégorie!");
-      return res
-        .status(400)
-        .json({ message: "Tous les champs sont requis, y compris l'image et la catégorie!" });
+    if (!productName || !description || !price || !deliveryTime || !category || !imageFile) {
+      return res.status(400).json({ message: "Tous les champs sont requis !" });
     }
 
-    // Téléchargement de l'image sur Cloudinary
-    const imagePath = imageFile.path; // Utilisation du chemin temporaire de l'image
-    const cloudinaryUpload = await cloudinary.uploader.upload(imagePath, {
-      folder: 'kolwaz_shop_products', // Optionnel : définir un dossier spécifique
+    const cloudinaryUpload = await cloudinary.uploader.upload(imageFile.path, {
+      folder: 'kolwaz_shop_products',
     });
-
-    // Récupération de l'URL de l'image téléchargée
     const imageUrl = cloudinaryUpload.secure_url;
-
-    // Validation de l'image (facultatif)
-    if (!validateProductImage(imageUrl)) {
-      console.error("Image non conforme:", imageUrl);
-      return res
-        .status(400)
-        .json({ message: "Publication refusée : image non conforme." });
-    }
 
     const priceNumber = parseFloat(price);
     const deliveryTimeNumber = parseInt(deliveryTime, 10);
-    if (
-      isNaN(priceNumber) ||
-      priceNumber <= 0 ||
-      isNaN(deliveryTimeNumber) ||
-      deliveryTimeNumber <= 0
-    ) {
-      console.error(
-        "Prix ou délai de livraison invalide:",
-        price,
-        deliveryTime
-      );
-      return res
-        .status(400)
-        .json({ message: "Prix ou délai de livraison invalide." });
+    if (isNaN(priceNumber) || priceNumber <= 0 || isNaN(deliveryTimeNumber) || deliveryTimeNumber <= 0) {
+      return res.status(400).json({ message: "Prix ou délai de livraison invalide." });
     }
 
-    // Traitement du paiement si nécessaire
     if (process.env.WAVE_PAYMENT_ENABLED === "true") {
       console.log("Traitement du paiement via Wave...");
-      const paymentResult = await processWavePayment(
-        100,
-        process.env.WAVE_PHONE_NUMBER || "789024121"
-      );
-      if (!paymentResult.success) {
-        console.error("Échec du paiement via Wave");
-        return res
-          .status(400)
-          .json({ message: "Échec du paiement, publication annulée." });
+      try {
+        await processWavePayment(100, process.env.WAVE_PHONE_NUMBER || "789024121");
+      } catch {
+        return res.status(400).json({ message: "Échec du paiement, publication annulée." });
       }
     }
 
-    // Création et sauvegarde du nouveau produit incluant l'URL de l'image de Cloudinary
     const newProduct = new Product({
       productName,
       description,
-      category, // Nouvelle propriété ajoutée
+      category,
       price: priceNumber,
       deliveryTime: deliveryTimeNumber,
       sellerEmail: req.user.email,
-      imageUrl, // Enregistrement de l'URL de l'image depuis Cloudinary
+      imageUrl,
       createdAt: new Date(),
     });
 
-    console.log("Enregistrement du produit dans la base de données...");
     await newProduct.save();
     console.log("Produit enregistré:", productName);
 
-    // Partage sur Twitter dès que la publication est réussie
     await shareOnTwitter(newProduct);
 
-    // Configuration du transporteur pour Mailo
     const transporter = nodemailer.createTransport({
       host: 'mail.mailo.com',
       port: 465,
       secure: true,
       auth: {
-         user: process.env.MAILO_USER || 'kolwazshopp@mailo.com',
-         pass:  process.env.MAILO_PASSWORD || "1O0C4HbGFMSw",
+        user: process.env.MAILO_USER,
+        pass: process.env.MAILO_PASSWORD,
       },
     });
 
-    // Paramètres de l'e-mail
     const mailOptions = {
-      from: 'kolwazshopp@mailo.com',
+      from: process.env.MAILO_USER,
       to: 'dieyediabal75@gmail.com',
       subject: "Nouvelle annonce publiée",
       text: `Produit : ${productName}\nDescription : ${description}\nCatégorie : ${category}\nPrix : ${priceNumber} FCFA\nDélai : ${deliveryTimeNumber}`,
     };
 
-    // Envoi de l'e-mail
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.log("Erreur d'envoi :", error);
@@ -194,14 +138,14 @@ exports.publishProduct = async (req, res) => {
         console.log("E-mail envoyé avec succès :", info.response);
       }
     });
-    
-    console.log("Produit publié avec succès!");
+
     res.status(201).json({ message: "Produit publié avec succès!" });
   } catch (err) {
     console.error("Erreur lors de la publication du produit:", err.message);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // Récupération de tous les produits pour affichage sur la page d'accueil
 exports.getAllProducts = async (req, res) => {
