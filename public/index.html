@@ -92,23 +92,38 @@ a { text-decoration: none; }
 /* Effet de survol supprimé */
 /* .auth-buttons .btn:hover { background-color: darkorange; } */
 
- /* Navigation principale */
-    .navbar {
-      background-color: #232f3e;
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .navbar a {
-      color: #fff;
-      margin: 0 20px;
-      font-size: 16px;
-      font-weight: bold;
-      transition: color 0.3s;
-      position: relative;
-    }
+.navbar a {
+  position: relative;
+  font-size: 24px; /* Taille des icônes */
+  text-decoration: none;
+  padding: 10px;
+  display: inline-block;
+  color: black;
+}
+
+/* Masquer le texte des liens */
+.navbar a::after {
+  content: attr(title); /* Afficher le texte au survol */
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  pointer-events: none;
+}
+
+/* Afficher le texte au survol */
+.navbar a:hover::after {
+  opacity: 1;
+}
+
 /* Effet de survol supprimé */
 /* .navbar a:hover { color: #febd69; } */
 /* Badge compteur sur le Panier */
@@ -635,11 +650,13 @@ footer {
       </div>
     </div>
     <!-- Navigation principale -->
-    <nav class="navbar">
-      <a href="/">🏠 accueil</a>
-      <a href="/espace-vendeur">🛠️ Espace vendeur</a>
-      <a href="/panier" style="position: relative;">🛒 Panier<span id="cartCount">0</span></a>
-    </nav>
+   <nav class="navbar">
+  <a href="/" title="Accueil">🏠</a>
+  <a href="/espace-vendeur" title="Espace Vendeur">👤</a>
+  <a href="/panier" title="Panier" style="position: relative;">
+    🛒 <span id="cartCount">0</span>
+  </a>
+</nav>
   </header>
   
   <!-- Boutons de catégories -->
@@ -666,13 +683,13 @@ footer {
     <div class="popular-carousel" id="popularProducts"></div>
     </div>
     <section>
-      <div id="loading" class="loading">Chargement en cours...</div>
-<div id="product-list"></div> <!-- Ici s'afficheront les produits -->
         <div id="loadingIndicator" class="loading-container">
   <div class="spinner"></div>
   <p>Chargement des produits...</p>
   </div> 
       <h2 style="text-align: center; margin-top: 10px; font-size: 15px; font-weight: bold; color: #333;">la livraison est gratuite</h2>
+       <div id="loading" class="loading">Chargement en cours...</div>
+<div id="product-list"></div> <!-- Ici s'afficheront les produits -->
       <div id="productGrid" class="grid-container"></div>
     </section>
 <div id="productContainer" style="display: none;"></div>
