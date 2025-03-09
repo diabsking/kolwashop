@@ -594,40 +594,75 @@ footer {
   border-radius: 5px;
   transition: background 0.3s;
 }
-/* Effet de survol supprimé */
-/* .filter-button:hover { background-color: #0056b3; } */
 .popular-products {
-  background-color: #fff; /* Fond blanc */
+  background-color: #ffffff;
+  padding: 40px 20px;
   margin-top: 0;
-  padding: 20px;
   position: relative;
-  top: 0;
 }
+
+.popular-products h2 {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+/* Conteneur en défilement horizontal */
 .popular-carousel {
   display: flex;
   overflow-x: auto;
-  gap: 20px;
+  gap: 30px;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
+  padding-bottom: 10px;
 }
+
+/* Carte produit */
 .popular-item {
   flex: 0 0 auto;
-  width: 200px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 10px;
+  width: 220px;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 15px;
   text-align: center;
-  background-color: #f9f9f9;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  scroll-snap-align: start;
 }
+
+/* Effet de survol pour un look dynamique */
+.popular-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Image du produit */
 .popular-item img {
   width: 100%;
-  height: 150px;
+  height: 160px;
   object-fit: cover;
-  border-radius: 5px;
+  border-radius: 8px;
+  margin-bottom: 10px;
 }
+
+/* Description ou titre du produit */
 .popular-item p {
   font-size: 16px;
-  color: #333;
+  color: #555;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Adaptation pour les mobiles */
+@media (max-width: 768px) {
+  .popular-carousel {
+    gap: 20px;
+  }
+  .popular-item {
+    width: 180px;
+  }
 }
 .badge {
   background-color: #ff9800;
@@ -663,7 +698,7 @@ footer {
   .grid-container,
   .similar-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr); /* 7 colonnes fixes */
+    grid-template-columns: repeat(5, 1fr); /* 5 colonnes fixes */
     gap: 20px;
     width: calc(100% - 0cm); /* Largeur ajustée avec marges de 6 cm */
     margin-left: 0cm;
@@ -735,7 +770,6 @@ footer {
   <header>
     <div class="top-header">
      <div class="logo" style="font-size: 10px; font-weight: bold; color: #fff;">
-  KOLWAZSHOP
 </div>
     </div>
     <div class="search-bar-container">
@@ -782,7 +816,7 @@ footer {
   <div class="spinner"></div>
   <p>Chargement des produits...</p>
   </div> 
-      <h2 style="text-align: center; margin-top: 10px; font-size: 15px; font-weight: bold; color: #333;">la livraison est gratuite</h2>
+      <h2 style="text-align: center; margin-top: 10px; font-size: 15px; font-weight: bold; color: #333;"></h2>
        <div id="loading" class="loading">Chargement en cours...</div>
 <div id="product-list"></div> <!-- Ici s'afficheront les produits -->
       <div id="productGrid" class="grid-container"></div>
