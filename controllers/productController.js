@@ -53,6 +53,7 @@ const twitterClient = new TwitterApi({
   appSecret: process.env.TWITTER_CONSUMER_SECRET,
   accessToken: process.env.TWITTER_ACCESS_TOKEN,
   accessSecret: process.env.TWITTER_ACCESS_SECRET,
+   bearerToken: process.env.TWITTER_BEARER_TOKEN, // Token Bearer
 });
 
 // Exemple de produits dans un tableau
