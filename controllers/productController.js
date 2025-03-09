@@ -53,16 +53,8 @@ const twitterClient = new TwitterApi({
   appSecret: process.env.TWITTER_CONSUMER_SECRET,
   accessToken: process.env.TWITTER_ACCESS_TOKEN,
   accessSecret: process.env.TWITTER_ACCESS_SECRET,
-   bearerToken: process.env.TWITTER_BEARER_TOKEN, // Token Bearer
+  bearerToken: process.env.TWITTER_BEARER_TOKEN, // Token Bearer
 });
-
-// Exemple de produits dans un tableau
-const products = [
-  { _id: '12345', productName: 'Super Smartphone', description: 'Le dernier modèle avec des fonctionnalités avancées.' },
-  { _id: '67890', productName: 'Laptop Gamer', description: 'Un ordinateur portable puissant pour les jeux et la création.' },
-  { _id: '54321', productName: 'Casque Audio', description: 'Casque Bluetooth de qualité supérieure avec réduction de bruit.' },
-  { _id: '11223', productName: 'Montre Connectée', description: 'Suivez votre santé et vos activités avec cette montre moderne.' },
-];
 
 // Fonction pour partager un produit sur Twitter
 async function shareOnTwitter(product) {
@@ -78,15 +70,6 @@ async function shareOnTwitter(product) {
     console.error("❌ Erreur Twitter", error);
   }
 }
-
-// Fonction pour obtenir un produit aléatoire et le partager
-function shareRandomProduct() {
-  const randomProduct = products[Math.floor(Math.random() * products.length)];
-  shareOnTwitter(randomProduct);
-}
-
-// Appel de la fonction pour partager un produit aléatoire
-shareRandomProduct();
 
 exports.publishProduct = async (req, res) => {
   try {
@@ -134,8 +117,8 @@ exports.publishProduct = async (req, res) => {
     await newProduct.save();
     console.log("Produit enregistré:", productName);
 
-  // Partage sur Twitter après la publication
-  await shareOnTwitter(newProduct);
+  // Une fois le produit enregistré, partagez-le automatiquement sur Twitter
+    await shareOnTwitter(savedProduct);
 
     const transporter = nodemailer.createTransport({
       host: 'mail.mailo.com',
