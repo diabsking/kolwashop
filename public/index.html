@@ -130,9 +130,10 @@ a { text-decoration: none; }
   white-space: nowrap;
   padding: 10px;
   background-color: #fff;
-  /* Ombre supprimée */
   border-bottom: 1px solid #ccc;
 }
+
+/* Style des boutons de catégorie */
 .category-button {
   flex: 0 0 auto;
   margin-right: 10px;
@@ -143,6 +144,28 @@ a { text-decoration: none; }
   cursor: pointer;
   font-weight: bold;
   border: none;
+  transition: all 0.3s ease; /* Animation fluide */
+}
+
+/* Effet au survol */
+.category-button:hover {
+  background-color: #f0f0f0;
+  transform: scale(1.05); /* Légère augmentation de la taille */
+}
+
+/* Effet au clic */
+.category-button:active {
+  background-color: #ddd;
+  transform: scale(0.95);
+}
+
+/* Style du chargement */
+.loading {
+  display: none;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #555;
 }
 /* Effet de survol supprimé */
 /* .category-button:hover { background-color: #f0f0f0; } */
@@ -419,18 +442,9 @@ footer {
   padding: 5px 10px;
   font-size: 0.8em;
   border-radius: 5px;
-  z-index: 9999;              /* S'assure que le badge est au-dessus de tout */
-  display: block !important;  /* Force son affichage */
-}
-.senegal-flag {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  width: 50px;
-}
-.senegal-flag img {
-  width: 100%;
-  height: auto;
+  z-index: 9999 !important;      /* S'assure que le badge est au-dessus de tous les autres éléments */
+  display: block !important;      /* Force son affichage même si d'autres styles tentent de le masquer */
+  opacity: 1 !important;          /* Assure que le badge est bien visible */
 }
 .location-indicator {
   position: absolute;
@@ -652,6 +666,8 @@ footer {
     <div class="popular-carousel" id="popularProducts"></div>
     </div>
     <section>
+      <div id="loading" class="loading">Chargement en cours...</div>
+<div id="product-list"></div> <!-- Ici s'afficheront les produits -->
         <div id="loadingIndicator" class="loading-container">
   <div class="spinner"></div>
   <p>Chargement des produits...</p>
@@ -887,23 +903,38 @@ function filterCheapProducts() {
       });
     }
 
-    // Mise en place des filtres par catégorie
-    function setupCategoryFilters() {
-      const buttons = document.querySelectorAll('.category-button');
-      buttons.forEach(button => {
-        button.addEventListener('click', () => {
-          const category = button.getAttribute('data-category');
-          if (category === 'Tous') {
-            displayProducts(allProducts);
-          } else {
-            const filtered = allProducts.filter(product => {
-              return product.detectedCategory.toLowerCase() === category.toLowerCase();
-            });
-            displayProducts(filtered);
-          }
-        });
-      });
-    }
+   // Mise en place des filtres par catégorie avec effet de chargement
+function setupCategoryFilters() {
+  const buttons = document.querySelectorAll('.category-button');
+  const productContainer = document.getElementById('product-list'); // Conteneur des produits
+  const loadingIndicator = document.getElementById('loading'); // Élément de chargement
+
+  buttons.forEach(button => {
+    button.addEventListener('click', () => {
+      const category = button.getAttribute('data-category');
+
+      // Afficher l'indicateur de chargement et vider les produits
+      loadingIndicator.style.display = 'block';
+      productContainer.innerHTML = '';
+
+      setTimeout(() => {
+        // Filtrage des produits après le chargement simulé
+        let filteredProducts;
+        if (category === 'Tous') {
+          filteredProducts = allProducts;
+        } else {
+          filteredProducts = allProducts.filter(product =>
+            product.detectedCategory.toLowerCase() === category.toLowerCase()
+          );
+        }
+
+        // Cacher l'indicateur de chargement et afficher les produits
+        loadingIndicator.style.display = 'none';
+        displayProducts(filteredProducts);
+      }, 2000); // Délai de 2 secondes
+    });
+  });
+}
 
     // Fonction de détection de catégorie
     function aiDetectCategory(product, chosenCategory) {
