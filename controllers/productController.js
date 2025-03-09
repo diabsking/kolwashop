@@ -47,6 +47,7 @@ async function processWavePayment(amount, phoneNumber) {
 }
 const { TwitterApi } = require('twitter-api-v2');
 
+// Créez une instance de Twitter API avec les informations d'authentification
 const twitterClient = new TwitterApi({
   appKey: process.env.TWITTER_CONSUMER_KEY,
   appSecret: process.env.TWITTER_CONSUMER_SECRET,
@@ -54,16 +55,38 @@ const twitterClient = new TwitterApi({
   accessSecret: process.env.TWITTER_ACCESS_SECRET,
 });
 
+// Exemple de produits dans un tableau
+const products = [
+  { _id: '12345', productName: 'Super Smartphone', description: 'Le dernier modèle avec des fonctionnalités avancées.' },
+  { _id: '67890', productName: 'Laptop Gamer', description: 'Un ordinateur portable puissant pour les jeux et la création.' },
+  { _id: '54321', productName: 'Casque Audio', description: 'Casque Bluetooth de qualité supérieure avec réduction de bruit.' },
+  { _id: '11223', productName: 'Montre Connectée', description: 'Suivez votre santé et vos activités avec cette montre moderne.' },
+];
+
+// Fonction pour partager un produit sur Twitter
 async function shareOnTwitter(product) {
   try {
     const productUrl = `${process.env.PRODUCT_BASE_URL}/produit/${product._id}`;
+
     const tweetText = `${product.productName} - ${product.description}\n📌 Découvrez ici : ${productUrl}`;
+
     const response = await twitterClient.v2.tweet(tweetText);
+    
     console.log("✔ Partagé sur Twitter", response);
   } catch (error) {
     console.error("❌ Erreur Twitter", error);
   }
 }
+
+// Fonction pour obtenir un produit aléatoire et le partager
+function shareRandomProduct() {
+  const randomProduct = products[Math.floor(Math.random() * products.length)];
+  shareOnTwitter(randomProduct);
+}
+
+// Appel de la fonction pour partager un produit aléatoire
+shareRandomProduct();
+
 exports.publishProduct = async (req, res) => {
   try {
     console.log("Corps de la requête:", req.body);
