@@ -33,35 +33,32 @@ a { text-decoration: none; }
   color: #febd69;
 }
 
-/* Barre de recherche centrée */
+/* Barre de recherche centrée avec un fond dégradé subtil */
 .search-bar-container {
-  background: linear-gradient(135deg, #f0f4f8, #ffffff); /* Fond en dégradé subtil */
-  padding: 40px 0;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  background: linear-gradient(135deg, #f0f4f8, #ffffff); /* Fond en dégradé */
+  padding: 20px 0;
   text-align: center;
 }
- .search-bar-container {
-    background: #fff;
-  }
 
 /* Conteneur de la barre de recherche */
 .search-container {
-  display: inline-flex;
+  display: flex;
+  justify-content: space-between;  /* Espacement entre input et bouton */
+  max-width: 700px;  /* Limiter la largeur max */
   width: 100%;
-  max-width: 700px; /* Impact visuel optimisé */
   margin: 0 auto;
-  border-radius: 50px; /* Forme arrondie pour un look moderne */
-  overflow: hidden; /* Pour appliquer le border-radius sur l'ensemble */
+  border-radius: 50px;  /* Forme arrondie pour un look moderne */
+  overflow: hidden;
   background-color: #fff;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Champ de saisie */
 .search-container input {
-  flex: 1;
-  padding: 14px 20px;
+  flex-grow: 1; /* Prendre toute la largeur disponible */
+  padding: 12px 20px;
   font-size: 16px;
-  border: none; /* Style épuré */
+  border: none;
   outline: none;
 }
 
@@ -74,17 +71,14 @@ a { text-decoration: none; }
 .search-container button {
   background-color: #febd69;
   border: none;
-  padding: 0 25px;
+  padding: 12px 20px;
   font-size: 16px;
-  color: #fff;
+  color: white;
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0; /* Empêche le bouton de rétrécir */
-  min-width: 60px;  /* Largeur minimale */
+  flex-shrink: 0;  /* Empêche le bouton de rétrécir */
+  border-radius: 50px;  /* Bordure arrondie pour le bouton */
 }
 
 /* Effet hover sur le bouton */
@@ -95,26 +89,19 @@ a { text-decoration: none; }
 /* Pour les écrans mobiles : la barre prend toute la largeur et le fond devient blanc */
 @media (max-width: 768px) {
   .search-container {
-    width: 100%;
-    max-width: none;
-    margin: 0 10px; /* Marge latérale pour un léger espacement */
-    display: flex;
-    flex-direction: row;  /* Aligner les éléments horizontalement */
-    justify-content: space-between;  /* Espacement entre la barre de recherche et le bouton */
+    flex-direction: column;  /* Empilement vertical sur les petits écrans */
+    align-items: center;  /* Centrer les éléments */
+    width: 90%;  /* Utiliser presque toute la largeur disponible */
+    margin: 0 auto;
   }
-  .search-bar-container {
-    background: #fff;
-    width: 100%;  /* S'assure que la barre occupe toute la largeur */
+
+  .search-container input {
+    width: 100%;  /* L'input prend toute la largeur */
   }
+
   .search-container button {
-    min-width: 80px;  /* Assure une largeur minimale sans forcer une largeur fixe */
-    flex-shrink: 0;  /* Empêche le bouton de se réduire */
-    padding: 10px 15px;  /* Padding ajusté pour que le texte "Rechercher" soit toujours visible */
-    background-color: #007bff; /* Couleur de fond du bouton */
-    color: white; /* Couleur du texte du bouton */
-    border: none; /* Retire les bordures */
-    border-radius: 5px;  /* Bordure arrondie pour le bouton */
-    cursor: pointer;  /* Change le curseur en main lorsque survolé */
+    width: 100%;  /* Le bouton prend toute la largeur */
+    margin-top: 10px;  /* Ajouter un peu d'espace entre l'input et le bouton */
   }
 }
 /* Barre de navigation */
