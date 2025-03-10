@@ -694,48 +694,50 @@ footer {
   }
 
   /* Ajustement des éléments pour mieux afficher les textes et images */
-  .grid-item,
-  .similar-item {
-    min-height: 400px; /* Hauteur augmentée */
-    box-sizing: border-box;
-    padding: 15px;
-    overflow: hidden;
-    background-color: #fff;
-  }
+.grid-item,
+.similar-item {
+  min-height: 450px; /* Hauteur augmentée pour laisser de la place au texte */
+  box-sizing: border-box;
+  padding: 15px;
+  overflow: hidden;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
-  /* Ajustement de l’image du produit */
-  .grid-item img,
-  .similar-item img {
-    width: 100%;
-    height: 250px; /* Hauteur plus grande pour bien afficher la photo */
-    object-fit: cover;
-  }
+/* Ajustement de l’image du produit */
+.grid-item img,
+.similar-item img {
+  width: 100%;
+  height: 220px; /* Réduit un peu la hauteur pour libérer de l'espace pour le texte */
+  object-fit: cover;
+  position: relative;
+}
 
-  /* Nom du produit bien visible */
-  .grid-item .product-name,
-  .similar-item .product-name {
-    font-weight: bold;
-    font-size: 18px;
-    color: #333;
-    margin-top: 10px;
-    display: block;
-    text-align: center;
-  }
+/* Nom du produit bien visible */
+.grid-item .product-name,
+.similar-item .product-name {
+  font-weight: bold;
+  font-size: 18px;
+  color: #333;
+  margin-top: 10px;
+  text-align: center;
+}
 
-  /* Description du produit */
-  .grid-item .product-description,
-  .similar-item .product-description {
-    font-size: 14px;
-    color: #666;
-    margin-top: 5px;
-    display: block;
-    text-align: center;
-  }
+/* Description du produit */
+.grid-item .product-description,
+.similar-item .product-description {
+  font-size: 14px;
+  color: #666;
+  margin-top: 5px;
+  text-align: center;
+}
 
   /* Prix plus grand et plus visible */
   .grid-item .product-price,
   .similar-item .product-price {
-    font-size: 22px;
+    font-size: 18px;
     color: #d9534f;
     font-weight: bold;
     margin-top: 5px;
