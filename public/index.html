@@ -681,29 +681,59 @@ footer {
 
 /* Responsive: Affichage spécifique pour les écrans d'ordinateurs */
 @media only screen and (min-width: 1024px) {
-  /* Contrainte du conteneur avec 7 produits par ligne */
+  /* Contrainte du conteneur avec 4 produits par ligne */
   .grid-container,
   .similar-grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr); /* 6 colonnes fixes */
+    grid-template-columns: repeat(4, 1fr); /* 4 colonnes */
     gap: 20px;
-    width: calc(100% - 0cm); /* Largeur ajustée avec marges de 6 cm */
+    width: calc(100% - 0cm);
     margin-left: 0cm;
     margin-right: 0cm;
     overflow-x: hidden;
     box-sizing: border-box;
   }
 
-  /* Ajustement des éléments pour bien afficher les textes */
+  /* Ajustement des éléments pour mieux afficher les textes et images */
   .grid-item,
   .similar-item {
-    min-height: 320px; /* Hauteur augmentée */
+    min-height: 400px; /* Hauteur augmentée pour mieux afficher l’image et le texte */
     box-sizing: border-box;
-    padding: 10px;
+    padding: 15px;
     overflow: hidden;
     white-space: normal;
     word-wrap: break-word;
     text-overflow: ellipsis;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Ajustement de l’image du produit */
+  .grid-item img,
+  .similar-item img {
+    width: 100%;
+    height: 250px; /* Hauteur plus grande pour bien afficher la photo */
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  /* Nom du produit en gras */
+  .grid-item .product-name,
+  .similar-item .product-name {
+    font-weight: bold;
+    font-size: 18px;
+    color: #333;
+    margin-top: 10px;
+  }
+
+  /* Prix plus grand et plus visible */
+  .grid-item .product-price,
+  .similar-item .product-price {
+    font-size: 22px; /* Taille augmentée */
+    color: #d9534f; /* Rouge pour bien le démarquer */
+    font-weight: bold;
+    margin-top: 5px;
   }
 
   /* Masquer le bouton "Acheter" */
@@ -715,39 +745,38 @@ footer {
   /* Bouton "Détail" centré, plus grand et transparent */
   .grid-item .details-button {
     display: block;
-    background: transparent; /* Fond transparent */
-    border: none; /* Supprime la bordure */
-    color: #007bff; /* Texte en bleu */
-    font-size: 18px; /* Texte agrandi */
+    background: transparent;
+    border: none;
+    color: #007bff;
+    font-size: 18px;
     font-weight: bold;
     padding: 10px 20px;
     text-align: center;
-    margin: 20px auto;
+    margin: 15px auto;
     cursor: pointer;
     transition: color 0.3s;
   }
 
   .grid-item .details-button:hover {
-    color: #0056b3; /* Assombrit le texte au survol */
+    color: #0056b3;
   }
 
   .detail-main {
     flex-direction: row;
   }
 
-  /* S'assurer que l'écran reste fixe avec un défilement vertical uniquement */
+  /* Empêcher le défilement horizontal */
   html, body {
     overflow-x: hidden;
   }
 }
   
-  .navbar {
-    padding: 15px 30px;
-  }
-  
-  .search-container {
-    width: 60%;
-  }
+.navbar {
+  padding: 15px 30px;
+}
+
+.search-container {
+  width: 60%;
 }
   </style>
 </head>
