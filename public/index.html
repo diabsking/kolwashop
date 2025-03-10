@@ -705,7 +705,7 @@ footer {
 
 /* Responsive: Affichage spécifique pour les écrans d'ordinateurs */
 @media only screen and (min-width: 1024px) {
-  /* Contrainte du conteneur avec 4 produits par ligne */
+  /* Contrainte du conteneur avec 6 produits par ligne */
   .grid-container,
   .similar-grid {
     display: grid;
@@ -739,61 +739,65 @@ footer {
     object-fit: cover;
   }
 
-/* Nom du produit */
-.grid-item .product-name,
-.similar-item .product-name {
-  font-weight: bold;
-  font-size: 14px;
-  color: #333;
-  margin: 2px 0;       /* Réduit l'espacement vertical */
-  line-height: 1.1;    /* Ligne un peu plus compacte */
-}
+  /* Nom du produit - réduction des marges et ajustement de la hauteur de ligne */
+  .grid-item .product-name,
+  .similar-item .product-name {
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+    margin: 1px 0;       /* Marges verticales réduites */
+    line-height: 1.2;    /* Texte plus compact */
+  }
 
-/* Description du produit limitée à 4 lignes et en bleu */
-.grid-item .product-description,
-.similar-item .product-description {
-  font-size: 14px;
-  color: blue;
-  margin: 2px 0;       /* Réduit l'espacement vertical */
-  padding: 0 5px;
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+  /* Description du produit limitée à 4 lignes et en bleu */
+  .grid-item .product-description,
+  .similar-item .product-description {
+    font-size: 14px;
+    color: blue;
+    margin: 1px 0;       /* Marges verticales réduites */
+    padding: 0 5px;
+    line-height: 1.2;    /* Texte plus compact */
+    display: -webkit-box;
+    -webkit-line-clamp: 4;      /* Affiche 4 lignes */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-/* Conteneur du prix et du bouton "Détail" */
-.grid-item .price-container,
-.similar-item .price-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 0px;    /* Espacement réduit entre la description et la ligne suivante */
-}
+  /* Conteneur du prix et du bouton "Détail" - espacement minimal */
+  .grid-item .price-container,
+  .similar-item .price-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0;    /* Espacement réduit */
+  }
 
-/* Prix du produit */
-.grid-item .product-price,
-.similar-item .product-price {
-  font-size: 14px;
-  color: #d9534f;
-  font-weight: bold;
-  text-align: center;
-  margin-top: 0px;   /* Espacement réduit */
-}
+  /* Prix du produit */
+  .grid-item .product-price,
+  .similar-item .product-price {
+    font-size: 14px;
+    color: #d9534f;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 0;   /* Espacement réduit */
+    line-height: 1.2; /* Texte plus compact */
+  }
 
-/* Bouton "Détail" */
-.grid-item .details-button,
-.similar-item .details-button {
-  background: transparent;
-  border: none;
-  color: #007bff;
-  font-size: 14px;
-  font-weight: bold;
-  padding: 2px 5px;   /* Réduit le padding */
-  cursor: pointer;
-  text-align: right;
-  margin-top: 0px;    /* Espacement réduit */
+  /* Bouton "Détail" */
+  .grid-item .details-button,
+  .similar-item .details-button {
+    background: transparent;
+    border: none;
+    color: #007bff;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 2px 5px;   /* Padding réduit */
+    cursor: pointer;
+    text-align: right;
+    margin-top: 0;      /* Espacement réduit */
+    line-height: 1.2;   /* Texte plus compact */
+  }
 }
 /* Masquer le bouton "Acheter" */
   .grid-item .add-to-cart,
