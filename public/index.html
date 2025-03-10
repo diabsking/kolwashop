@@ -98,14 +98,23 @@ a { text-decoration: none; }
     width: 100%;
     max-width: none;
     margin: 0 10px; /* Marge latérale pour un léger espacement */
+    display: flex;
+    flex-direction: row;  /* Aligner les éléments horizontalement */
+    justify-content: space-between;  /* Espacement entre la barre de recherche et le bouton */
   }
   .search-bar-container {
     background: #fff;
+    width: 100%;  /* S'assure que la barre occupe toute la largeur */
   }
   .search-container button {
     min-width: 80px;  /* Assure une largeur minimale sans forcer une largeur fixe */
-    flex-shrink: 0;
-    padding: 0 15px;  /* Padding ajusté pour que le texte "Rechercher" reste visible */
+    flex-shrink: 0;  /* Empêche le bouton de se réduire */
+    padding: 10px 15px;  /* Padding ajusté pour que le texte "Rechercher" soit toujours visible */
+    background-color: #007bff; /* Couleur de fond du bouton */
+    color: white; /* Couleur du texte du bouton */
+    border: none; /* Retire les bordures */
+    border-radius: 5px;  /* Bordure arrondie pour le bouton */
+    cursor: pointer;  /* Change le curseur en main lorsque survolé */
   }
 }
 /* Barre de navigation */
@@ -549,9 +558,9 @@ footer {
   padding: 5px 10px;
   font-size: 0.8em;
   border-radius: 5px;
-  z-index: 9999 !important;      /* S'assure que le badge est au-dessus de tous les autres éléments */
-  display: block !important;      /* Force son affichage même si d'autres styles tentent de le masquer */
-  opacity: 1 !important;          /* Assure que le badge est bien visible */
+  z-index: 9999 !important;      
+  display: block !important;      
+  opacity: 1 !important;          
 }
 .location-indicator {
   position: absolute;
