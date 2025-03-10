@@ -36,10 +36,13 @@ a { text-decoration: none; }
 /* Barre de recherche centrée */
 .search-bar-container {
   background: linear-gradient(135deg, #f0f4f8, #ffffff); /* Fond en dégradé subtil */
-  padding: 40px 0;
+  padding: 20px 0; /* Hauteur réduite de l'entête */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   text-align: center;
 }
+ .search-bar-container {
+    background: #fff;
+  }
 
 /* Conteneur de la barre de recherche */
 .search-container {
@@ -80,6 +83,8 @@ a { text-decoration: none; }
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0; /* Empêche le bouton de rétrécir */
+  min-width: 60px;  /* Largeur minimale pour garantir sa visibilité */
 }
 
 /* Effet hover sur le bouton */
