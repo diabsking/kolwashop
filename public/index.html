@@ -40,6 +40,9 @@ a { text-decoration: none; }
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   text-align: center;
 }
+ .search-bar-container {
+    background: #fff;
+  }
 
 /* Conteneur de la barre de recherche */
 .search-container {
@@ -100,9 +103,9 @@ a { text-decoration: none; }
     background: #fff;
   }
   .search-container button {
-    width: 80px;  /* Fixe la largeur du bouton pour garantir sa visibilité */
+    min-width: 80px;  /* Assure une largeur minimale sans forcer une largeur fixe */
     flex-shrink: 0;
-    padding: 0;   /* Réduit le padding si nécessaire */
+    padding: 0 15px;  /* Padding ajusté pour que le texte "Rechercher" reste visible */
   }
 }
 /* Barre de navigation */
@@ -385,7 +388,7 @@ main section {
   margin-bottom: 10px;
 }
 
-/* Grille des produits similaires avec 20 produits */
+/* Grille des produits similaires avec 15 produits */
 .similar-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr); /* 5 colonnes par ligne */
@@ -394,7 +397,7 @@ main section {
   max-width: 100%;
   padding: 20px;
   margin: 0 auto;
-  max-height: calc(20 * 1fr); /* Limite l'affichage à 20 éléments */
+  max-height: calc(15 * 1fr); /* Limite l'affichage à 20 éléments */
   overflow: hidden; /* Cache les éléments en excès */
 }
 .similar-item {
@@ -682,7 +685,7 @@ footer {
   .grid-container,
   .similar-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 5 colonnes fixes */
+    grid-template-columns: repeat(6, 1fr); /* 6 colonnes fixes */
     gap: 20px;
     width: calc(100% - 0cm); /* Largeur ajustée avec marges de 6 cm */
     margin-left: 0cm;
