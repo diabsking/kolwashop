@@ -36,19 +36,16 @@ a { text-decoration: none; }
 /* Barre de recherche centrée */
 .search-bar-container {
   background: linear-gradient(135deg, #f0f4f8, #ffffff); /* Fond en dégradé subtil */
-  padding: 20px 0; /* Hauteur réduite de l'entête */
+  padding: 40px 0;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   text-align: center;
 }
- .search-bar-container {
-    background: #fff;
-  }
 
 /* Conteneur de la barre de recherche */
 .search-container {
   display: inline-flex;
   width: 100%;
-  max-width: 700px; /* Légère augmentation pour plus d'impact */
+  max-width: 700px; /* Impact visuel optimisé */
   margin: 0 auto;
   border-radius: 50px; /* Forme arrondie pour un look moderne */
   overflow: hidden; /* Pour appliquer le border-radius sur l'ensemble */
@@ -61,7 +58,7 @@ a { text-decoration: none; }
   flex: 1;
   padding: 14px 20px;
   font-size: 16px;
-  border: none; /* Suppression des bordures pour un style épuré */
+  border: none; /* Style épuré */
   outline: none;
 }
 
@@ -84,7 +81,7 @@ a { text-decoration: none; }
   align-items: center;
   justify-content: center;
   flex-shrink: 0; /* Empêche le bouton de rétrécir */
-  min-width: 60px;  /* Largeur minimale pour garantir sa visibilité */
+  min-width: 60px;  /* Largeur minimale */
 }
 
 /* Effet hover sur le bouton */
@@ -92,18 +89,20 @@ a { text-decoration: none; }
   background-color: #f8a94b;
 }
 
-/* Pour les écrans mobiles : la barre prend presque toute la largeur de l'écran et le fond est blanc */
+/* Pour les écrans mobiles : la barre prend toute la largeur et le fond devient blanc */
 @media (max-width: 768px) {
   .search-container {
-    width: 90%;
+    width: 100%;
     max-width: none;
+    margin: 0 10px; /* Marge latérale pour un léger espacement */
   }
   .search-bar-container {
     background: #fff;
   }
-  /* Optionnel : ajustement du padding du bouton pour les mobiles */
   .search-container button {
-    padding: 0 15px;
+    width: 80px;  /* Fixe la largeur du bouton pour garantir sa visibilité */
+    flex-shrink: 0;
+    padding: 0;   /* Réduit le padding si nécessaire */
   }
 }
 /* Barre de navigation */
