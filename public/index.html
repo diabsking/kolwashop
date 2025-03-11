@@ -886,48 +886,34 @@ footer {
       <div id="productGrid" class="grid-container"></div>
     </section>
 <div id="productContainer" style="display: none;"></div>
-    <!-- Section de Détail du Produit (cachée par défaut) -->
-    <div id="detailSection">
-      <div class="detail-main">
-        <div class="detail-photo">
-          <img id="detailImage" src="" alt="Photo du produit">
-        </div>
-        <div class="detail-info">
-          <h1 id="detailName">Nom du produit</h1>
-          <p id="detailDescription">Description du produit...</p>
-          <p><strong>Prix :</strong> <span id="detailPrice"></span> FCFA</p>
-          <p><strong>Vendeur :</strong> <span id="detailSeller"></span></p>
-        </div>
-      </div>
-      <div class="similar-products">
-        <h2>Produits similaires</h2>
-        <div class="similar-grid" id="similarGrid">
-          <!-- Les produits similaires seront insérés ici -->
-        </div>
-      </div>
- <!-- Boutons d'action dans la vue détail -->
-<div class="action-buttons-detail">
-  <a href="#" onclick="hideDetailSection(); return false;">Retourner</a>
-  <a href="#" onclick="orderProduct(this); return false;">Commander</a>
+<!-- Section de détail du produit -->
+<div id="detailSection" style="display: none;">
+  <img id="detailImage" src="" alt="">
+  <div id="imageCarousel" class="carousel"></div>
+  <video id="detailVideo" controls style="display: none;"></video>
+  <h1 id="detailName"></h1>
+  <p id="detailDescription"></p>
+  <p id="detailPrice"></p>
+  <p id="detailSeller"></p>
+  <p id="detailStock"></p>
+  <p id="detailCreatedAt"></p>
+  <p id="detailOrders"></p>
+  <p id="detailViews"></p>
+  <p id="detailAddToCart"></p>
+  <div id="reviewSection"></div>
+  <button id="contactSellerButton" style="display: none;">Contacter le vendeur</button>
+  <button id="addToCartButton">Ajouter au panier</button>
+  <button id="buyNowButton">Acheter maintenant</button>
+  <button id="prevProduct">Produit précédent</button>
+  <button id="nextProduct">Produit suivant</button>
+  <div id="similarGrid"></div>
+  <!-- Section pour discuter avec le vendeur -->
+  <div id="contactSellerSection">
+    <h3>Discuter avec le vendeur</h3>
+    <textarea id="contactSellerMessage" placeholder="Votre message"></textarea>
+    <button onclick="contactSeller()">Envoyer</button>
+  </div>
 </div>
-
-<div id="review-container">
-  <h3>Donnez votre avis</h3>
-  <form id="review-form">
-    <input type="text" id="review-name" placeholder="Votre nom" required>
-    <div class="rating-container">
-      <label for="review-rating">Notez le produit :</label>
-      <select id="review-rating" required>
-        <option value="">Choisissez une note</option>
-        <option value="1">1 étoile</option>
-        <option value="2">2 étoiles</option>
-        <option value="3">3 étoiles</option>
-        <option value="4">4 étoiles</option>
-        <option value="5">5 étoiles</option>
-      </select>
-    </div>
-    <textarea id="review-comment" placeholder="Votre avis" required></textarea>
-    <button type="button" id="submit-review">Envoyer</button>
   </form>
   <div id="review-section">
     <!-- Les avis clients s'afficheront ici -->
@@ -1003,29 +989,28 @@ footer {
   <div id="productContainer"></div>
   
   <script>
-    let allProducts = [];
-    let cartCount = 0;
-    // Variable globale pour stocker le produit actuellement affiché en détail
-    let currentProduct = null;
-    
-    // Chargement des produits et initialisation des filtres dès le chargement de la page
-    window.onload = () => {
-      loadProducts();
-      setupCategoryFilters();
-      setupSearch();
-      setupSidebarFilters();
-    };
+// Variables globales
+let allProducts = [];
+let cartCount = 0;
+let currentProduct = null;
 
+// Initialisation dès le chargement de la page
+window.onload = () => {
+  loadProducts();
+  setupCategoryFilters();
+  setupSearch();
+  setupSidebarFilters();
+};
+
+// Chargement des produits depuis l'API et affichage
 async function loadProducts() {
   const loadingIndicator = document.getElementById('loadingIndicator');
   const productContainer = document.getElementById('productContainer');
-
-  // Afficher l'indicateur de chargement et masquer les produits
   loadingIndicator.style.display = 'block';
   productContainer.style.display = 'none';
 
   try {
-    // Simuler un délai de chargement (ex: 1.5 secondes)
+    // Simuler un délai de chargement
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     // Récupération des produits depuis l'API
@@ -1034,35 +1019,40 @@ async function loadProducts() {
     const data = await response.json();
     allProducts = data.products || [];
 
+    // Détection automatique de la catégorie pour chaque produit
     allProducts.forEach(product => {
       product.detectedCategory = aiDetectCategory(product);
     });
+
+    // Trier les produits par popularité (basé sur le nombre de commandes)
+    allProducts.sort((a, b) => (b.orders || 0) - (a.orders || 0));
 
     displayProducts(allProducts);
   } catch (err) {
     console.error("Erreur lors du chargement des produits:", err);
   } finally {
-    // Cacher l'indicateur de chargement et afficher les produits
     loadingIndicator.style.display = 'none';
     productContainer.style.display = 'block';
   }
 }
+
+// Affichage des produits dans la grille
 function displayProducts(products) {
   const productGrid = document.getElementById("productGrid");
   productGrid.innerHTML = products.length
     ? ""
     : "<p style='text-align:center;'>Aucun produit publié pour le moment.</p>";
-  
+
   products.forEach(product => {
     const productItem = document.createElement("div");
     productItem.className = 'grid-item';
 
+    // Ajout d'un badge "Nouveau" si le produit est publié depuis moins de 7 jours
     let badgeHTML = '';
     if (product.publishedAt) {
       const publishedDate = new Date(product.publishedAt);
       const now = new Date();
-      const diffTime = now - publishedDate;
-      const diffDays = diffTime / (1000 * 60 * 60 * 24);
+      const diffDays = (now - publishedDate) / (1000 * 60 * 60 * 24);
       if (diffDays < 7) {
         badgeHTML = '<span class="new-badge">Nouveau</span>';
       }
@@ -1087,322 +1077,436 @@ function displayProducts(products) {
     productGrid.appendChild(productItem);
   });
 }
-
-function filterCheapProducts() {
+  // Filtre pour afficher les produits dont le prix est inférieur à 10 000 FCFA
+  function filterCheapProducts() {
     const filteredProducts = allProducts.filter(product => product.price < 10000);
     displayProducts(filteredProducts);
-}
+  }
 
-    // Recherche sur tous les produits
-    function setupSearch() {
-      const searchBtn = document.getElementById("searchBtn");
-      const searchBox = document.getElementById("searchBox");
-      searchBtn.addEventListener("click", () => {
-        const query = searchBox.value.trim().toLowerCase();
-        const filtered = allProducts.filter(product => {
-          return product.productName.toLowerCase().includes(query) ||
-                 (product.description && product.description.toLowerCase().includes(query)) ||
-                 (product.detectedCategory && product.detectedCategory.toLowerCase().includes(query));
-        });
-        displayProducts(filtered);
+  // Recherche sur tous les produits
+  function setupSearch() {
+    const searchBtn = document.getElementById("searchBtn");
+    const searchBox = document.getElementById("searchBox");
+    searchBtn.addEventListener("click", () => {
+      const query = searchBox.value.trim().toLowerCase();
+      const filtered = allProducts.filter(product => {
+        return (product.productName && product.productName.toLowerCase().includes(query)) ||
+               (product.description && product.description.toLowerCase().includes(query)) ||
+               (product.detectedCategory && product.detectedCategory.toLowerCase().includes(query));
       });
-      searchBox.addEventListener("keyup", (event) => {
-        if (event.key === "Enter") {
-          searchBtn.click();
-        }
-      });
-    }
+      displayProducts(filtered);
+    });
+    searchBox.addEventListener("keyup", (event) => {
+      if (event.key === "Enter") searchBtn.click();
+    });
+  }
 
-   // Mise en place des filtres par catégorie avec effet de chargement
+// Mise en place des filtres par catégorie avec effet de chargement simulé
 function setupCategoryFilters() {
   const buttons = document.querySelectorAll('.category-button');
-  const productContainer = document.getElementById('product-list'); // Conteneur des produits
+  const productGrid = document.getElementById('productGrid'); // On utilise ici la grille des produits
   const loadingIndicator = document.getElementById('loading'); // Élément de chargement
 
   buttons.forEach(button => {
     button.addEventListener('click', () => {
       const category = button.getAttribute('data-category');
-
-      // Afficher l'indicateur de chargement et vider les produits
       loadingIndicator.style.display = 'block';
-      productContainer.innerHTML = '';
 
+      // Simulation d'un court délai de chargement (500 ms)
       setTimeout(() => {
-        // Filtrage des produits après le chargement simulé
         let filteredProducts;
-        if (category === 'Tous') {
+        if (category.toLowerCase() === 'tous') {
           filteredProducts = allProducts;
         } else {
           filteredProducts = allProducts.filter(product =>
-            product.detectedCategory.toLowerCase() === category.toLowerCase()
+            product.detectedCategory &&
+            product.detectedCategory.toLowerCase().includes(category.toLowerCase())
           );
         }
 
-        // Cacher l'indicateur de chargement et afficher les produits
         loadingIndicator.style.display = 'none';
-        displayProducts(filteredProducts);
-      }, 2000); // Délai de 2 secondes
+        if (filteredProducts.length === 0) {
+          productGrid.innerHTML = "<p style='text-align:center;'>Aucun produit trouvé pour cette catégorie.</p>";
+        } else {
+          displayProducts(filteredProducts);
+        }
+      }, 500);
     });
   });
 }
 
-    // Fonction de détection de catégorie
-    function aiDetectCategory(product, chosenCategory) {
-      if (chosenCategory) {
-        return chosenCategory.toLowerCase();
+// Fonction de détection automatique de catégorie améliorée
+function aiDetectCategory(product, chosenCategory) {
+  if (chosenCategory) return chosenCategory.toLowerCase();
+  const name = product.productName ? product.productName.toLowerCase() : '';
+  const description = product.description ? product.description.toLowerCase() : '';
+  const imageUrl = product.imageUrl ? product.imageUrl.toLowerCase() : '';
+  const categoriesKeywords = {
+    "homme": ["homme", "men", "garçon", "costume", "habit", "veste", "pantalon", "chemise"],
+    "femme": ["femme", "woman", "dame", "robe", "jupe", "blouse", "maquillage", "sac à main"],
+    "garçon": ["garçon", "boy", "enfant garçon", "jeune homme", "ado garçon", "t-shirt garçon"],
+    "fille": ["fille", "girl", "jeune fille", "ado fille", "robe fille", "jupe fille"],
+    "bébé": ["bébé", "enfant", "nourrisson", "bambin"],
+    "cosmétique": ["cosmétique", "makeup", "maquillage", "parfum", "soin"],
+    "matériels": ["matériel", "outil", "machine"],
+    "accessoires": ["accessoire", "sac", "ceinture", "montre", "bijoux", "lunettes"],
+    "electronique": ["électronique", "smartphone", "ordinateur", "tablet", "tv", "caméra", "audio"],
+    "livres": ["livre", "book", "roman", "manga", "bd", "bande dessinée", "éducation"],
+    "sport": ["sport", "football", "basket", "tennis", "running", "fitness", "vélo", "musculation"]
+  };
+  // Parcours des catégories et recherche d'un mot-clé correspondant
+  for (const [category, keywords] of Object.entries(categoriesKeywords)) {
+    for (const keyword of keywords) {
+      if (name.includes(keyword) || description.includes(keyword) || imageUrl.includes(keyword)) {
+        return category;
       }
-      const name = product.productName ? product.productName.toLowerCase() : '';
-      const description = product.description ? product.description.toLowerCase() : '';
-      const imageUrl = product.imageUrl ? product.imageUrl.toLowerCase() : '';
-      const categoriesKeywords = {
-        "Homme": ["homme", "men", "garçon", "costume", "habit", "veste", "pantalon", "chemise"],
-        "Femme": ["femme", "woman", "dame", "robe", "jupe", "blouse", "maquillage", "sac à main"],
-        "Garçon": ["garçon", "boy", "enfant garçon", "jeune homme", "ado garçon", "t-shirt garçon"],
-        "Fille": ["fille", "girl", "jeune fille", "ado fille", "robe fille", "jupe fille"],
-        "Bébé": ["bébé", "enfant", "nourrisson", "bambin"],
-        "Cosmétique": ["cosmétique", "makeup", "maquillage", "parfum", "soin"],
-        "Matériels": ["matériel", "outil", "machine"],
-        "Accessoires": ["accessoire", "sac", "ceinture", "montre", "bijoux", "lunettes"],
-        "Electronique": ["électronique", "smartphone", "ordinateur", "tablet", "tv", "caméra", "audio"],
-        "Livres": ["livre", "book", "roman", "manga", "bd", "bande dessinée", "éducation"],
-        "Sport": ["sport", "football", "basket", "tennis", "running", "fitness", "vélo", "musculation"]
-      };
-      for (const [category, keywords] of Object.entries(categoriesKeywords)) {
-        for (const keyword of keywords) {
-          if (name.includes(keyword) || description.includes(keyword) || imageUrl.includes(keyword)) {
-            return category;
-          }
-        }
-      }
-      return "Autres";
     }
-
-    // Fonction pour ajouter au panier
-    function addToCart(name, price, description, imageUrl, sellerEmail, button) {
-      button.textContent = "Ajouté!";
-      button.disabled = true;
-      button.style.backgroundColor = "#28a745";
-      fetch('/api/add-to-cart', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, price, description, imageUrl, sellerEmail })
-      })
-      .then(response => response.ok ? response.json() : Promise.reject('Erreur API'))
-      .then(data => {
-        if (data.success) {
-          console.log("Produit ajouté au panier avec succès!");
-          cartCount++;
-          updateCartCount();
-        } else {
-          throw new Error("Erreur lors de l'ajout au panier");
-        }
-      })
-      .catch(err => {
-        console.error("Échec lors de l'ajout au panier:", err);
-        button.textContent = "Réessayer";
-        button.disabled = false;
-      });
-      showNotification(`${name} ajouté au panier!`);
-    }
-
-    function updateCartCount() {
-      document.getElementById("cartCount").textContent = cartCount;
-    }
-
-    // Affichage de la notification temporaire
-    function showNotification(message) {
-      const notification = document.getElementById("notification");
-      if (!notification) return;
-      notification.textContent = message;
-      notification.classList.add("show");
-      setTimeout(() => notification.classList.remove("show"), 3000);
-    }
-
-    // Affichage du détail du produit dans la section intégrée
-    function showProductDetailView(product) {
-      // Stocker le produit actuellement affiché
-      currentProduct = product;
-      // Masquer la grille de produits
-      document.getElementById("productGrid").style.display = "none";
-      // Afficher la section de détail
-      document.getElementById("detailSection").style.display = "block";
-      // Mettre à jour les informations du produit
-      document.getElementById("detailImage").src = product.imageUrl;
-      document.getElementById("detailImage").alt = product.productName;
-      document.getElementById("detailName").innerText = product.productName;
-      document.getElementById("detailDescription").innerText = product.description;
-      document.getElementById("detailPrice").innerText = product.price;
-      document.getElementById("detailSeller").innerText = product.sellerEmail || "Inconnu";
-      
-      // Filtrer et afficher des produits similaires (même catégorie, hors du produit sélectionné)
-      let similarProducts = allProducts.filter(p => p.detectedCategory === product.detectedCategory && p._id !== product._id);
-      displaySimilarProducts(similarProducts);
-    }
-
-    function displaySimilarProducts(products) {
-      const similarGrid = document.getElementById("similarGrid");
-      similarGrid.innerHTML = "";
-      if (products.length === 0) {
-        similarGrid.innerHTML = "<p>Aucun produit similaire trouvé.</p>";
-        return;
-      }
-      products.forEach(prod => {
-        const div = document.createElement("div");
-        div.className = "similar-item";
-        div.innerHTML = `<img src="${prod.imageUrl}" alt="${prod.productName}">
-                         <p>${prod.productName}</p>
-                         <p>${prod.price} FCFA</p>`;
-        div.onclick = function() {
-          showProductDetailView(prod);
-        }
-        similarGrid.appendChild(div);
-      });
-    }
-
-    // Fonction pour masquer la section de détail et revenir à la grille de produits
-    function hideDetailSection() {
-      document.getElementById("detailSection").style.display = "none";
-      document.getElementById("productGrid").style.display = "grid";
-    }
-
-    // Fonction pour le bouton Commander, qui ajoute le produit affiché au panier
-    function orderProduct(button) {
-      if (!currentProduct) return;
-      addToCart(
-        currentProduct.productName,
-        currentProduct.price,
-        currentProduct.description,
-        currentProduct.imageUrl,
-        currentProduct.sellerEmail,
-        button
-      );
-    }
-
-    // Filtrer les produits par mot-clé à partir de la sidebar (si présente)
-    function filterProductsByKeyword(keyword) {
-      const searchText = keyword.toLowerCase();
-      const filtered = allProducts.filter(product => {
-        return (product.productName && product.productName.toLowerCase().includes(searchText)) ||
-               (product.description && product.description.toLowerCase().includes(searchText)) ||
-               (product.detectedCategory && product.detectedCategory.toLowerCase().includes(searchText));
-      });
-      displayProducts(filtered);
-    }
-      document.addEventListener("DOMContentLoaded", function () {
-        let carousel = document.querySelector(".popular-carousel");
-        setInterval(() => {
-            carousel.scrollBy({ left: 200, behavior: "smooth" });
-            if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth) {
-                carousel.scrollTo({ left: 0, behavior: "smooth" });
-            }
-        }, 3000);
-    });
-// Fonction pour charger les avis d'un produit
-async function loadReviews(productId) {
-  try {
-    const response = await fetch(`/api/products/${productId}/reviews`);
-    const reviews = await response.json();
-    const reviewSection = document.getElementById("review-section");
-    if (reviews.length === 0) {
-      reviewSection.innerHTML = "<p>Aucun avis pour le moment.</p>";
-      return;
-    }
-    reviewSection.innerHTML = reviews.map(review => {
-      const stars = "★".repeat(review.rating) + "☆".repeat(5 - review.rating);
-      return `
-        <div class="review">
-          <p><strong>${review.userName}</strong> - ${stars}</p>
-          <p>${review.comment}</p>
-        </div>
-      `;
-    }).join("");
-  } catch (err) {
-    console.error("Erreur lors du chargement des avis:", err);
   }
+  return "autres";
 }
-
-// Ajout de l'écouteur d'événement pour la soumission des avis
-document.getElementById("submit-review").addEventListener("click", async function () {
-  const userName = document.getElementById("review-name").value.trim();
-  const userRating = parseInt(document.getElementById("review-rating").value, 10);
-  const userComment = document.getElementById("review-comment").value.trim();
-
-  if (!userName || !userRating || !userComment) {
-    alert("Veuillez remplir tous les champs de l'avis.");
-    return;
-  }
-
-  // Envoi du nouvel avis vers le serveur
-  try {
-    const response = await fetch(`/api/products/${currentProduct._id}/reviews`, {
+  // Fonction pour ajouter un produit au panier
+  function addToCart(name, price, description, imageUrl, sellerEmail, button) {
+    button.textContent = "Ajouté!";
+    button.disabled = true;
+    button.style.backgroundColor = "#28a745";
+    fetch('/api/add-to-cart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userName, rating: userRating, comment: userComment })
+      body: JSON.stringify({ name, price, description, imageUrl, sellerEmail })
+    })
+    .then(response => response.ok ? response.json() : Promise.reject('Erreur API'))
+    .then(data => {
+      if (data.success) {
+        cartCount++;
+        updateCartCount();
+      } else {
+        throw new Error("Erreur lors de l'ajout au panier");
+      }
+    })
+    .catch(err => {
+      console.error("Échec lors de l'ajout au panier:", err);
+      button.textContent = "Réessayer";
+      button.disabled = false;
     });
-    if (!response.ok) throw new Error("Erreur lors de l'enregistrement de l'avis");
-    // Rechargez les avis après envoi
-    loadReviews(currentProduct._id);
-    // Réinitialiser le formulaire
-    document.getElementById("review-form").reset();
-  } catch (err) {
-    console.error(err);
-    alert("Erreur lors de l'enregistrement de l'avis.");
+    showNotification(`${name} ajouté au panier!`);
   }
-});
 
-// Mettez à jour votre fonction showProductDetailView pour charger les avis :
-function showProductDetailView(product) {
-  currentProduct = product;
-  document.getElementById("productGrid").style.display = "none";
-  document.getElementById("detailSection").style.display = "block";
-  document.getElementById("detailImage").src = product.imageUrl;
-  document.getElementById("detailImage").alt = product.productName;
-  document.getElementById("detailName").innerText = product.productName;
-  document.getElementById("detailDescription").innerText = product.description;
-  document.getElementById("detailPrice").innerText = product.price + " FCFA";
-  document.getElementById("detailSeller").innerText = product.sellerEmail || "Inconnu";
-  
-  // Charger les avis pour ce produit
-  loadReviews(product._id);
-  
-  let similarProducts = allProducts.filter(p => p.detectedCategory === product.detectedCategory && p._id !== product._id);
-  displaySimilarProducts(similarProducts);
-}
-    // Initialiser les filtres de la sidebar (si un tableau de filtres existe)
-    function setupSidebarFilters() {
-      const rows = document.querySelectorAll('#filterTable td');
-      rows.forEach(row => {
-        row.addEventListener('click', () => {
-          const keyword = row.textContent.trim();
-          filterProductsByKeyword(keyword);
+  // Mise à jour du compteur du panier
+  function updateCartCount() {
+    document.getElementById("cartCount").textContent = cartCount;
+  }
+
+  // Affichage d'une notification temporaire
+  function showNotification(message) {
+    const notification = document.getElementById("notification");
+    if (!notification) return;
+    notification.textContent = message;
+    notification.classList.add("show");
+    setTimeout(() => notification.classList.remove("show"), 3000);
+  }
+
+  // Affichage du détail du produit dans la section dédiée
+  function showProductDetailView(product) {
+    currentProduct = product;
+    // Masquer la grille et afficher la section de détail
+    document.getElementById("productGrid").style.display = "none";
+    document.getElementById("detailSection").style.display = "block";
+
+    // Mise à jour des informations du produit
+    const detailImage = document.getElementById("detailImage");
+    if (detailImage) {
+      detailImage.src = product.imageUrl || "";
+      detailImage.alt = product.productName || "Image du produit";
+    }
+    const detailName = document.getElementById("detailName");
+    if (detailName) detailName.innerText = product.productName || "Nom inconnu";
+    const detailDescription = document.getElementById("detailDescription");
+    if (detailDescription) detailDescription.innerText = product.description || "";
+    const detailPrice = document.getElementById("detailPrice");
+    if (detailPrice) detailPrice.innerText = product.price ? `${product.price.toFixed(2)} FCFA` : "";
+    const detailSeller = document.getElementById("detailSeller");
+    if (detailSeller) detailSeller.innerText = product.sellerEmail || "Inconnu";
+    if (document.getElementById("detailStock") && product.stock !== undefined) {
+      document.getElementById("detailStock").innerText = product.stock;
+    }
+    if (document.getElementById("detailCreatedAt") && product.createdAt) {
+      document.getElementById("detailCreatedAt").innerText = new Date(product.createdAt).toLocaleDateString();
+    }
+    if (document.getElementById("detailOrders") && product.orders !== undefined) {
+      document.getElementById("detailOrders").innerText = product.orders;
+    }
+    if (document.getElementById("detailViews") && product.views !== undefined) {
+      document.getElementById("detailViews").innerText = product.views;
+    }
+    if (document.getElementById("detailAddToCart") && product.addToCart !== undefined) {
+      document.getElementById("detailAddToCart").innerText = product.addToCart;
+    }
+
+    // Gestion de la vidéo du produit
+    if (product.videoUrl) {
+      document.getElementById("detailVideo").src = product.videoUrl;
+      document.getElementById("detailVideoSection").style.display = "block";
+    } else {
+      document.getElementById("detailVideoSection").style.display = "none";
+    }
+
+    // Affichage de la galerie d'images complémentaires
+    const imageCarousel = document.getElementById("imageCarousel");
+    if (imageCarousel) {
+      imageCarousel.innerHTML = "";
+      if (Array.isArray(product.images)) {
+        product.images.forEach(imageUrl => {
+          const img = document.createElement("img");
+          img.src = imageUrl;
+          img.alt = product.productName;
+          imageCarousel.appendChild(img);
         });
+      }
+    }
+
+    // Filtrage et affichage des produits similaires
+    const similarProducts = allProducts.filter(p => 
+      p.detectedCategory === product.detectedCategory && p._id !== product._id
+    );
+    displaySimilarProducts(similarProducts);
+
+    // Affichage des avis du produit
+    const reviewSection = document.getElementById("reviewSection");
+    if (reviewSection) reviewSection.innerHTML = "";
+    if (Array.isArray(product.reviews)) {
+      product.reviews.forEach(review => {
+        const div = document.createElement("div");
+        div.className = "review-item";
+        div.innerHTML = `<p>${review.comment}</p><p>${review.rating} ★</p>`;
+        if (reviewSection) reviewSection.appendChild(div);
       });
     }
- document.addEventListener('DOMContentLoaded', function() {
-    loadPopularProducts();  // Charger les produits populaires dès le chargement de la page
-});
-
-async function loadPopularProducts() {
-    const response = await fetch("/api/products/popular");
-    const produits = await response.json();
-    const container = document.getElementById("popularProducts");
-
-    // Vérification s'il y a des produits populaires
-    if (produits.length === 0) {
-        container.innerHTML = "<p>Aucun produit populaire trouvé.</p>";
-        return;
+    
+    // Boutons de navigation (produit suivant/précédent)
+    const nextBtn = document.getElementById("nextProduct");
+    if (nextBtn) {
+      nextBtn.onclick = function() {
+        const currentIndex = allProducts.findIndex(p => p._id === currentProduct._id);
+        const nextProduct = allProducts[(currentIndex + 1) % allProducts.length];
+        showProductDetailView(nextProduct);
+      };
+    }
+    const prevBtn = document.getElementById("prevProduct");
+    if (prevBtn) {
+      prevBtn.onclick = function() {
+        const currentIndex = allProducts.findIndex(p => p._id === currentProduct._id);
+        const prevProduct = allProducts[(currentIndex - 1 + allProducts.length) % allProducts.length];
+        showProductDetailView(prevProduct);
+      };
     }
 
-    // Affichage des produits populaires avec les bons champs
-    container.innerHTML = produits.map(produit => `
+    // Afficher le bouton pour contacter le vendeur
+    const contactSellerButton = document.getElementById("contactSellerButton");
+    if (contactSellerButton) contactSellerButton.style.display = "block";
+
+    // Charger les avis via l'API pour ce produit
+    loadReviews(product._id);
+  }
+
+  // Affichage des produits similaires dans la grille dédiée
+  function displaySimilarProducts(products) {
+    const similarGrid = document.getElementById("similarGrid");
+    if (!similarGrid) return;
+    similarGrid.innerHTML = "";
+    if (products.length === 0) {
+      similarGrid.innerHTML = "<p>Aucun produit similaire trouvé.</p>";
+      return;
+    }
+    products.forEach(prod => {
+      const div = document.createElement("div");
+      div.className = "similar-item";
+      div.innerHTML = `
+        <img src="${prod.imageUrl}" alt="${prod.productName}">
+        <p>${prod.productName}</p>
+        <p>${prod.price} FCFA</p>
+      `;
+      div.onclick = () => showProductDetailView(prod);
+      similarGrid.appendChild(div);
+    });
+
+    // Ajout d'une section pour soumettre un avis
+    const reviewForm = document.createElement("div");
+    reviewForm.className = "review-form";
+    reviewForm.innerHTML = `<h3>Donnez votre avis</h3>
+                            <textarea id="reviewComment" placeholder="Votre commentaire"></textarea>
+                            <select id="reviewRating">
+                              <option value="1">1 ★</option>
+                              <option value="2">2 ★</option>
+                              <option value="3">3 ★</option>
+                              <option value="4">4 ★</option>
+                              <option value="5">5 ★</option>
+                            </select>
+                            <button onclick="submitReview()">Soumettre</button>`;
+    similarGrid.appendChild(reviewForm);
+  }
+
+  // Fonction pour soumettre un avis
+  async function submitReview() {
+    const comment = document.getElementById("reviewComment").value;
+    const rating = document.getElementById("reviewRating").value;
+    if (!comment || !rating) {
+      alert("Veuillez remplir le commentaire et la note.");
+      return;
+    }
+    const reviewData = {
+      comment: comment,
+      rating: rating,
+      productId: currentProduct._id
+    };
+    try {
+      const response = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reviewData)
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert("Avis soumis avec succès !");
+        currentProduct.reviews.push(data.review);
+        const reviewSection = document.getElementById("reviewSection");
+        if (reviewSection) {
+          reviewSection.innerHTML += `<div class="review-item">
+            <p>${data.review.comment}</p>
+            <p>${data.review.rating} ★</p>
+          </div>`;
+        }
+      } else {
+        alert("Erreur lors de la soumission de l'avis : " + data.message);
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      alert("Une erreur s'est produite lors de la soumission de l'avis.");
+    }
+  }
+
+  // Fonction pour charger les avis d'un produit via l'API
+  async function loadReviews(productId) {
+    try {
+      const response = await fetch(`/api/products/${productId}/reviews`);
+      const reviews = await response.json();
+      const reviewSection = document.getElementById("review-section");
+      if (!reviewSection) return;
+      if (reviews.length === 0) {
+        reviewSection.innerHTML = "<p>Aucun avis pour le moment.</p>";
+        return;
+      }
+      reviewSection.innerHTML = reviews.map(review => {
+        const stars = "★".repeat(review.rating) + "☆".repeat(5 - review.rating);
+        return `
+          <div class="review">
+            <p><strong>${review.userName || "Utilisateur"}</strong> - ${stars}</p>
+            <p>${review.comment}</p>
+          </div>
+        `;
+      }).join("");
+    } catch (err) {
+      console.error("Erreur lors du chargement des avis:", err);
+    }
+  }
+
+  // Fonction pour masquer la section de détail et revenir à la grille de produits
+  function hideDetailSection() {
+    document.getElementById("detailSection").style.display = "none";
+    document.getElementById("productGrid").style.display = "grid";
+  }
+
+  // Fonction pour le bouton "Commander" qui ajoute le produit au panier
+  function orderProduct(button) {
+    if (!currentProduct) return;
+    addToCart(
+      currentProduct.productName,
+      currentProduct.price,
+      currentProduct.description,
+      currentProduct.imageUrl,
+      currentProduct.sellerEmail,
+      button
+    );
+  }
+
+  // Filtrage des produits par mot-clé (utilisé dans la sidebar)
+  function filterProductsByKeyword(keyword) {
+    const searchText = keyword.toLowerCase();
+    const filtered = allProducts.filter(product => {
+      return (product.productName && product.productName.toLowerCase().includes(searchText)) ||
+             (product.description && product.description.toLowerCase().includes(searchText)) ||
+             (product.detectedCategory && product.detectedCategory.toLowerCase().includes(searchText));
+    });
+    displayProducts(filtered);
+  }
+
+  // Fonction pour envoyer un message au vendeur
+  function contactSeller() {
+    const messageInput = document.getElementById("contactSellerMessage");
+    const message = messageInput ? messageInput.value : "";
+    if (!message.trim()) {
+      alert("Veuillez saisir votre message.");
+      return;
+    }
+    // Implémenter ici la logique d'envoi du message au vendeur via une API
+    alert("Message envoyé au vendeur : " + message);
+    if (messageInput) messageInput.value = "";
+  }
+
+  // Mise en place des filtres de la sidebar (si un tableau de filtres existe)
+  function setupSidebarFilters() {
+    const rows = document.querySelectorAll('#filterTable td');
+    rows.forEach(row => {
+      row.addEventListener('click', () => {
+        const keyword = row.textContent.trim();
+        filterProductsByKeyword(keyword);
+      });
+    });
+  }
+
+  // Chargement des produits populaires et affichage dans la section dédiée
+  async function loadPopularProducts() {
+    try {
+      const response = await fetch("/api/products/popular");
+      const produits = await response.json();
+      const container = document.getElementById("popularProducts");
+      if (!container) return;
+      if (produits.length === 0) {
+        container.innerHTML = "<p>Aucun produit populaire trouvé.</p>";
+        return;
+      }
+      container.innerHTML = produits.map(produit => `
         <div class="popular-item">
-            <span class="badge">Populaire</span>
-            <img src="${produit.imageUrl}" alt="${produit.productName}">
-            <p>${produit.productName}</p>
-            <p>${produit.price} FCFA</p>
+          <span class="badge">Populaire</span>
+          <img src="${produit.imageUrl}" alt="${produit.productName}">
+          <p>${produit.productName}</p>
+          <p>${produit.price} FCFA</p>
         </div>
-    `).join("");
-}
+      `).join("");
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // Initialisation du carrousel pour les produits populaires
+  document.addEventListener("DOMContentLoaded", function () {
+    const carousel = document.querySelector(".popular-carousel");
+    if (carousel) {
+      setInterval(() => {
+        carousel.scrollBy({ left: 200, behavior: "smooth" });
+        if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth) {
+          carousel.scrollTo({ left: 0, behavior: "smooth" });
+        }
+      }, 3000);
+    }
+    loadPopularProducts();
+  });
+
+  // Exposition de certaines fonctions pour utilisation dans les attributs HTML inline
+  window.showProductDetailView = showProductDetailView;
+  window.hideDetailSection = hideDetailSection;
+  window.orderProduct = orderProduct;
+  window.contactSeller = contactSeller;
+  window.filterProductsByKeyword = filterProductsByKeyword;
   </script>
 </body>
 </html>

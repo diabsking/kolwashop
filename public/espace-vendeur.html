@@ -4,108 +4,112 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Espace Vendeur | Kolwaz Shop</title>
- <style>
-  /* Style général */
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: #f4f7fc;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-
-  /* Conteneur principal */
-  .container {
-    background: #ffffff;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
-  }
-
-  h2 {
-    color: #333;
-    font-size: 24px;
-    margin-bottom: 20px;
-  }
-
-  /* Champs de formulaire */
-  input {
-    width: 100%;
-    padding: 12px;
-    margin: 8px 0;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    font-size: 16px;
-    outline: none;
-    transition: 0.3s;
-  }
-
-  input:focus {
-    border-color: #007BFF;
-    box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
-  }
-
-  /* Effet de transition pour les formulaires */
-  #registerFormContainer, #loginFormContainer {
-    opacity: 1;
-    transition: opacity 0.5s ease-in-out;
-  }
-
-  /* Message de confirmation et d'erreur */
-  .message {
-    margin-top: 10px;
-    font-weight: bold;
-    font-size: 14px;
-  }
-
-  .loading {
-    color: #ff6600;
-    font-style: italic;
-  }
-
-  /* Boutons */
-  button {
-    width: 100%;
-    background: linear-gradient(135deg, #007BFF, #0056b3);
-    color: white;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    transition: 0.3s;
-  }
-
-  button:hover {
-    background: linear-gradient(135deg, #0056b3, #004494);
-  }
-
-  /* Liens de navigation */
-  .button-container {
-    margin-top: 15px;
-  }
-
-  .button-container a {
-    display: inline-block;
-    text-decoration: none;
-    color: #007BFF;
-    font-weight: bold;
-    transition: 0.3s;
-  }
-
-  .button-container a:hover {
-    color: #0056b3;
-    text-decoration: underline;
-  }
-
-</style>
+  <style>
+    /* Reset de base */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f4f7fc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    /* Conteneur principal agrandi */
+    .container {
+      background-color: #fff;
+      width: 100%;
+      max-width: 800px;
+      padding: 20px 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+    input, textarea {
+      padding: 12px 14px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      transition: border-color 0.3s ease;
+      width: 100%;
+    }
+    input:focus, textarea:focus {
+      border-color: #007BFF;
+      outline: none;
+    }
+    button {
+      background: linear-gradient(135deg, #007BFF, #0056b3);
+      color: #fff;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: linear-gradient(135deg, #0056b3, #004494);
+    }
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .button-container a {
+      text-decoration: none;
+      color: #007BFF;
+      font-weight: bold;
+      margin: 5px 0;
+      font-size: 14px;
+    }
+    .message {
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .auth-instructions {
+      text-align: center;
+      margin: 15px 0;
+      font-size: 14px;
+      color: #555;
+    }
+    /* Grille pour les groupes d'inputs */
+    .grid-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    /* Responsive */
+    @media (max-width: 480px) {
+      h2 {
+        font-size: 22px;
+      }
+      input, textarea, button {
+        font-size: 14px;
+        padding: 10px;
+      }
+    }
+  </style>
 </head>
-
 <body>
   <main>
     <div class="container" id="formContainer">
@@ -113,15 +117,45 @@
       <div id="registerFormContainer">
         <h2>Inscription Vendeur</h2>
         <form id="registerForm">
-          <input type="text" id="registerName" placeholder="Nom" required>
+          <!-- Champs obligatoires en pleine largeur -->
+          <input type="text" id="registerName" placeholder="Nom complet" required>
           <input type="email" id="registerEmail" placeholder="Email" required>
           <input type="password" id="registerPassword" placeholder="Mot de passe" required>
           <input type="text" id="storeName" placeholder="Nom de la boutique" required>
+          <input type="text" id="phone" placeholder="Téléphone (optionnel)">
+          
+          <!-- Groupe d'adresse en disposition horizontale -->
+          <div class="grid-group">
+            <input type="text" id="street" placeholder="Rue (optionnel)">
+            <input type="text" id="city" placeholder="Ville (optionnel)">
+            <input type="text" id="postalCode" placeholder="Code Postal (optionnel)">
+            <input type="text" id="country" placeholder="Pays (optionnel)">
+          </div>
+          
+          <!-- Autres champs en pleine largeur -->
+          <input type="url" id="website" placeholder="Site web (optionnel)">
+          <input type="url" id="logoUrl" placeholder="URL du logo (optionnel)">
+          <textarea id="description" placeholder="Description de votre boutique (optionnel)" rows="3"></textarea>
+          
+          <!-- Groupe de liens sociaux en disposition horizontale -->
+          <div class="grid-group">
+            <input type="url" id="facebook" placeholder="Facebook (optionnel)">
+            <input type="url" id="twitter" placeholder="Twitter (optionnel)">
+            <input type="url" id="instagram" placeholder="Instagram (optionnel)">
+            <input type="url" id="linkedin" placeholder="LinkedIn (optionnel)">
+          </div>
+          
+          <!-- Instructions pour l'authentification par email -->
+          <p class="auth-instructions">
+            Après avoir cliqué sur "S'inscrire", un lien d’authentification vous sera envoyé par email.<br>
+            Veuillez cliquer sur ce lien pour activer votre compte avant de vous connecter.
+          </p>
+          
           <button type="submit">S'inscrire</button>
         </form>
         <div class="button-container">
-          <a href="/" id="goHome">🔙 Retour à l'accueil</a>
-          <a href="#" id="showLogin">🔑 Se connecter</a>
+          <a href="/" id="goHome">Retour à l'accueil</a>
+          <a href="#" id="showLogin">Se connecter</a>
         </div>
       </div>
       <!-- Formulaire de connexion -->
@@ -133,69 +167,83 @@
           <button type="submit">Se connecter</button>
         </form>
         <div class="button-container">
-          <a href="/" id="goHomeLogin">🔙 Retour à l'accueil</a>
-          <a href="#" id="showRegister">🖊️ Créer un compte</a>
+          <a href="/" id="goHomeLogin">Retour à l'accueil</a>
+          <a href="#" id="showRegister">Créer un compte</a>
         </div>
       </div>
-
       <div id="registerMessage" class="message"></div>
       <div id="loginMessage" class="message"></div>
     </div>
   </main>
-
   <script>
-    // Permet de basculer entre les formulaires d'inscription et de connexion
+    // Bascule entre inscription et connexion
     document.getElementById('showLogin').addEventListener('click', function() {
-      document.getElementById('registerFormContainer').style.opacity = '0';
-      document.getElementById('loginFormContainer').style.opacity = '1';
       document.getElementById('registerFormContainer').style.display = 'none';
       document.getElementById('loginFormContainer').style.display = 'block';
     });
-
     document.getElementById('showRegister').addEventListener('click', function() {
-      document.getElementById('loginFormContainer').style.opacity = '0';
-      document.getElementById('registerFormContainer').style.opacity = '1';
       document.getElementById('loginFormContainer').style.display = 'none';
       document.getElementById('registerFormContainer').style.display = 'block';
     });
-
-    // Soumission du formulaire d'inscription
+    
+    // Gestion de l'inscription
     document.getElementById('registerForm').addEventListener('submit', async function(event) {
       event.preventDefault();
       const name = document.getElementById('registerName').value.trim();
       const email = document.getElementById('registerEmail').value.trim();
       const password = document.getElementById('registerPassword').value;
       const storeName = document.getElementById('storeName').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const street = document.getElementById('street').value.trim();
+      const city = document.getElementById('city').value.trim();
+      const postalCode = document.getElementById('postalCode').value.trim();
+      const country = document.getElementById('country').value.trim();
+      const website = document.getElementById('website').value.trim();
+      const logoUrl = document.getElementById('logoUrl').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const facebook = document.getElementById('facebook').value.trim();
+      const twitter = document.getElementById('twitter').value.trim();
+      const instagram = document.getElementById('instagram').value.trim();
+      const linkedin = document.getElementById('linkedin').value.trim();
       
       const messageElement = document.getElementById('registerMessage');
       messageElement.style.color = "black";
       messageElement.innerText = "Inscription en cours...";
-
-      // Vérification simple des champs
+      
       if (!name || !email || !password || !storeName) {
-        messageElement.innerText = "Veuillez remplir tous les champs.";
+        messageElement.innerText = "Veuillez remplir tous les champs obligatoires.";
         messageElement.style.color = "red";
         return;
       }
+      
+      const payload = {
+        name,
+        email,
+        password,
+        storeName,
+        phone,
+        address: { street, city, postalCode, country },
+        website,
+        logoUrl,
+        description,
+        socialLinks: { facebook, twitter, instagram, linkedin }
+      };
       
       try {
         const response = await fetch('/api/sellers/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, password, storeName })
+          body: JSON.stringify(payload)
         });
         const data = await response.json();
         
         if (response.ok) {
-          messageElement.innerText = data.message || "Inscription réussie. Vérifiez votre email.";
+          messageElement.innerText = data.message || "Inscription réussie. Vérifiez votre email pour activer votre compte.";
           messageElement.style.color = "green";
           document.getElementById('registerForm').reset();
-          // Redirection vers le formulaire de connexion après 3 secondes
           setTimeout(() => {
             document.getElementById('loginFormContainer').style.display = 'block';
             document.getElementById('registerFormContainer').style.display = 'none';
-            document.getElementById('loginFormContainer').style.opacity = '1';
-            document.getElementById('registerFormContainer').style.opacity = '0';
           }, 3000);
         } else {
           messageElement.innerText = data.message || "Une erreur est survenue.";
@@ -206,8 +254,8 @@
         messageElement.style.color = "red";
       }
     });
-
-    // Soumission du formulaire de connexion
+    
+    // Gestion de la connexion
     document.getElementById('loginForm').addEventListener('submit', async function(event) {
       event.preventDefault();
       const email = document.getElementById('loginEmail').value.trim();
@@ -216,7 +264,7 @@
       const messageElement = document.getElementById('loginMessage');
       messageElement.style.color = "black";
       messageElement.innerText = "Connexion en cours...";
-
+      
       if (!email || !password) {
         messageElement.innerText = "Veuillez remplir tous les champs.";
         messageElement.style.color = "red";
@@ -232,12 +280,9 @@
         const data = await response.json();
         
         if (response.ok) {
-          if (data.token) {
-            localStorage.setItem('token', data.token);
-          }
+          if (data.token) localStorage.setItem('token', data.token);
           messageElement.innerText = data.message || "Connexion réussie.";
           messageElement.style.color = "green";
-          // Redirection post authentification vers le dashboard
           setTimeout(() => {
             window.location.href = '/dashboard-vendeur';
           }, 1500);
@@ -250,29 +295,6 @@
         messageElement.style.color = "red";
       }
     });
-    document.getElementById("recoveryForm").addEventListener("submit", async function(e) {
-  e.preventDefault();
-  const email = document.getElementById("recoveryEmail").value;
-  const recoveryMessage = document.getElementById("recoveryMessage");
-
-  try {
-    const response = await fetch("/api/seller/recovery", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ email })
-    });
-    const data = await response.json();
-    if (response.ok) {
-      recoveryMessage.innerText = "Un email de récupération a été envoyé.";
-    } else {
-      recoveryMessage.innerText = data.message || "Erreur lors de la récupération.";
-    }
-  } catch (err) {
-    console.error(err);
-    recoveryMessage.innerText = "Erreur lors de la récupération.";
-  }
-});
-
   </script>
 </body>
 </html>
