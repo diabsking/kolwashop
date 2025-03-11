@@ -45,32 +45,6 @@ async function processWavePayment(amount, phoneNumber) {
     }, 1000);
   });
 }
-const { TwitterApi } = require('twitter-api-v2');
-
-// Créez une instance de Twitter API avec les informations d'authentification
-const twitterClient = new TwitterApi({
-  appKey: process.env.TWITTER_CONSUMER_KEY,
-  appSecret: process.env.TWITTER_CONSUMER_SECRET,
-  accessToken: process.env.TWITTER_ACCESS_TOKEN,
-  accessSecret: process.env.TWITTER_ACCESS_SECRET,
-  bearerToken: process.env.TWITTER_BEARER_TOKEN, // Token Bearer
-});
-
-// Fonction pour partager un produit sur Twitter
-async function shareOnTwitter(product) {
-  try {
-    const productUrl = `${process.env.PRODUCT_BASE_URL}/produit/${product._id}`;
-
-    const tweetText = `${product.productName} - ${product.description}\n📌 Découvrez ici : ${productUrl}`;
-
-    const response = await twitterClient.v2.tweet(tweetText);
-    
-    console.log("✔ Partagé sur Twitter", response);
-  } catch (error) {
-    console.error("❌ Erreur Twitter", error);
-  }
-}
-
 exports.publishProduct = async (req, res) => {
   try {
     console.log("Corps de la requête:", req.body);
@@ -224,10 +198,7 @@ exports.updateProduct = async (req, res) => {
     // Vérifier que le produit appartient au vendeur
     const product = await Product.findOne({ _id: id, sellerEmail });
     if (!product) {
-      console.error(
-        "Produit non trouvé pour mise à jour ou non autorisé:",
-        id
-      );
+      console.error("Produit non trouvé pour mise à jour ou non autorisé:", id);
       return res.status(404).json({
         message: "Produit non trouvé ou vous n'êtes pas autorisé à le modifier.",
       });
@@ -246,32 +217,43 @@ exports.updateProduct = async (req, res) => {
     if (price) {
       const priceNumber = parseFloat(price);
       if (isNaN(priceNumber) || priceNumber <= 0) {
-        return res
-          .status(400)
-          .json({ message: "Prix invalide." });
+        return res.status(400).json({ message: "Prix invalide." });
       }
       product.price = priceNumber;
     }
     if (deliveryTime) {
       const deliveryTimeNumber = parseInt(deliveryTime, 10);
       if (isNaN(deliveryTimeNumber) || deliveryTimeNumber <= 0) {
-        return res
-          .status(400)
-          .json({ message: "Délai de livraison invalide." });
+        return res.status(400).json({ message: "Délai de livraison invalide." });
       }
       product.deliveryTime = deliveryTimeNumber;
     }
-    // Si une nouvelle image est fournie
+    
+    // Si une nouvelle image est fournie, la stocker sur Cloudinary
     if (req.file) {
       const imageFile = req.file;
-      const imagePath = `/uploads/${imageFile.filename}`;
-      if (!validateProductImage(imagePath)) {
-        console.error("Image non conforme:", imagePath);
-        return res
-          .status(400)
-          .json({ message: "Mise à jour refusée : image non conforme." });
+      console.log("Chemin du fichier reçu :", imageFile.path);
+
+      // Optionnel : valider le fichier image
+      if (!validateProductImage(imageFile.path)) {
+        console.error("Image non conforme:", imageFile.path);
+        return res.status(400).json({ message: "Mise à jour refusée : image non conforme." });
       }
-      product.imageUrl = imagePath;
+
+      // Upload sur Cloudinary
+      const cloudinaryUpload = await cloudinary.uploader.upload(imageFile.path, {
+        folder: 'kolwaz_shop_products',
+      });
+      
+      console.log("Réponse Cloudinary :", cloudinaryUpload);
+      
+      // Mettre à jour l'URL de l'image avec l'URL sécurisée fournie par Cloudinary
+      if (cloudinaryUpload && cloudinaryUpload.secure_url) {
+        product.imageUrl = cloudinaryUpload.secure_url;
+      } else {
+        console.error("Erreur lors de l'upload sur Cloudinary");
+        return res.status(500).json({ message: "Erreur lors de l'upload sur Cloudinary" });
+      }
     }
 
     // Sauvegarder les modifications (createdAt reste inchangé)
