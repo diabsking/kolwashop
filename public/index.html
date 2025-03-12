@@ -478,27 +478,43 @@ main section {
 #contactSellerSection h3 {
   margin-top: 0;
 }
-/* Produits similaires avec SCROLL HORIZONTAL */
+/* Conteneur des produits similaires */
 .similar-products {
   margin-top: 30px;
+  position: relative;
+  width: 100%;
+  overflow: hidden; /* Évite tout débordement horizontal */
 }
 
+/* Titre */
 .similar-products h2 {
   font-size: 20px;
   margin-bottom: 10px;
 }
 
-/* Conteneur scrollable */
+/* Conteneur du carrousel */
+.similar-grid-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Grille des produits similaires avec 6 produits par ligne */
 .similar-grid {
   display: flex;
   gap: 20px;
-  overflow-x: auto; /* Défilement horizontal */
+  overflow-x: auto; /* Défilement horizontal activé */
   white-space: nowrap;
-  padding: 10px 0;
+  padding: 10px;
   scroll-snap-type: x mandatory;
+  scrollbar-width: none; /* Cache la barre de défilement sur Firefox */
 }
 
-/* Produits en ligne avec 6 par défaut */
+/* Suppression de la barre de défilement pour Webkit (Chrome, Safari) */
+.similar-grid::-webkit-scrollbar {
+  display: none;
+}
+
+/* Produits affichés dans une ligne */
 .similar-item {
   background: #fff;
   padding: 15px;
@@ -507,12 +523,14 @@ main section {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 180px;
-  min-width: 180px;
+  width: calc(100% / 6 - 20px); /* Divise en 6 produits par ligne */
+  min-width: 180px; /* Taille minimale */
+  max-width: 220px;
   scroll-snap-align: start;
-  transition: transform 0.3s;
+  transition: transform 0.3s ease;
 }
 
+/* Effet au survol */
 .similar-item:hover {
   transform: scale(1.05);
 }
@@ -553,19 +571,47 @@ main section {
   background-color: #cc7a00;
 }
 
+/* Boutons de navigation */
+.similar-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  font-size: 18px;
+  border-radius: 50%;
+  z-index: 10;
+}
+
+.similar-nav.left {
+  left: 10px;
+}
+
+.similar-nav.right {
+  right: 10px;
+}
 
 /* Responsive : Adaptation pour les petits écrans */
-@media (max-width: 600px) {
-  .similar-grid {
-    gap: 10px;
-    padding: 10px;
-  }
-  
+@media (max-width: 1024px) {
   .similar-item {
-    width: 150px;
-    min-width: 150px;
+    width: calc(100% / 4 - 20px); /* 4 produits par ligne */
   }
+}
 
+@media (max-width: 768px) {
+  .similar-item {
+    width: calc(100% / 3 - 15px); /* 3 produits par ligne */
+  }
+}
+
+@media (max-width: 480px) {
+  .similar-item {
+    width: calc(100% / 2 - 10px); /* 2 produits par ligne */
+  }
+}
   .search-container {
     width: 90%;
   }
