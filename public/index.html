@@ -7,7 +7,7 @@
   <style>
     /* Global */
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
       padding: 0;
       background-color: #F4F7FA;
@@ -19,37 +19,41 @@
     a { text-decoration: none; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* En-tête supérieur */
-    .top-header {
-      background-color: #131921;
+    /* En-tête supérieur revisité */
+    header {
+      background: linear-gradient(135deg, #131921, #2b3e50);
       color: #fff;
       padding: 15px 20px;
-      text-align: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     .top-header .logo {
-      font-size: 27px;
+      font-size: 32px;
       font-weight: bold;
       color: #febd69;
     }
-
-    /* Conteneur de la barre de recherche */
+    /* Barre de recherche moderne */
     .search-bar-container {
       background: #fff;
-      padding: 40px 0;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      padding: 30px 0;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
       text-align: center;
+      margin-bottom: 10px;
     }
-
     .search-container {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       max-width: 700px;
-      width: 100%;
+      width: 90%;
       margin: 0 auto;
       border-radius: 50px;
       overflow: hidden;
       background-color: #fff;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     .search-container input {
       flex-grow: 1;
@@ -57,7 +61,6 @@
       font-size: 16px;
       border: none;
       outline: none;
-      border-radius: 50px;
     }
     .search-container input:focus {
       box-shadow: inset 0 0 0 2px #febd69;
@@ -71,114 +74,40 @@
       font-weight: bold;
       cursor: pointer;
       transition: background-color 0.3s;
-      flex-shrink: 0;
-      border-radius: 50px;
     }
     .search-container button:hover {
       background-color: #f8a94b;
     }
-    @media (max-width: 768px) {
-      .search-bar-container {
-        background: #fff;
-        padding: 20px 0;
-      }
-      .search-container {
-        flex-direction: row;
-        align-items: center;
-        width: 90%;
-        margin: 0 auto;
-        border-radius: 50px;
-        overflow: hidden;
-        background-color: #fff;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      }
-      .search-container input {
-        width: 80%;
-        padding: 12px 20px;
-        font-size: 16px;
-        border: none;
-        outline: none;
-        border-radius: 50px;
-      }
-      .search-container button {
-        width: 30%;
-        padding: 12px 20px;
-        font-size: 16px;
-        background-color: #febd69;
-        border: none;
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-        border-radius: 50px;
-        transition: background-color 0.3s;
-      }
-      .search-container button:hover {
-        background-color: #f8a94b;
-      }
-    }
-    
+
     /* Barre de navigation */
     .navbar {
       display: flex;
       justify-content: flex-end;
-      padding: 15px 20px;
-      background-color: #ffffff;
-      border-bottom: 2px solid #ddd;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      transition: background-color 0.3s ease;
-    }
-    .navbar:hover {
-      background-color: #f5f5f5;
+      padding: 10px 20px;
+      background-color: #fff;
+      border-bottom: 1px solid #ddd;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: background-color 0.3s;
     }
     .navbar a {
-      position: relative;
-      font-size: 36px;
-      text-decoration: none;
+      font-size: 20px;
       color: #333;
-      display: flex;
-      align-items: center;
-      padding: 12px 20px;
       margin: 0 10px;
-      border-radius: 8px;
-      transition: color 0.3s ease, transform 0.3s ease;
+      position: relative;
+      padding: 8px 12px;
+      border-radius: 4px;
+      transition: background-color 0.3s;
     }
     .navbar a:hover {
-      color: #f44336;
-      transform: scale(1.1);
+      background-color: #f0f0f0;
     }
-    .navbar a::after {
-      content: attr(title);
-      position: absolute;
-      bottom: -30px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 14px;
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.3s ease-in-out;
-      pointer-events: none;
+    .navbar a .icon {
+      margin-right: 5px;
     }
-    .navbar a:hover::after {
-      opacity: 1;
+    .navbar a span {
+      font-weight: bold;
     }
-    .navbar a i {
-      font-size: 28px;
-      margin-right: 12px;
-    }
-    @media (max-width: 768px) {
-      .navbar a {
-        font-size: 32px;
-        padding: 10px;
-      }
-      .navbar a i {
-        font-size: 36px;
-      }
-    }
-    
+
     /* Panier */
     .cart-icon {
       position: relative;
@@ -220,30 +149,15 @@
       padding: 10px 20px;
       background-color: #fff;
       color: #333;
-      border-radius: 4px;
+      border-radius: 20px;
       cursor: pointer;
       font-weight: bold;
-      border: none;
-      transition: all 0.3s ease;
+      border: 1px solid #ddd;
+      transition: transform 0.3s, background-color 0.3s;
     }
     .category-button:hover {
       background-color: #f0f0f0;
       transform: scale(1.05);
-      font-weight: bold;
-    }
-    .category-button:active {
-      background-color: #ddd;
-      transform: scale(0.95);
-      font-weight: bold;
-    }
-    
-    /* Chargement */
-    .loading {
-      display: none;
-      text-align: center;
-      font-size: 18px;
-      font-weight: bold;
-      color: #555;
     }
     
     /* Section Produits */
@@ -254,7 +168,6 @@
     .grid-container {
       display: grid;
       grid-template-columns: repeat(10, 1fr);
-      grid-auto-flow: row;
       gap: 20px;
       width: 100%;
       max-width: 100%;
@@ -271,13 +184,15 @@
       justify-content: space-between;
       height: 150px;
       position: relative;
+      transition: box-shadow 0.3s;
+    }
+    .grid-item:hover {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
     .grid-item img {
       width: 100%;
       height: 150px;
       object-fit: cover;
-      border-radius: 0;
-      word-wrap: break-word;
     }
     .grid-item .product-name {
       font-size: 13px;
@@ -289,78 +204,68 @@
       color: #ff9900;
       font-weight: bold;
     }
-    .grid-item button {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 12px;
-      transition: background-color 0.3s;
-    }
-    .grid-item .add-to-cart {
-      background-color: #ff9900;
-      color: #fff;
-    }
-    .grid-item .add-to-cart:hover { 
-      background-color: #ff9900;
-    }
-    .grid-item .add-to-cart {
-      display: none;
-    }
-    .grid-item .details-button {
-      display: block;
-      width: 100%;
-      text-align: center;
-      font-size: 16px;
-      font-weight: bold;
-      padding: 10px;
-    }
     
-    /* Section de détail du produit */
+    /* Section Détail Produit - Design Professionnel */
     #detailSection {
       display: none;
-      padding: 20px;
       background-color: #fff;
-      margin: 20px;
+      margin: 20px auto;
+      padding: 30px;
+      max-width: 800px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      border-radius: 10px;
     }
-    #detailSection img {
+    #detailSection h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #007bff;
+    }
+    #detailImage {
       width: 100%;
       max-width: 400px;
       border-radius: 8px;
+      display: block;
+      margin: 0 auto 20px;
     }
-    #detailSection video {
+    #imageCarousel {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      margin: 10px 0;
+      padding-bottom: 10px;
+    }
+    #imageCarousel img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    #imageCarousel img:hover {
+      transform: scale(1.1);
+    }
+    #detailVideo {
       width: 100%;
       max-width: 400px;
-      display: none;
+      border-radius: 8px;
+      display: block;
+      margin: 20px auto;
     }
-    #detailSection h1 {
-      font-size: 2rem;
+    /* Détails produits */
+    .detail-info {
+      margin: 10px 0;
+      font-size: 1rem;
+    }
+    .detail-info strong {
+      color: #007bff;
+    }
+    /* Boutons d'action dans la vue détail */
+    .detail-buttons {
+      text-align: center;
       margin-top: 20px;
     }
-    #detailSection p {
-      font-size: 1rem;
-      margin: 10px 0;
-    }
-    #detailDiscount,
-    #detailBrand,
-    #detailSKU,
-    #detailWeight,
-    #detailDimensions,
-    #detailShippingCost,
-    #detailEstimatedDelivery,
-    #detailReturnPolicy,
-    #detailWarranty {
-      font-size: 0.9rem;
-      color: #007bff;
-      margin: 5px 0;
-      font-weight: bold;
-    }
-    /* Boutons d'action dans le détail */
-    #contactSellerButton,
-    #addToCartButton,
-    #buyNowButton,
-    #prevProduct,
-    #nextProduct {
+    .detail-buttons button {
       padding: 10px 20px;
       margin: 10px 5px;
       background-color: #007bff;
@@ -370,58 +275,25 @@
       cursor: pointer;
       transition: background-color 0.3s;
     }
-    #contactSellerButton:hover,
-    #addToCartButton:hover,
-    #buyNowButton:hover,
-    #prevProduct:hover,
-    #nextProduct:hover {
+    .detail-buttons button:hover {
       background-color: #f8a94b;
-    }
-    /* Galerie d'images et avis */
-    #imageCarousel {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      margin: 10px 0;
-    }
-    #imageCarousel img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 5px;
-    }
-    #reviewSection {
-      margin-top: 20px;
-    }
-    /* Section pour discuter avec le vendeur */
-    #contactSellerSection {
-      margin-top: 20px;
-      padding: 15px;
-      background-color: #f7f7f7;
-      border-radius: 5px;
-    }
-    #contactSellerSection h3 {
-      margin-top: 0;
     }
     
     /* Produits similaires */
     .similar-products {
       margin-top: 30px;
-      position: relative;
       width: 100%;
     }
     .similar-products h2 {
       font-size: 20px;
       margin-bottom: 10px;
+      text-align: center;
     }
     .similar-grid {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
       gap: 20px;
-      width: 100%;
-      max-width: 100%;
       padding: 20px;
-      margin: 0 auto;
       box-sizing: border-box;
     }
     .similar-item {
@@ -429,13 +301,8 @@
       padding: 15px;
       border-radius: 5px;
       text-align: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      height: 150px;
-      position: relative;
-      box-sizing: border-box;
-      transition: transform 0.3s ease;
+      transition: transform 0.3s;
+      cursor: pointer;
     }
     .similar-item:hover {
       transform: scale(1.05);
@@ -449,64 +316,121 @@
     .similar-item .product-name {
       font-size: 14px;
       font-weight: bold;
-      margin-top: auto;
+      margin-top: 10px;
     }
     .similar-item .product-price {
       font-size: 14px;
       color: #ff9900;
       font-weight: bold;
+      margin: 5px 0;
     }
-    .similar-item .add-to-cart {
-      background-color: #ff9900;
-      color: #fff;
-      padding: 8px 12px;
-      border-radius: 5px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    .similar-item .add-to-cart:hover {
-      background-color: #cc7a00;
-    }
-    @media (max-width: 1024px) {
-      .similar-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-    @media (max-width: 768px) {
-      .similar-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-    @media (max-width: 480px) {
-      .similar-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
+   .grid-container {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* Par défaut, 5 produits par ligne */
+  gap: 20px;
+  width: 100%;
+  max-width: 100%;
+  padding: 20px;
+  margin: 0 auto;
+}
+
+/* Ajustement pour les écrans moyens (tablettes) */
+@media (max-width: 1024px) {
+  .grid-container {
+    grid-template-columns: repeat(4, 1fr); /* 4 produits par ligne */
+  }
+}
+
+/* Ajustement pour les téléphones */
+@media (max-width: 768px) {
+  .grid-container {
+    grid-template-columns: repeat(3, 1fr); /* 3 produits par ligne */
+    gap: 10px; /* Réduction de l’espace */
+    padding: 10px; /* Réduction du padding global */
+  }
+
+  .grid-item {
+    padding: 8px;
+    border-radius: 10px; /* Coins plus arrondis */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Ombre légère */
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .grid-item:hover {
+    transform: scale(1.05); /* Effet zoom au survol */
+  }
+
+  .grid-item img {
+    height: 120px; /* Réduction de la hauteur des images */
+    border-radius: 5px; /* Arrondi des bords */
+  }
+
+  .grid-item .product-name {
+    font-size: 14px; /* Augmentation légère pour lisibilité */
+    font-weight: bold;
+  }
+
+  .grid-item .product-price {
+    font-size: 12px;
+    color: #ff5722; /* Changement de couleur pour plus de visibilité */
+  }
+}
+
+/* Affichage en liste sur très petits écrans (moins de 480px) */
+@media (max-width: 480px) {
+  .grid-container {
+    display: flex;
+    flex-direction: column; /* Affichage en colonne */
+    gap: 15px;
+  }
+
+  .grid-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: #fff;
+    border-radius: 10px;
+  }
+
+  .grid-item img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+  }
+
+  .grid-item .product-details {
+    flex: 1; /* Permet d'occuper l'espace restant */
+  }
+
+  .grid-item .product-name {
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .grid-item .product-price {
+    font-size: 14px;
+    color: #ff5722;
+    font-weight: bold;
+  }
+}
+
+
+/* Ajustement pour les très petits écrans (mobiles étroits) */
+@media (max-width: 480px) {
+  .grid-container {
+    grid-template-columns: repeat(2, 1fr); /* 2 produits par ligne */
+  }
+}
     
-    .action-buttons-detail {
-      margin-top: 20px;
-      text-align: center;
-    }
-    .action-buttons-detail a {
-      display: inline-block;
-      padding: 10px 20px;
-      background-color: orange;
-      color: white;
-      text-decoration: none;
-      border-radius: 20px;
-      font-size: 16px;
-      margin: 0 10px;
-      transition: background-color 0.3s;
-    }
-    
+    /* Footer */
     footer {
-      position: relative;
-      margin-top: 40px;
       background-color: #131921;
       color: #fff;
       padding: 40px 20px;
       font-size: 14px;
+      margin-top: 40px;
     }
     .footer-container {
       display: flex;
@@ -525,7 +449,6 @@
       font-size: 16px;
     }
     .footer-column p {
-      font-size: 14px;
       line-height: 1.5;
     }
     .footer-bottom {
@@ -551,228 +474,11 @@
     }
     .notification.show { display: block; opacity: 1; }
     
-    .new-badge {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background-color: #ff0000;
-      color: #fff;
-      padding: 5px 10px;
-      font-size: 0.8em;
-      border-radius: 5px;
-      z-index: 9999 !important;
-      display: block !important;
-      opacity: 1 !important;
-    }
-    .location-indicator {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 16px;
-      font-weight: bold;
-      color: white;
-    }
-    .location-indicator img {
-      width: 40px;
-      height: auto;
-    }
-    .location-text {
-      display: flex;
-      align-items: center;
-      color: white;
-    }
-    .location-text i {
-      color: white;
-      margin-right: 5px;
-    }
-    .filter-button {
-      position: absolute;
-      top: 100px;
-      left: 10px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      border-radius: 5px;
-      transition: background 0.3s;
-    }
-    .popular-products {
-      display: none;
-      background-color: #ffffff;
-      padding: 40px 20px;
-      margin-top: 0;
-      position: relative;
-    }
-    .popular-products h2 {
-      font-size: 24px;
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 30px;
-      color: #333;
-    }
-    .popular-carousel {
-      display: flex;
-      overflow-x: auto;
-      gap: 30px;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: 10px;
-    }
-    .popular-item {
-      flex: 0 0 auto;
-      width: 220px;
-      background-color: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 10px;
-      padding: 15px;
-      text-align: center;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      scroll-snap-align: start;
-    }
-    .popular-item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
-    .popular-item img {
-      width: 100%;
-      height: 160px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-bottom: 10px;
-    }
-    .popular-item p {
-      font-size: 16px;
-      color: #555;
-      margin: 0;
-      font-weight: 500;
-    }
+    /* Responsive ajustements */
     @media (max-width: 768px) {
-      .popular-carousel {
-        gap: 20px;
-      }
-      .popular-item {
-        width: 180px;
-      }
-    }
-    .loading-container {
-      text-align: center;
-      margin: 20px 0;
-    }
-    .spinner {
-      display: inline-block;
-      width: 30px;
-      height: 30px;
-      border: 3px solid rgba(0, 0, 0, 0.3);
-      border-top: 3px solid #3498db;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    @media only screen and (min-width: 1024px) {
-      .grid-container,
-      .similar-grid {
-        display: grid;
-        grid-template-columns: repeat(6, 1fr);
-        gap: 20px;
-        width: 100%;
-        margin: 0 auto;
-        overflow-x: hidden;
-        box-sizing: border-box;
-      }
-      .grid-item,
-      .similar-item {
-        min-height: 400px;
-        box-sizing: border-box;
-        padding: 15px;
-        overflow: hidden;
-        background-color: #fff;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        text-align: center;
-      }
-      .grid-item img,
-      .similar-item img {
-        width: 100%;
-        height: 220px;
-        object-fit: cover;
-      }
-      .grid-item .product-name,
-      .similar-item .product-name {
-        font-weight: bold;
-        font-size: 14px;
-        color: #333;
-        margin: 0px 0;
-        line-height: 1.2;
-      }
-      .grid-item .product-description,
-      .similar-item .product-description {
-        font-size: 14px;
-        color: blue;
-        margin: 0px 0;
-        padding: 0 5px;
-        line-height: 1.2;
-        display: -webkit-box;
-        -webkit-line-clamp: 4;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .grid-item .price-container,
-      .similar-item .price-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 0;
-      }
-      .grid-item .product-price,
-      .similar-item .product-price {
-        font-size: 14px;
-        color: #d9534f;
-        font-weight: bold;
-        text-align: center;
-        margin-top: 0;
-        line-height: 1.2;
-      }
-      .grid-item .details-button,
-      .similar-item .details-button {
-        background: transparent;
-        border: none;
-        color: #007bff;
-        font-size: 14px;
-        font-weight: bold;
-        padding: 2px 5px;
-        cursor: pointer;
-        text-align: right;
-        margin-top: 0;
-        line-height: 1.2;
-      }
-    }
-    
-    .grid-item .add-to-cart,
-    .similar-item .add-to-cart {
-      display: none;
-    }
-    
-    html, body {
-      overflow-x: hidden;
-    }
-    
-    .navbar {
-      padding: 15px 30px;
-    }
-    .search-container {
-      width: 60%;
+      .navbar a { font-size: 16px; }
+      .top-header .logo { font-size: 24px; }
+      .search-container { width: 90%; }
     }
   </style>
 </head>
@@ -780,21 +486,21 @@
   <!-- En-tête -->
   <header>
     <div class="top-header">
-      <div class="logo" style="font-size: 10px; font-weight: bold; color: #fff;"></div>
+      <div class="logo">Kolwaz Shop</div>
+      <!-- Vous pouvez ajouter ici un slogan si besoin -->
+      <div class="slogan" style="font-size: 14px; font-style: italic;">Votre expérience d'achat premium</div>
     </div>
     <div class="search-bar-container">
       <div class="search-container">
         <input type="text" id="searchBox" placeholder="Rechercher un produit...">
-        <button id="searchBtn">Rech...</button>
+        <button id="searchBtn">Rechercher</button>
       </div>
     </div>
-    <!-- Navigation principale -->
+    <!-- Barre de navigation -->
     <nav class="navbar">
-      <a href="/" title="Accueil"></a>
-      <a href="/espace-vendeur" title="Espace Vendeur">👤</a>
-      <a href="/panier" title="Panier" style="position: relative;">
-        🛒 <span id="cartCount">0</span>
-      </a>
+      <a href="/" title="Accueil"><span class="icon">🏠</span><span>Accueil</span></a>
+      <a href="/espace-vendeur" title="Espace Vendeur"><span class="icon">👤</span><span>Vendeur</span></a>
+      <a href="/panier" title="Panier" class="cart-icon"><span class="icon">🛒</span><span>Panier</span> <span id="cartCount">0</span></a>
     </nav>
   </header>
   
@@ -818,53 +524,74 @@
   <!-- Section Produits -->
   <main>
     <div class="popular-products">
-      <h2 style="font-size: 15px;"></h2>
+      <h2>Produits Populaires</h2>
       <div class="popular-carousel" id="popularProducts"></div>
     </div>
     <section>
       <div id="loadingIndicator" class="loading-container">
         <div class="spinner"></div>
         <p>Chargement des produits...</p>
-      </div> 
-      <h2 style="text-align: center; margin-top: 10px; font-size: 15px; font-weight: bold; color: #333;"></h2>
+      </div>
       <div id="loading" class="loading">Chargement en cours...</div>
       <div id="product-list"></div>
       <div id="productGrid" class="grid-container"></div>
     </section>
     <div id="productContainer" style="display: none;"></div>
+    
     <!-- Section de détail du produit -->
-    <div id="detailSection" style="display: none;">
-      <img id="detailImage" src="" alt="">
-      <div id="imageCarousel" class="carousel"></div>
-      <video id="detailVideo" controls style="display: none;"></video>
-      <h1 id="detailName"></h1>
-      <p id="detailDescription"></p>
-      <p id="detailPrice"></p>
-      <p id="detailSeller"></p>
-      <p id="detailStock"></p>
-      <p id="detailCreatedAt"></p>
-      <p id="detailOrders"></p>
-      <p id="detailViews"></p>
-      <p id="detailAddToCart"></p>
+    <div id="detailSection">
+      <h2>Détails du Produit</h2>
+      <div style="text-align: center;">
+        <img id="detailImage" src="" alt="Image du produit">
+      </div>
+      
+      <h3>Galerie d'images</h3>
+      <div id="imageCarousel"></div>
+      
+      <h3>Vidéo de Présentation</h3>
+      <div style="text-align: center;">
+        <video id="detailVideo" controls style="display: none;"></video>
+      </div>
+      
+      <!-- Informations générales -->
+      <div class="detail-info"><strong>Nom du produit : </strong><span id="detailName"></span></div>
+      <div class="detail-info"><strong>Description : </strong><span id="detailDescription"></span></div>
+      <div class="detail-info"><strong>Prix : </strong><span id="detailPrice"></span></div>
+      <div class="detail-info"><strong>Vendeur : </strong><span id="detailSeller"></span></div>
+      <div class="detail-info"><strong>Stock disponible : </strong><span id="detailStock"></span></div>
+      <div class="detail-info"><strong>Date de publication : </strong><span id="detailCreatedAt"></span></div>
+      <div class="detail-info"><strong>Nombre de commandes : </strong><span id="detailOrders"></span></div>
+      <div class="detail-info"><strong>Nombre de vues : </strong><span id="detailViews"></span></div>
+      <div class="detail-info"><strong>Options d'ajout au panier : </strong><span id="detailAddToCart"></span></div>
       
       <!-- Informations complémentaires -->
-      <p><strong>Remise :</strong> <span id="detailDiscount"></span></p>
-      <p><strong>Marque :</strong> <span id="detailBrand"></span></p>
-      <p><strong>Référence (SKU) :</strong> <span id="detailSKU"></span></p>
-      <p><strong>Poids :</strong> <span id="detailWeight"></span> kg</p>
-      <p><strong>Dimensions (L x l x H) :</strong> <span id="detailDimensions"></span> cm</p>
-      <p><strong>Frais de livraison :</strong> <span id="detailShippingCost"></span> FCFA</p>
-      <p><strong>Délai de livraison estimé :</strong> <span id="detailEstimatedDelivery"></span> jours</p>
-      <p><strong>Politique de retour :</strong> <span id="detailReturnPolicy"></span></p>
-      <p><strong>Garantie :</strong> <span id="detailWarranty"></span></p>
+      <div class="detail-info"><strong>Remise : </strong><span id="detailDiscount"></span></div>
+      <div class="detail-info"><strong>Marque : </strong><span id="detailBrand"></span></div>
+      <div class="detail-info"><strong>Référence (SKU) : </strong><span id="detailSKU"></span></div>
+      <div class="detail-info"><strong>Poids : </strong><span id="detailWeight"></span> kg</div>
+      <div class="detail-info"><strong>Dimensions (L x l x H) : </strong><span id="detailDimensions"></span> cm</div>
+      <div class="detail-info"><strong>Frais de livraison : </strong><span id="detailShippingCost"></span> FCFA</div>
+      <div class="detail-info"><strong>Délai de livraison estimé : </strong><span id="detailEstimatedDelivery"></span> jours</div>
+      <div class="detail-info"><strong>Politique de retour : </strong><span id="detailReturnPolicy"></span></div>
+      <div class="detail-info"><strong>Garantie : </strong><span id="detailWarranty"></span></div>
       
+      <!-- Avis -->
       <div id="reviewSection"></div>
-      <button id="contactSellerButton" style="display: none;">Contacter le vendeur</button>
-      <button id="addToCartButton">Ajouter au panier</button>
-      <button id="prevProduct">Produit précédent</button>
-      <button id="nextProduct">Produit suivant</button>
-      <button id="returnToProductsButton">Retour aux produits</button>
-      <div id="similarGrid" class="similar-grid"></div>
+      
+      <!-- Boutons d'action -->
+      <div class="detail-buttons">
+        <button id="contactSellerButton" style="display: none;">Contacter le vendeur</button>
+        <button id="addToCartButton">Ajouter au panier</button>
+        <button id="prevProduct">Produit précédent</button>
+        <button id="nextProduct">Produit suivant</button>
+        <button id="returnToProductsButton">Retour aux produits</button>
+      </div>
+      
+      <!-- Produits similaires -->
+      <div class="similar-products">
+        <h2>Produits Similaires</h2>
+        <div id="similarGrid" class="similar-grid"></div>
+      </div>
       
       <!-- Section pour discuter avec le vendeur -->
       <div id="contactSellerSection">
@@ -873,6 +600,7 @@
         <button onclick="contactSeller()">Envoyer</button>
       </div>
     </div>
+    
     <div id="review-section">
       <!-- Les avis clients s'afficheront ici -->
     </div>
@@ -896,30 +624,29 @@
         </ul>
       </div>
       <div class="footer-column contact">
-        <h3>Comment devenir vendeur chez Kolwazshop</h3>
-        <p>Inscription et Création de Compte :</p>
-        <p>Rendez-vous sur le site de KolwazShop.</p>
+        <h3>Comment devenir vendeur</h3>
+        <p>Inscription et création de compte via notre site.</p>
       </div>
       <div class="footer-column social">
         <h3>Suivez-nous</h3>
         <ul class="social-icons" style="display: flex; list-style: none; gap: 10px;">
           <li>
             <a href="#" aria-label="Facebook">
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="white">
                 <path d="M22.675 0h-21.35C.597 0 0 .597 0 1.325v21.351C0 23.403.597 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.894-4.787 4.658-4.787 1.325 0 2.462.099 2.794.143v3.24l-1.917.001c-1.504 0-1.796.714-1.796 1.764v2.312h3.592l-.467 3.622h-3.125V24h6.127c.728 0 1.325-.597 1.325-1.324V1.325C24 .597 23.403 0 22.675 0z"/>
               </svg>
             </a>
           </li>
           <li>
             <a href="#" aria-label="Twitter">
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="white">
                 <path d="M23.954 4.569c-.885.394-1.83.657-2.825.775 1.014-.611 1.794-1.574 2.163-2.723-.95.555-2.005.959-3.127 1.184-.897-.957-2.173-1.555-3.591-1.555-2.717 0-4.92 2.203-4.92 4.917 0 .39.045.765.127 1.125-4.09-.205-7.719-2.165-10.148-5.144-.424.722-.666 1.56-.666 2.476 0 1.71.87 3.213 2.188 4.096-.807-.026-1.566-.248-2.229-.616v.061c0 2.385 1.693 4.374 3.946 4.828-.413.111-.849.171-1.296.171-.317 0-.626-.03-.927-.086.631 1.956 2.462 3.38 4.63 3.423-1.7 1.328-3.839 2.115-6.165 2.115-.4 0-.79-.023-1.17-.067 2.196 1.41 4.808 2.23 7.616 2.23 9.142 0 14.307-7.721 14.307-14.417 0-.22-.005-.437-.014-.653.982-.71 1.834-1.597 2.507-2.61z"/>
               </svg>
             </a>
           </li>
           <li>
             <a href="#" aria-label="Instagram">
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="white">
                 <path d="M12 2.163c3.204 0 3.584.012 4.849.07 1.366.062 2.633.327 3.608 1.302.975.975 1.24 2.242 1.302 3.608.058 1.265.069 1.645.069 4.849s-.012 3.584-.07 4.849c-.062 1.366-.327 2.633-1.302 3.608-.975.975-2.242 1.24-3.608 1.302-1.265.058-1.645.069-4.849.069s-3.584-.012-4.849-.07c-1.366-.062-2.633-.327-3.608-1.302-.975-.975-1.24-2.242-1.302-3.608-.058-1.265-.069-1.645-.069-4.849s.012-3.584.07-4.849c.062-1.366.327-2.633 1.302-3.608.975-.975 2.242-1.24 3.608-1.302 1.265-.058 1.645-.069 4.849-.069M12 0C8.741 0 8.332.012 7.052.07 5.746.128 4.57.354 3.527 1.394 2.485 2.434 2.26 3.609 2.202 4.915 2.144 6.195 2.132 6.604 2.132 9.863s.012 3.668.07 5.948c.058 1.306.283 2.481 1.325 3.521 1.042 1.041 2.217 1.266 3.521 1.325 1.28.058 1.689.07 4.948.07s3.668-.012 4.948-.07c1.306-.058 2.481-.283 3.521-1.325 1.041-1.042 1.266-2.217 1.325-3.521.058-1.28.07-1.689.07-4.948s-.012-3.668-.07-4.948c-.058-1.306-.283-2.481-1.325-3.521C19.766.354 18.591.128 17.285.07 16.005.012 15.595 0 12 0zm0 5.838c-3.408 0-6.162 2.754-6.162 6.162s2.754 6.162 6.162 6.162 6.162-2.754 6.162-6.162-2.754-6.162-6.162-6.162zm0 10.162c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm6.406-10.845c-.796 0-1.44.645-1.44 1.44s.645 1.44 1.44 1.44 1.44-.645 1.44-1.44-.645-1.44-1.44-1.44z"/>
               </svg>
             </a>
@@ -954,7 +681,7 @@
       }
     }
 
-    // Fonctions manquantes (dummy)
+    // Fonctions dummy
     function displayConfirmationMessage() {
       console.log("Confirmation message affichée.");
     }
@@ -980,7 +707,6 @@
       displayProducts(filtered);
     }
     async function loadReviews(productId) {
-      // Fonction simplifiée pour charger les avis
       const reviewSection = document.getElementById("review-section");
       reviewSection.innerHTML = "<p>Aucun avis pour le moment.</p>";
     }
@@ -993,7 +719,7 @@
       addToCart(currentProduct.productName, currentProduct.price, currentProduct.description, currentProduct.imageUrl, currentProduct.sellerEmail, button);
     }
 
-    // Initialisation lors du chargement de la page
+    // Initialisation
     window.addEventListener('load', function() {
       loadProducts();
       setupCategoryFilters();
@@ -1001,7 +727,6 @@
       setupSidebarFilters();
       displayConfirmationMessage();
       fetchSellerProducts();
-      // Événement pour le bouton "Ajouter au panier" dans la vue détaillée
       document.getElementById("addToCartButton").addEventListener("click", function() {
         if (currentProduct) {
           addToCart(currentProduct.productName, currentProduct.price, currentProduct.description, currentProduct.imageUrl, currentProduct.sellerEmail, this);
@@ -1009,31 +734,22 @@
       });
     });
 
-    // Chargement des produits depuis l'API et affichage
+    // Chargement des produits
     async function loadProducts() {
       const loadingIndicator = document.getElementById('loadingIndicator');
       const productGrid = document.getElementById('productGrid');
       loadingIndicator.style.display = 'block';
       productGrid.style.display = 'none';
-
       try {
-        // Simuler un délai de chargement
         await new Promise(resolve => setTimeout(resolve, 1500));
-
-        // Récupération des produits depuis l'API
         const response = await fetch('/api/products');
         if (!response.ok) throw new Error('Erreur serveur');
         const data = await response.json();
         allProducts = data.products || [];
-
-        // Détection automatique de la catégorie pour chaque produit
         allProducts.forEach(product => {
           product.detectedCategory = product.detectedCategory || aiDetectCategory(product);
         });
-
-        // Trier les produits par popularité (basé sur le nombre de commandes)
         allProducts.sort((a, b) => (b.orders || 0) - (a.orders || 0));
-
         displayProducts(allProducts);
       } catch (err) {
         console.error("Erreur lors du chargement des produits:", err);
@@ -1043,18 +759,15 @@
       }
     }
 
-    // Affichage des produits dans la grille principale
+    // Affichage des produits
     function displayProducts(products) {
       const productGrid = document.getElementById("productGrid");
       productGrid.innerHTML = products.length
         ? ""
         : "<p style='text-align:center;'>Aucun produit publié pour le moment.</p>";
-
       products.forEach(product => {
         const productItem = document.createElement("div");
         productItem.className = 'grid-item';
-
-        // Badge "Nouveau"
         let badgeHTML = '';
         if (product.publishedAt) {
           const publishedDate = new Date(product.publishedAt);
@@ -1064,30 +777,24 @@
             badgeHTML = '<span class="new-badge">Nouveau</span>';
           }
         }
-
         productItem.innerHTML =
           `<div class="product-image-wrapper" style="position: relative;">
-             <img src="${product.imageUrl}" alt="${product.productName}" class="product-image">
+             <img src="${product.imageUrl}" alt="${product.productName}">
              ${badgeHTML}
            </div>
-           <div class="product-name">
-             ${product.productName}
-           </div>
+           <div class="product-name">${product.productName}</div>
            <div class="product-description" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
              ${product.description}
            </div>
            <div class="product-price">${product.price} FCFA</div>`;
-           
-        // Navigation vers la vue détaillée au clic sur le produit
         productItem.addEventListener("click", () => {
           showProductDetailView(product);
         });
-
         productGrid.appendChild(productItem);
       });
     }
 
-    // Recherche sur tous les produits
+    // Recherche
     function setupSearch() {
       const searchBtn = document.getElementById("searchBtn");
       const searchBox = document.getElementById("searchBox");
@@ -1105,7 +812,7 @@
       });
     }
 
-    // Mise en place des filtres par catégorie
+    // Filtres par catégorie
     function setupCategoryFilters() {
       const buttons = document.querySelectorAll('.category-button');
       const productGrid = document.getElementById('productGrid');
@@ -1135,7 +842,7 @@
       });
     }
 
-    // Fonction de détection automatique de catégorie
+    // Détection de catégorie
     function aiDetectCategory(product, chosenCategory) {
       if (chosenCategory) return chosenCategory.toLowerCase();
       const name = product.productName ? product.productName.toLowerCase() : '';
@@ -1164,7 +871,7 @@
       return "autres";
     }
 
-    // Fonction pour ajouter un produit au panier
+    // Ajouter au panier
     function addToCart(name, price, description, imageUrl, sellerEmail, button) {
       button.textContent = "Ajouté!";
       button.disabled = true;
@@ -1191,12 +898,12 @@
       showNotification(`${name} ajouté au panier!`);
     }
 
-    // Mise à jour du compteur du panier
+    // Mise à jour du panier
     function updateCartCount() {
       document.getElementById("cartCount").textContent = cartCount;
     }
 
-    // Affichage d'une notification temporaire
+    // Notification
     function showNotification(message) {
       const notification = document.getElementById("notification");
       if (!notification) return;
@@ -1205,31 +912,23 @@
       setTimeout(() => notification.classList.remove("show"), 3000);
     }
 
-    // Affichage de la vue détail d'un produit
+    // Vue détail d'un produit
     function showProductDetailView(product) {
       currentProduct = product;
-      
-      // Réinitialiser le bouton "Ajouter au panier"
       const addToCartButton = document.getElementById("addToCartButton");
       if (addToCartButton) {
         addToCartButton.textContent = "Ajouter au panier";
         addToCartButton.disabled = false;
-        addToCartButton.style.backgroundColor = ""; // Réinitialiser le style si nécessaire
+        addToCartButton.style.backgroundColor = "";
       }
-
-      // Masquer la grille et afficher la section de détail
       document.getElementById("productGrid").style.display = "none";
       document.getElementById("detailSection").style.display = "block";
-
-      // Mise à jour des informations de base
       document.getElementById("detailImage").src = product.imageUrl || "";
       document.getElementById("detailImage").alt = product.productName || "Image du produit";
       document.getElementById("detailName").innerText = product.productName || "Nom inconnu";
       document.getElementById("detailDescription").innerText = product.description || "";
       document.getElementById("detailPrice").innerText = product.price ? `${product.price.toFixed(2)} FCFA` : "";
       document.getElementById("detailSeller").innerText = product.sellerEmail || "Inconnu";
-
-      // Informations complémentaires
       if (document.getElementById("detailDiscount"))
         document.getElementById("detailDiscount").innerText = product.discount ? product.discount + (product.discountType === "percentage" ? " %" : " FCFA") : "Aucune remise";
       if (document.getElementById("detailBrand"))
@@ -1250,7 +949,6 @@
         document.getElementById("detailReturnPolicy").innerText = product.returnPolicy || "Non spécifiée";
       if (document.getElementById("detailWarranty"))
         document.getElementById("detailWarranty").innerText = product.warranty || "Aucune";
-
       if (document.getElementById("detailCreatedAt") && product.createdAt)
         document.getElementById("detailCreatedAt").innerText = new Date(product.createdAt).toLocaleDateString();
       if (document.getElementById("detailOrders") && product.orders !== undefined)
@@ -1259,16 +957,12 @@
         document.getElementById("detailViews").innerText = product.views;
       if (document.getElementById("detailAddToCart") && product.addToCart !== undefined)
         document.getElementById("detailAddToCart").innerText = product.addToCart;
-
-      // Gestion de la vidéo du produit
       if (product.videoUrl) {
         document.getElementById("detailVideo").src = product.videoUrl;
         document.getElementById("detailVideo").style.display = "block";
       } else {
         document.getElementById("detailVideo").style.display = "none";
       }
-
-      // Affichage de la galerie d'images complémentaires
       const imageCarousel = document.getElementById("imageCarousel");
       if (imageCarousel) {
         imageCarousel.innerHTML = "";
@@ -1277,19 +971,18 @@
             const img = document.createElement("img");
             img.src = imageUrl;
             img.alt = product.productName;
+            img.addEventListener("click", () => {
+              document.getElementById("detailImage").src = imageUrl;
+            });
             imageCarousel.appendChild(img);
           });
         }
       }
-
-      // Affichage des produits similaires
       const similarProducts = allProducts.filter(p => {
         return (p._id !== product._id) && 
           (p.detectedCategory === product.detectedCategory || aiDetectCategory(p) === aiDetectCategory(product));
       });
       displaySimilarProducts(similarProducts);
-
-      // Affichage des avis du produit
       const reviewSection = document.getElementById("reviewSection");
       if (reviewSection) reviewSection.innerHTML = "";
       if (Array.isArray(product.reviews)) {
@@ -1300,8 +993,6 @@
           reviewSection.appendChild(div);
         });
       }
-
-      // Boutons de navigation (produit suivant/précédent)
       const nextBtn = document.getElementById("nextProduct");
       if (nextBtn) {
         nextBtn.onclick = function() {
@@ -1318,17 +1009,13 @@
           showProductDetailView(prevProduct);
         };
       }
-      // Bouton "Retour aux produits"
       document.getElementById("returnToProductsButton").addEventListener("click", hideDetailSection);
-      
-      // Afficher le bouton pour contacter le vendeur
       const contactSellerButton = document.getElementById("contactSellerButton");
       if (contactSellerButton) contactSellerButton.style.display = "block";
-
       loadReviews(product._id);
     }
 
-    // Fonction pour afficher les produits similaires dans la vue détail
+    // Affichage des produits similaires
     function displaySimilarProducts(products) {
       const similarGrid = document.getElementById("similarGrid");
       if (!similarGrid) return;
@@ -1344,9 +1031,7 @@
           <img src="${prod.imageUrl}" alt="${prod.productName}">
           <div class="product-name">${prod.productName}</div>
           <div class="product-price">${prod.price} FCFA</div>
-          <button class="add-to-cart" onclick="addToCart('${prod.productName}', ${prod.price}, '${prod.description}', '${prod.imageUrl}', '${prod.sellerEmail}', this)">Ajouter au panier</button>
         `;
-        // Permet de naviguer vers le détail en cliquant sur l'élément
         div.addEventListener("click", function() {
           showProductDetailView(prod);
         });
@@ -1354,7 +1039,6 @@
       });
     }
 
-    // Exposition de certaines fonctions pour utilisation inline
     window.showProductDetailView = showProductDetailView;
     window.hideDetailSection = hideDetailSection;
     window.orderProduct = orderProduct;
