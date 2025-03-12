@@ -375,33 +375,65 @@ main section {
   font-weight: bold; /* Met le texte en gras */
   padding: 10px; /* Ajuste le padding */
 }
-/* Effet de survol supprimé */
-/* .grid-item .details-button:hover { background-color: #007bff; color: #fff; } */
-
 /* Section de détail intégrée */
 #detailSection {
   display: none;
+  max-width: 1200px;
+  margin: 20px auto;
   padding: 20px;
   background-color: #fff;
-  margin: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
+
 .detail-main {
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
   margin-bottom: 20px;
+  align-items: flex-start;
 }
+
 .detail-photo,
 .detail-info {
   flex: 1;
   min-width: 300px;
 }
+
 .detail-photo img {
   width: 100%;
+  max-width: 400px;
   border-radius: 8px;
+}
+/* Boutons dans la section détail */
+#addToCartButton,
+#returnToProductsButton {
+  background-color: #007bff; /* Bleu principal */
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  margin: 10px 5px;
+}
+
+/* Effet au survol */
+#addToCartButton:hover,
+#returnToProductsButton:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+.detail-description {
+  max-height: 120px; /* ou la hauteur souhaitée */
+  overflow-y: auto;
+  padding-right: 10px; /* pour éviter que la scrollbar ne recouvre le texte */
 }
 .detail-info h1 {
   margin-top: 0;
+  font-size: 2rem;
+  color: #333;
 }
 .similar-products {
   margin-top: 30px;
@@ -917,8 +949,6 @@ footer {
       <div id="reviewSection"></div>
       <button id="contactSellerButton" style="display: none;">Contacter le vendeur</button>
       <button id="addToCartButton">Ajouter au panier</button>
-      <button id="prevProduct">Produit précédent</button>
-      <button id="nextProduct">Produit suivant</button>
       <button id="returnToProductsButton">Retour aux produits</button>
       <div id="similarGrid" class="similar-grid"></div>
       
