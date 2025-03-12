@@ -375,36 +375,31 @@ main section {
   font-weight: bold; /* Met le texte en gras */
   padding: 10px; /* Ajuste le padding */
 }
-/* Section de détail intégrée */
-#detailSection {
-  display: none;
-  max-width: 1200px;
-  margin: 20px auto;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.detail-main {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-  align-items: flex-start;
-}
-
-.detail-photo,
-.detail-info {
-  flex: 1;
-  min-width: 300px;
-}
-
-.detail-photo img {
-  width: 100%;
-  max-width: 400px;
-  border-radius: 8px;
-}
+ /* Section de détail du produit */
+    #detailSection {
+      display: none;
+      padding: 20px;
+      background-color: #fff;
+      margin: 20px;
+    }
+    #detailSection img {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 8px;
+    }
+    #detailSection video {
+      width: 100%;
+      max-width: 400px;
+      display: none;
+    }
+    #detailSection h1 {
+      font-size: 2rem;
+      margin-top: 20px;
+    }
+    #detailSection p {
+      font-size: 1rem;
+      margin: 10px 0;
+    }
 /* Boutons dans la section détail */
 #addToCartButton,
 #returnToProductsButton {
