@@ -169,15 +169,21 @@ main {
 
 /* Boutons */
 .btn {
-  padding: 12px 20px;
+  height: 38px; /* Hauteur fixe d'environ 1 cm */
+  line-height: 38px; /* Alignement vertical du texte */
+  padding: 0 20px; /* Ajoute de l'espace horizontal */
   border: none;
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.3s ease;
   font-size: 16px;
   margin-right: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* Bouton principal (ex: Ajouter au panier) */
 .btn-primary {
   background: #28a745;
   color: #fff;
@@ -188,6 +194,7 @@ main {
   transform: scale(1.05);
 }
 
+/* Bouton secondaire (ex: Retour) */
 .btn-secondary {
   background: #007bff;
   color: #fff;
