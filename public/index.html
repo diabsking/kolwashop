@@ -436,10 +436,30 @@ main section {
     padding: 15px;
     margin: 10px;
   }
+  /* Conteneur pour les médias dans la section détail */
+#detailSection .media-wrapper {
+  display: block; /* disposition par défaut en colonne pour les petits écrans */
+  gap: 20px;
+}
+
+/* Images et vidéos à 100% de largeur par défaut */
+#detailSection img,
+#detailSection video {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Sur grand écran, disposition horizontale */
+@media (min-width: 1024px) {
+  #detailSection .media-wrapper {
+    display: flex;
+    flex-direction: row;
+  }
   #detailSection img,
   #detailSection video {
-    max-width: 100%;
+    max-width: 50%; /* chaque média prend jusqu'à 50% de la largeur du conteneur */
   }
+}
   #detailSection h1 {
     font-size: 1.5rem;
     margin-top: 15px;
