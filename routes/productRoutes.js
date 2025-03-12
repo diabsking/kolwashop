@@ -6,19 +6,24 @@ const productController = require('../controllers/productController');
 const { isAuthenticated } = require('../middlewares/authMiddleware');
 const { getPopularProducts } = require('../controllers/productController');
 
-// Configuration de multer pour gérer le téléchargement des images
+// Configuration du stockage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/'); // Dossier où les fichiers seront stockés
   },
   filename: (req, file, cb) => {
-    const uniqueFilename = Date.now() + path.extname(file.originalname);
-    cb(null, uniqueFilename); // Nom du fichier avec un timestamp pour éviter les conflits
+    const uniqueFilename = Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname);
+    cb(null, uniqueFilename);
   },
 });
 
+// Filtrage des types de fichiers
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ['image/jpeg', 'image/png']; // Types de fichiers autorisés
+  const allowedTypes = [
+    'image/jpeg', 'image/png', 'image/gif', // Images
+    'video/mp4', 'video/mpeg', 'video/quicktime' // Vidéos
+  ];
+
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
@@ -26,12 +31,17 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+// Initialisation de Multer
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }, // Limite de taille de fichier à 5 Mo
+  limits: { fileSize: 50 * 1024 * 1024 }, // Limite de 50 Mo (peut être ajustée)
 });
-// D'abord, la route pour récupérer les produits similaires
+
+module.exports = {
+  uploadSingle: upload.single('file'), // Pour un seul fichier
+  uploadMultiple: upload.array('files', 10) // Pour plusieurs fichiers (max 10)
+};
 router.get('/api/products/similar', getSimilarProducts);
 
 router.get('/products/popular', getPopularProducts); // ✅ Route spécifique d'abord
