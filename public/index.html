@@ -377,8 +377,6 @@ main section {
   font-weight: bold; /* Met le texte en gras */
   padding: 10px; /* Ajuste le padding */
 }
-/* Effet de survol supprimé */
-/* .grid-item .details-button:hover { background-color: #007bff; color: #fff; } */
 
 /* Section de détail du produit */
 #detailSection {
@@ -420,9 +418,10 @@ main section {
 #detailEstimatedDelivery,
 #detailReturnPolicy,
 #detailWarranty {
-  font-size: 0.9rem;
-  color: #555;
+ font-size: 0.9rem;
+  color: #007bff; /* Bleu */
   margin: 5px 0;
+  font-weight: bold;
 }
 
 /* Boutons d'action dans le détail */
@@ -479,26 +478,27 @@ main section {
 #contactSellerSection h3 {
   margin-top: 0;
 }
+/* Produits similaires avec SCROLL HORIZONTAL */
 .similar-products {
   margin-top: 30px;
 }
+
 .similar-products h2 {
   font-size: 20px;
   margin-bottom: 10px;
 }
 
-/* Grille des produits similaires avec 15 produits */
+/* Conteneur scrollable */
 .similar-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr); /* 5 colonnes par ligne */
+  display: flex;
   gap: 20px;
-  width: 100%;
-  max-width: 100%;
-  padding: 20px;
-  margin: 0 auto;
-  max-height: calc(15 * 1fr); /* Limite l'affichage à 20 éléments */
-  overflow: hidden; /* Cache les éléments en excès */
+  overflow-x: auto; /* Défilement horizontal */
+  white-space: nowrap;
+  padding: 10px 0;
+  scroll-snap-type: x mandatory;
 }
+
+/* Produits en ligne avec 6 par défaut */
 .similar-item {
   background: #fff;
   padding: 15px;
@@ -507,72 +507,69 @@ main section {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 150px;
-  position: relative;
-}
-.similar-item {
-  position: relative;
-  /* Assurez-vous que l'image pourra déborder du conteneur si besoin */
-  overflow: visible;
+  width: 180px;
+  min-width: 180px;
+  scroll-snap-align: start;
+  transition: transform 0.3s;
 }
 
+.similar-item:hover {
+  transform: scale(1.05);
+}
+
+/* Image ajustée */
 .similar-item img {
   width: 100%;
-  height: 100px;
+  height: 120px;
   object-fit: cover;
   border-radius: 5px;
-  transition: all 0.3s ease;
 }
 
-.similar-item:hover img {
-  height: auto;        
-  object-fit: contain; 
-  transform: scale(1.05); 
-  z-index: 10;            
-}
-/* .similar-item img:hover { transform: scale(1.05); } */
+/* Nom et prix */
 .similar-item .product-name {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: bold;
   margin-top: auto;
 }
+
 .similar-item .product-price {
-  font-size: 12px;
+  font-size: 14px;
   color: #ff9900;
   font-weight: bold;
 }
-.similar-item button {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 12px;
-  transition: background-color 0.3s;
-}
+
+/* Bouton "Ajouter au panier" */
 .similar-item .add-to-cart {
   background-color: #ff9900;
   color: #fff;
-}
-.similar-item .add-to-cart:hover { 
-  background-color: #ff9900;
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-/* Responsive: Adaptation pour les petits écrans */
+.similar-item .add-to-cart:hover {
+  background-color: #cc7a00;
+}
+
+
+/* Responsive : Adaptation pour les petits écrans */
 @media (max-width: 600px) {
-  .grid-container,
   .similar-grid {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
     gap: 10px;
     padding: 10px;
   }
-  .grid-item,
+  
   .similar-item {
-    flex: 0 0 auto;
     width: 150px;
-    height: auto;
+    min-width: 150px;
   }
+
+  .search-container {
+    width: 90%;
+  }
+}
   .search-container { width: 90%; }
   .navbar a { margin: 0 10px; font-size: 14px; }
   .detail-main { flex-direction: column; }
