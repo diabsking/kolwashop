@@ -167,6 +167,20 @@ main {
   color: #555;
 }
 
+/* Tronquer la description après 7 lignes */
+#detailDescription {
+  display: -webkit-box;
+  -webkit-line-clamp: 7;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Détails (ex. délai de livraison) en bleu */
+#productDetails p strong {
+  color: blue;
+}
+
 /* Boutons */
 .btn {
   height: 38px; /* Hauteur fixe d'environ 1 cm */
@@ -308,192 +322,191 @@ main {
   <!-- MAIN : Détail du produit et Produits similaires -->
   <main>
    <!-- Section : Détail du produit -->
-<section id="detailSection">
-  <button id="goBackButton" class="btn btn-secondary" onclick="goBack()">Retour</button>
+   <section id="detailSection">
+     <button id="goBackButton" class="btn btn-secondary" onclick="goBack()">Retour</button>
+     
+     <!-- Image principale -->
+     <img id="detailImage" src="https://via.placeholder.com/500x400" alt="Image du produit">
+     
+     <h2 id="detailName">Nom du produit</h2>
+     <p id="detailDescription">Description détaillée du produit... (Texte long qui sera tronqué après 7 lignes si nécessaire.)</p>
+     <p><strong>Prix :</strong> <span id="detailPrice">0 FCFA</span></p>
+     <p><strong>Vendu par :</strong> <span id="detailSeller">vendeur@example.com</span></p>
   
-  <!-- Image principale -->
-  <img id="detailImage" src="https://via.placeholder.com/500x400" alt="Image du produit">
+     <!-- Vidéo du produit (si disponible) -->
+     <video id="detailVideo" controls style="display: none;"></video>
   
-  <h2 id="detailName">Nom du produit</h2>
-  <p id="detailDescription">Description détaillée du produit...</p>
-  <p><strong>Prix :</strong> <span id="detailPrice">0 FCFA</span></p>
-  <p><strong>Vendu par :</strong> <span id="detailSeller">vendeur@example.com</span></p>
-
-  <!-- Vidéo du produit (si disponible) -->
-  <video id="detailVideo" controls style="display: none;"></video>
-
-  <!-- Galerie d'images complémentaires -->
-  <div id="imageCarousel">
-    <!-- Les images seront ajoutées dynamiquement -->
-  </div>
-
-  <!-- Détails supplémentaires -->
-  <div id="productDetails">
-    <p><strong>Stock :</strong> <span id="detailStock">Non précisé</span></p>
-    <p><strong>Date de publication :</strong> <span id="detailCreatedAt">Non précisée</span></p>
-    <p><strong>Commandes :</strong> <span id="detailOrders">0</span></p>
-    <p><strong>Vues :</strong> <span id="detailViews">0</span></p>
-    <p><strong>Remise :</strong> <span id="detailDiscount">Aucune</span></p>
-    <p><strong>Type de remise :</strong> <span id="detailDiscountType">Non spécifié</span></p>
-    <p><strong>Marque :</strong> <span id="detailBrand">Non précisée</span></p>
-    <p><strong>Référence (SKU) :</strong> <span id="detailSKU">Non précisée</span></p>
-    <p><strong>Poids :</strong> <span id="detailWeight">Non précisé</span></p>
-    <p><strong>Dimensions :</strong> <span id="detailDimensions">Non précisées</span></p>
-    <p><strong>Coût d'expédition :</strong> <span id="detailShippingCost">Non précisé</span></p>
-    <p><strong>Délai de livraison :</strong> <span id="detailEstimatedDelivery">Non précisé</span></p>
-    <p><strong>Politique de retour :</strong> <span id="detailReturnPolicy">Non précisée</span></p>
-    <p><strong>Garantie :</strong> <span id="detailWarranty">Non précisée</span></p>
-  </div>
-
-  <!-- Boutons d'action -->
-  <button id="addToCartButton" class="btn btn-primary">Ajouter au panier</button>
-  <button id="contactSellerButton" class="btn btn-secondary" style="display: none;">Contacter le vendeur</button>
-</section>
-    
-    <!-- Section : Produits similaires -->
-    <section id="similarGrid">
-      <!-- Les produits similaires seront injectés ici -->
-    </section>
+     <!-- Galerie d'images complémentaires -->
+     <div id="imageCarousel">
+       <!-- Les images seront ajoutées dynamiquement -->
+     </div>
+  
+     <!-- Détails supplémentaires -->
+     <div id="productDetails">
+       <p><strong>Stock :</strong> <span id="detailStock">Non précisé</span></p>
+       <p><strong>Date de publication :</strong> <span id="detailCreatedAt">Non précisée</span></p>
+       <p><strong>Commandes :</strong> <span id="detailOrders">0</span></p>
+       <p><strong>Vues :</strong> <span id="detailViews">0</span></p>
+       <p><strong>Remise :</strong> <span id="detailDiscount">Aucune</span></p>
+       <p><strong>Type de remise :</strong> <span id="detailDiscountType">Non spécifié</span></p>
+       <p><strong>Marque :</strong> <span id="detailBrand">Non précisée</span></p>
+       <p><strong>Référence (SKU) :</strong> <span id="detailSKU">Non précisée</span></p>
+       <p><strong>Poids :</strong> <span id="detailWeight">Non précisé</span></p>
+       <p><strong>Dimensions :</strong> <span id="detailDimensions">Non précisées</span></p>
+       <p><strong>Coût d'expédition :</strong> <span id="detailShippingCost">Non précisé</span></p>
+       <p><strong>Délai de livraison :</strong> <span id="detailEstimatedDelivery">Non précisé</span></p>
+       <p><strong>Politique de retour :</strong> <span id="detailReturnPolicy">Non précisée</span></p>
+       <p><strong>Garantie :</strong> <span id="detailWarranty">Non précisée</span></p>
+     </div>
+  
+     <!-- Boutons d'action -->
+     <button id="addToCartButton" class="btn btn-primary" onclick="addToCart(currentProduct.productName, currentProduct.price, currentProduct.description, currentProduct.imageUrl, currentProduct.sellerEmail, this)">Ajouter au panier</button>
+     <button id="contactSellerButton" class="btn btn-secondary" style="display: none;">Contacter le vendeur</button>
+   </section>
+       
+   <!-- Section : Produits similaires -->
+   <section id="similarGrid">
+     <!-- Les produits similaires seront injectés ici -->
+   </section>
   </main>
   
   <!-- Notification -->
   <div id="notification" class="notification"></div>
   
   <script>
-// Variables globales
-let cartCount = 0;
-let currentProduct = {};
-let allProducts = [];
-
-// Récupère l'ID du produit depuis l'URL et charge ses données via l'API
-document.addEventListener("DOMContentLoaded", () => {
-    const params = new URLSearchParams(window.location.search);
-    const productId = params.get('id');
-
-    if (!productId) {
-        console.error("⚠️ Aucun ID produit trouvé dans l'URL.");
-        alert("Produit non identifié.");
-        return;
-    }
-
-    console.log("✅ ID du produit récupéré :", productId);
-    fetchProduct(productId);
-});
-
-// Appel à l'API pour récupérer les données d'un produit
-async function fetchProduct(productId) {
-    try {
-        console.log(`🔍 Récupération des données pour le produit ID : ${productId}...`);
-
-        const response = await fetch(`/api/products/${productId}`);
-        
-        if (!response.ok) {
-            throw new Error(`❌ Erreur API, statut : ${response.status} ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        console.log("✅ Produit récupéré depuis l'API :", data);
-
-        if (!data || !data.product) {
-            console.error("❌ Produit introuvable ou réponse mal formattée :", data);
-            alert("Erreur : Produit introuvable.");
+    // Variables globales
+    let cartCount = parseInt(localStorage.getItem('cartCount')) || 0;
+    let currentProduct = {};
+    
+    // Mise à jour du compteur dans le DOM dès le chargement
+    document.getElementById("cartCount").textContent = cartCount;
+    
+    // Récupère l'ID du produit depuis l'URL et charge ses données via l'API
+    document.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get('id');
+    
+        if (!productId) {
+            console.error("⚠️ Aucun ID produit trouvé dans l'URL.");
+            alert("Produit non identifié.");
             return;
         }
-
-        currentProduct = data.product;
-        showProductDetailView(data.product);
-    } catch (error) {
-        console.error("❌ Erreur lors de la récupération du produit :", error);
-        alert("Erreur lors du chargement du produit. Vérifiez votre connexion ou réessayez plus tard.");
-    }
-}
     
-// Affiche les détails du produit et prépare la galerie et les produits similaires
-function showProductDetailView(product) {
-  // Mise à jour des informations principales
-  document.getElementById("detailImage").src = product.imageUrl || "https://via.placeholder.com/500x400";
-  document.getElementById("detailName").innerText = product.productName || "Nom inconnu";
-  document.getElementById("detailDescription").innerText = product.description || "";
-  document.getElementById("detailPrice").innerText = product.price ? `${product.price} FCFA` : "";
-  document.getElementById("detailSeller").innerText = product.sellerEmail || "Vendeur inconnu";
-
-  // Mise à jour des autres détails (vérifiez que ces éléments existent dans votre HTML)
-  if (document.getElementById("detailStock"))
-    document.getElementById("detailStock").innerText = product.stock !== undefined ? product.stock : "Non précisé";
-  if (document.getElementById("detailCreatedAt"))
-    document.getElementById("detailCreatedAt").innerText = product.createdAt ? new Date(product.createdAt).toLocaleDateString() : "Non précisé";
-  if (document.getElementById("detailOrders"))
-    document.getElementById("detailOrders").innerText = product.orders !== undefined ? product.orders : "0";
-  if (document.getElementById("detailViews"))
-    document.getElementById("detailViews").innerText = product.views !== undefined ? product.views : "0";
-  if (document.getElementById("detailDiscount"))
-    document.getElementById("detailDiscount").innerText = product.discount !== undefined ? product.discount : "Aucune";
-  if (document.getElementById("detailDiscountType"))
-    document.getElementById("detailDiscountType").innerText = product.discountType || "";
-  if (document.getElementById("detailBrand"))
-    document.getElementById("detailBrand").innerText = product.brand || "Non précisée";
-  if (document.getElementById("detailSKU"))
-    document.getElementById("detailSKU").innerText = product.sku || "Non précisé";
-  if (document.getElementById("detailWeight"))
-    document.getElementById("detailWeight").innerText = product.weight !== undefined ? product.weight + " kg" : "Non précisé";
-  if (document.getElementById("detailDimensions"))
-    document.getElementById("detailDimensions").innerText = product.dimensions ? `${product.dimensions.length} x ${product.dimensions.width} x ${product.dimensions.height} cm` : "Non précisées";
-  if (document.getElementById("detailShippingCost"))
-    document.getElementById("detailShippingCost").innerText = product.shippingCost !== undefined ? product.shippingCost + " FCFA" : "Non précisé";
-  if (document.getElementById("detailEstimatedDelivery"))
-    document.getElementById("detailEstimatedDelivery").innerText = product.estimatedDelivery !== undefined ? product.estimatedDelivery + " jours" : "Non précisé";
-  if (document.getElementById("detailReturnPolicy"))
-    document.getElementById("detailReturnPolicy").innerText = product.returnPolicy || "Non précisée";
-  if (document.getElementById("detailWarranty"))
-    document.getElementById("detailWarranty").innerText = product.warranty || "Non précisée";
-
-  // Gestion de la vidéo
-  const videoElement = document.getElementById("detailVideo");
-  if (product.videoUrl) {
-    videoElement.src = product.videoUrl;
-    videoElement.style.display = "block";
-  } else {
-    videoElement.style.display = "none";
-  }
-
-  // Génération de la galerie d'images complémentaires
-  const imageCarousel = document.getElementById("imageCarousel");
-  imageCarousel.innerHTML = "";
-  if (product.images && product.images.length > 0) {
-    product.images.forEach(url => {
-      const img = document.createElement("img");
-      img.src = url;
-      img.alt = product.productName;
-      img.addEventListener("click", () => {
-        document.getElementById("detailImage").src = url;
-      });
-      imageCarousel.appendChild(img);
+        console.log("✅ ID du produit récupéré :", productId);
+        fetchProduct(productId);
     });
-  }
-      // Simulation ou appel à l'API pour charger des produits similaires
-      // Ici nous excluons le produit actuel
-      allProducts = [
-        product,
-        {
-          _id: "2",
-          productName: "Produit Similaire 1",
-          description: "Description du produit similaire 1.",
-          price: 12000,
-          sellerEmail: "vendeur1@example.com",
-          imageUrl: "https://via.placeholder.com/500x400/008000",
-          images: []
-        },
-        {
-          _id: "3",
-          productName: "Produit Similaire 2",
-          description: "Description du produit similaire 2.",
-          price: 18000,
-          sellerEmail: "vendeur2@example.com",
-          imageUrl: "https://via.placeholder.com/500x400/FFA500",
-          images: []
+    
+    // Appel à l'API pour récupérer les données d'un produit
+    async function fetchProduct(productId) {
+        try {
+            console.log(`🔍 Récupération des données pour le produit ID : ${productId}...`);
+    
+            const response = await fetch(`/api/products/${productId}`);
+            
+            if (!response.ok) {
+                throw new Error(`❌ Erreur API, statut : ${response.status} ${response.statusText}`);
+            }
+    
+            const data = await response.json();
+            console.log("✅ Produit récupéré depuis l'API :", data);
+    
+            if (!data || !data.product) {
+                console.error("❌ Produit introuvable ou réponse mal formattée :", data);
+                alert("Erreur : Produit introuvable.");
+                return;
+            }
+    
+            currentProduct = data.product;
+            showProductDetailView(data.product);
+        } catch (error) {
+            console.error("❌ Erreur lors de la récupération du produit :", error);
+            alert("Erreur lors du chargement du produit. Vérifiez votre connexion ou réessayez plus tard.");
         }
-      ];
-      const similarProducts = allProducts.filter(p => p._id !== product._id);
+    }
+        
+    // Récupère les produits similaires depuis l'API
+    async function fetchSimilarProducts(product) {
+      try {
+        // L'API doit gérer le filtrage par catégorie, nom et description
+        const url = `/api/products/similar?category=${encodeURIComponent(product.category)}&name=${encodeURIComponent(product.productName)}&description=${encodeURIComponent(product.description)}`;
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error('Erreur lors de la récupération des produits similaires');
+        }
+        const data = await response.json();
+        // On suppose que la réponse contient un tableau dans data.products
+        return data.products;
+      } catch (error) {
+        console.error(error);
+        return [];
+      }
+    }
+    
+    // Affiche les détails du produit et prépare la galerie et les produits similaires
+    async function showProductDetailView(product) {
+      // Mise à jour des informations principales
+      document.getElementById("detailImage").src = product.imageUrl || "https://via.placeholder.com/500x400";
+      document.getElementById("detailName").innerText = product.productName || "Nom inconnu";
+      document.getElementById("detailDescription").innerText = product.description || "";
+      document.getElementById("detailPrice").innerText = product.price ? `${product.price} FCFA` : "";
+      document.getElementById("detailSeller").innerText = product.sellerEmail || "Vendeur inconnu";
+    
+      // Mise à jour des autres détails
+      if (document.getElementById("detailStock"))
+        document.getElementById("detailStock").innerText = product.stock !== undefined ? product.stock : "Non précisé";
+      if (document.getElementById("detailCreatedAt"))
+        document.getElementById("detailCreatedAt").innerText = product.createdAt ? new Date(product.createdAt).toLocaleDateString() : "Non précisé";
+      if (document.getElementById("detailOrders"))
+        document.getElementById("detailOrders").innerText = product.orders !== undefined ? product.orders : "0";
+      if (document.getElementById("detailViews"))
+        document.getElementById("detailViews").innerText = product.views !== undefined ? product.views : "0";
+      if (document.getElementById("detailDiscount"))
+        document.getElementById("detailDiscount").innerText = product.discount !== undefined ? product.discount : "Aucune";
+      if (document.getElementById("detailDiscountType"))
+        document.getElementById("detailDiscountType").innerText = product.discountType || "";
+      if (document.getElementById("detailBrand"))
+        document.getElementById("detailBrand").innerText = product.brand || "Non précisée";
+      if (document.getElementById("detailSKU"))
+        document.getElementById("detailSKU").innerText = product.sku || "Non précisé";
+      if (document.getElementById("detailWeight"))
+        document.getElementById("detailWeight").innerText = product.weight !== undefined ? product.weight + " kg" : "Non précisé";
+      if (document.getElementById("detailDimensions"))
+        document.getElementById("detailDimensions").innerText = product.dimensions ? `${product.dimensions.length} x ${product.dimensions.width} x ${product.dimensions.height} cm` : "Non précisées";
+      if (document.getElementById("detailShippingCost"))
+        document.getElementById("detailShippingCost").innerText = product.shippingCost !== undefined ? product.shippingCost + " FCFA" : "Non précisé";
+      if (document.getElementById("detailEstimatedDelivery"))
+        document.getElementById("detailEstimatedDelivery").innerText = product.estimatedDelivery !== undefined ? product.estimatedDelivery + " jours" : "Non précisé";
+      if (document.getElementById("detailReturnPolicy"))
+        document.getElementById("detailReturnPolicy").innerText = product.returnPolicy || "Non précisée";
+      if (document.getElementById("detailWarranty"))
+        document.getElementById("detailWarranty").innerText = product.warranty || "Non précisée";
+    
+      // Gestion de la vidéo
+      const videoElement = document.getElementById("detailVideo");
+      if (product.videoUrl) {
+        videoElement.src = product.videoUrl;
+        videoElement.style.display = "block";
+      } else {
+        videoElement.style.display = "none";
+      }
+    
+      // Génération de la galerie d'images complémentaires
+      const imageCarousel = document.getElementById("imageCarousel");
+      imageCarousel.innerHTML = "";
+      if (product.images && product.images.length > 0) {
+        product.images.forEach(url => {
+          const img = document.createElement("img");
+          img.src = url;
+          img.alt = product.productName;
+          img.addEventListener("click", () => {
+            document.getElementById("detailImage").src = url;
+          });
+          imageCarousel.appendChild(img);
+        });
+      }
+      
+      // Récupération réelle des produits similaires via l'API
+      const similarProducts = await fetchSimilarProducts(product);
       displaySimilarProducts(similarProducts);
     }
     
@@ -527,16 +540,22 @@ function showProductDetailView(product) {
     // Fonction Retour à la page
     function goBack() { window.history.back(); }
     
-    // Fonction pour ajouter un produit au panier
+    // Fonction pour ajouter un produit au panier et rediriger vers index.html
     function addToCart(name, price, description, imageUrl, sellerEmail, button) {
       button.textContent = "Ajouté !";
       button.disabled = true;
       button.style.backgroundColor = "#28a745";
-      // Simulation d'un appel API
+      // Simulation d'un appel API pour l'ajout au panier
       setTimeout(() => {
         cartCount++;
         updateCartCount();
+        // Sauvegarde du compteur dans le localStorage pour que la page index le récupère
+        localStorage.setItem('cartCount', cartCount);
         showNotification(`${name} a été ajouté au panier !`);
+        // Redirection vers index.html après une courte temporisation
+        setTimeout(() => {
+           window.location.href = "index.html";
+        }, 1000);
       }, 500);
     }
     
