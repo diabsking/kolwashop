@@ -237,27 +237,29 @@ exports.getPopularProducts = async (req, res) => {
   }
 };
 
-exports.getSimilarProducts = async (req, res) => {
+const getSimilarProducts = async (req, res) => {
   try {
-    const { category, name, description } = req.query;
-    
-    if (!category && !name && !description) {
-      return res.status(400).json({ message: "Veuillez fournir au moins un critère." });
+    const { name, category, description } = req.query; // Récupération des paramètres
+
+    if (!name && !category && !description) {
+      return res.status(400).json({ message: "Veuillez fournir au moins un critère (nom, catégorie ou description) pour rechercher des produits similaires." });
     }
 
-    const products = await Product.find({
-      $or: [
-        category ? { category } : {},
-        name ? { productName: { $regex: name, $options: 'i' } } : {},
-        description ? { description: { $regex: description, $options: 'i' } } : {}
-      ]
-    });
+    // Création d'un filtre dynamique pour éviter que "similar" soit interprété comme un ObjectId
+    const filter = {};
+    if (name) filter.name = { $regex: name, $options: "i" };
+    if (category) filter.category = { $regex: category, $options: "i" };
+    if (description) filter.description = { $regex: description, $options: "i" };
 
-    res.json({ products });
+    const similarProducts = await Product.find(filter).limit(50); // Récupère jusqu'à 50 produits
+
+    res.json(similarProducts);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: "Erreur lors de la récupération des produits similaires", error });
   }
 };
+
+module.exports = { getSimilarProducts };
 
 exports.updateProduct = async (req, res) => {
   try {
