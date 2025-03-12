@@ -1145,10 +1145,12 @@ footer {
       const reviewSection = document.getElementById("review-section");
       reviewSection.innerHTML = "<p>Aucun avis pour le moment.</p>";
     }
-    function hideDetailSection() {
-      document.getElementById("detailSection").style.display = "none";
-      document.getElementById("productGrid").style.display = "grid";
-    }
+  // Fonction pour masquer la section détail et afficher la grille de produits
+function hideDetailSection() {
+  document.getElementById("detailSection").style.display = "none";
+  document.getElementById("productGrid").style.display = "grid";
+  currentProduct = null; // Optionnel : réinitialiser le produit sélectionné
+}
     function orderProduct(button) {
       if (!currentProduct) return;
       addToCart(currentProduct.productName, currentProduct.price, currentProduct.description, currentProduct.imageUrl, currentProduct.sellerEmail, button);
