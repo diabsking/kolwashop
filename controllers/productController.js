@@ -394,25 +394,4 @@ const getPopularProducts = async (req, res) => {
         res.status(500).json({ message: "Erreur serveur" });
     }
 };
-
-// Récupérer les produits similaires
-const getSimilarProducts = async (req, res) => {
-    try {
-        const { name, category } = req.query;
-
-        if (!name && !category) {
-            return res.status(400).json({ message: "Veuillez fournir un nom ou une catégorie." });
-        }
-
-        const query = {};
-        if (category) query.category = category;
-        if (name) query.name = { $regex: new RegExp(name, 'i') }; 
-
-        const similarProducts = await Product.find(query).limit(10);
-        res.status(200).json(similarProducts);
-    } catch (error) {
-        console.error("Erreur lors de la récupération des produits similaires:", error);
-        res.status(500).json({ message: "Erreur serveur" });
-    }
-};
 module.exports = { getPopularProducts, getSimilarProducts };
