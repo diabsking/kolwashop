@@ -237,6 +237,24 @@ exports.getPopularProducts = async (req, res) => {
   }
 };
 
+// controllers/productController.js
+exports.getSimilarProducts = async (req, res) => {
+  try {
+    const { category, name, description } = req.query;
+    // Exemple de logique de filtrage pour des produits similaires
+    const products = await Product.find({
+      // Filtrer par catégorie ou par similarité dans le nom/description
+      $or: [
+        { category: category },
+        { productName: { $regex: name, $options: 'i' } },
+        { description: { $regex: description, $options: 'i' } }
+      ]
+    });
+    res.json({ products });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 exports.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
