@@ -236,31 +236,26 @@ exports.getPopularProducts = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur", error });
   }
 };
-
 const getSimilarProducts = async (req, res) => {
   try {
-    const { name, category, description } = req.query; // Récupération des paramètres
+    const { name, category, description } = req.query;
 
     if (!name && !category && !description) {
       return res.status(400).json({ message: "Veuillez fournir au moins un critère (nom, catégorie ou description) pour rechercher des produits similaires." });
     }
 
-    // Création d'un filtre dynamique pour éviter que "similar" soit interprété comme un ObjectId
     const filter = {};
     if (name) filter.name = { $regex: name, $options: "i" };
     if (category) filter.category = { $regex: category, $options: "i" };
     if (description) filter.description = { $regex: description, $options: "i" };
 
-    const similarProducts = await Product.find(filter).limit(50); // Récupère jusqu'à 50 produits
+    const similarProducts = await Product.find(filter).limit(10);
 
     res.json(similarProducts);
   } catch (error) {
     res.status(500).json({ message: "Erreur lors de la récupération des produits similaires", error });
   }
 };
-
-module.exports = { getSimilarProducts };
-
 exports.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -389,3 +384,4 @@ exports.deleteProduct = async (req, res) => {
     res.status(500).json({ error: "Erreur lors de la suppression du produit" });
   }
 };
+module.exports = { getPopularProducts, getSimilarProducts };
