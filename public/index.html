@@ -375,31 +375,91 @@ main section {
   font-weight: bold; /* Met le texte en gras */
   padding: 10px; /* Ajuste le padding */
 }
- /* Section de détail du produit */
-    #detailSection {
-      display: none;
-      padding: 20px;
-      background-color: #fff;
-      margin: 20px;
-    }
-    #detailSection img {
-      width: 100%;
-      max-width: 400px;
-      border-radius: 8px;
-    }
-    #detailSection video {
-      width: 100%;
-      max-width: 400px;
-      display: none;
-    }
-    #detailSection h1 {
-      font-size: 2rem;
-      margin-top: 20px;
-    }
-    #detailSection p {
-      font-size: 1rem;
-      margin: 10px 0;
-    }
+/* Section de détail du produit */
+#detailSection {
+  display: none;
+  padding: 20px;
+  background-color: #fff;
+  margin: 20px;
+}
+#detailSection img {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 8px;
+}
+#detailSection video {
+  width: 100%;
+  max-width: 400px;
+  display: none;
+}
+#detailSection h1 {
+  font-size: 2rem;
+  margin-top: 20px;
+}
+#detailSection p {
+  font-size: 1rem;
+  margin: 10px 0;
+}
+.detail-description {
+  max-height: 120px; /* Limitation de la hauteur */
+  overflow-y: auto;
+  padding-right: 10px;
+}
+.detail-info h1 {
+  margin-top: 0;
+  font-size: 2rem;
+  color: #333;
+}
+
+/* Boutons dans la section détail */
+#addToCartButton,
+#returnToProductsButton {
+  background-color: #007bff; /* Bleu principal */
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  margin: 10px 5px;
+}
+#addToCartButton:hover,
+#returnToProductsButton:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* Responsivité pour téléphone */
+@media (max-width: 480px) {
+  #detailSection {
+    padding: 15px;
+    margin: 10px;
+  }
+  #detailSection img,
+  #detailSection video {
+    max-width: 100%;
+  }
+  #detailSection h1 {
+    font-size: 1.5rem;
+    margin-top: 15px;
+  }
+  #detailSection p {
+    font-size: 0.9rem;
+  }
+  #addToCartButton,
+  #returnToProductsButton {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+    margin: 8px 4px;
+  }
+  .detail-description {
+    max-height: 100px;
+  }
+  .detail-info h1 {
+    font-size: 1.5rem;
+  }
+}
 /* Boutons dans la section détail */
 #addToCartButton,
 #returnToProductsButton {
