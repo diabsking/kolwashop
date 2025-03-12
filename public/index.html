@@ -1075,541 +1075,558 @@ footer {
   <div id="productContainer"></div>
   
   <script>
-// Variables globales
-let allProducts = [];
-let cartCount = 0;
-let currentProduct = null;
+  // Variables globales
+    let allProducts = [];
+    let cartCount = 0;
+    let currentProduct = null;
 
-// Initialisation dès le chargement de la page
-window.onload = () => {
-  loadProducts();
-  setupCategoryFilters();
-  setupSearch();
-  setupSidebarFilters();
-};
-
-// Chargement des produits depuis l'API et affichage
-async function loadProducts() {
-  const loadingIndicator = document.getElementById('loadingIndicator');
-  const productContainer = document.getElementById('productContainer');
-  loadingIndicator.style.display = 'block';
-  productContainer.style.display = 'none';
-
-  try {
-    // Simuler un délai de chargement
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    // Récupération des produits depuis l'API
-    const response = await fetch('/api/products');
-    if (!response.ok) throw new Error('Erreur serveur');
-    const data = await response.json();
-    allProducts = data.products || [];
-
-    // Détection automatique de la catégorie pour chaque produit
-    allProducts.forEach(product => {
-      product.detectedCategory = aiDetectCategory(product);
-    });
-
-    // Trier les produits par popularité (basé sur le nombre de commandes)
-    allProducts.sort((a, b) => (b.orders || 0) - (a.orders || 0));
-
-    displayProducts(allProducts);
-  } catch (err) {
-    console.error("Erreur lors du chargement des produits:", err);
-  } finally {
-    loadingIndicator.style.display = 'none';
-    productContainer.style.display = 'block';
-  }
-}
-
-// Affichage des produits dans la grille
-function displayProducts(products) {
-  const productGrid = document.getElementById("productGrid");
-  productGrid.innerHTML = products.length
-    ? ""
-    : "<p style='text-align:center;'>Aucun produit publié pour le moment.</p>";
-
-  products.forEach(product => {
-    const productItem = document.createElement("div");
-    productItem.className = 'grid-item';
-
-    // Ajout d'un badge "Nouveau" si le produit est publié depuis moins de 7 jours
-    let badgeHTML = '';
-    if (product.publishedAt) {
-      const publishedDate = new Date(product.publishedAt);
-      const now = new Date();
-      const diffDays = (now - publishedDate) / (1000 * 60 * 60 * 24);
-      if (diffDays < 7) {
-        badgeHTML = '<span class="new-badge">Nouveau</span>';
-      }
+    // Fonction pour afficher/cacher le formulaire de publication
+    function togglePublicationForm() {
+      const formSection = document.getElementById("publicationForm");
+      formSection.style.display = (formSection.style.display === "block") ? "none" : "block";
     }
 
-    productItem.innerHTML =
-      `<div class="product-image-wrapper" style="position: relative;">
-         <img src="${product.imageUrl}" alt="${product.productName}" class="product-image">
-         ${badgeHTML}
-       </div>
-       <div class="product-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-         ${product.productName}
-       </div>
-       <div class="product-description" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-         ${product.description}
-       </div>
-       <div class="product-price">${product.price} FCFA</div>
-       <div style="margin-top: 10px;">
-         <button class="add-to-cart" onclick="event.stopPropagation(); addToCart('${product.productName}', ${product.price}, '${product.description}', '${product.imageUrl}', '${product.sellerEmail}', this)">Acheter</button>
-         <button class="details-button" onclick="event.stopPropagation(); showProductDetailView(product)">Détail</button>
-       </div>`;
-       
-    // Si l'utilisateur clique n'importe où sur le conteneur, afficher le détail
-    productItem.addEventListener("click", () => {
-      showProductDetailView(product);
+    // Initialisation unique lors du chargement de la page
+    window.addEventListener('load', function() {
+      loadProducts();
+      setupCategoryFilters();
+      setupSearch();
+      setupSidebarFilters();
+      displayConfirmationMessage();
+      fetchSellerProducts();
+      // Ajout de l'événement pour le bouton "Ajouter au panier" dans la vue détaillée
+      document.getElementById("addToCartButton").addEventListener("click", function() {
+        if (currentProduct) {
+          addToCart(currentProduct.productName, currentProduct.price, currentProduct.description, currentProduct.imageUrl, currentProduct.sellerEmail, this);
+        }
+      });
+      // Ajout de l'événement pour le bouton "Retour" dans la vue détaillée
+      document.getElementById("backButton").addEventListener("click", function() {
+        hideDetailSection();
+      });
     });
 
-    productGrid.appendChild(productItem);
-  });
-}
-
-// Filtre pour afficher les produits dont le prix est inférieur à 10 000 FCFA
-function filterCheapProducts() {
-  const filteredProducts = allProducts.filter(product => product.price < 10000);
-  displayProducts(filteredProducts);
-}
-
-// Recherche sur tous les produits
-function setupSearch() {
-  const searchBtn = document.getElementById("searchBtn");
-  const searchBox = document.getElementById("searchBox");
-  searchBtn.addEventListener("click", () => {
-    const query = searchBox.value.trim().toLowerCase();
-    const filtered = allProducts.filter(product => {
-      return (product.productName && product.productName.toLowerCase().includes(query)) ||
-             (product.description && product.description.toLowerCase().includes(query)) ||
-             (product.detectedCategory && product.detectedCategory.toLowerCase().includes(query));
-    });
-    displayProducts(filtered);
-  });
-  searchBox.addEventListener("keyup", (event) => {
-    if (event.key === "Enter") searchBtn.click();
-  });
-}
-
-// Mise en place des filtres par catégorie avec effet de chargement simulé
-function setupCategoryFilters() {
-  const buttons = document.querySelectorAll('.category-button');
-  const productGrid = document.getElementById('productGrid'); // Grille des produits
-  const loadingIndicator = document.getElementById('loading'); // Élément de chargement
-
-  buttons.forEach(button => {
-    button.addEventListener('click', () => {
-      const category = button.getAttribute('data-category');
+    // Chargement des produits depuis l'API et affichage
+    async function loadProducts() {
+      const loadingIndicator = document.getElementById('loadingIndicator');
+      const productGrid = document.getElementById('productGrid');
       loadingIndicator.style.display = 'block';
+      productGrid.style.display = 'none';
 
-      // Simulation d'un court délai de chargement (500 ms)
-      setTimeout(() => {
-        let filteredProducts;
-        if (category.toLowerCase() === 'tous') {
-          filteredProducts = allProducts;
-        } else {
-          filteredProducts = allProducts.filter(product =>
-            product.detectedCategory &&
-            product.detectedCategory.toLowerCase().includes(category.toLowerCase())
-          );
-        }
+      try {
+        // Simuler un délai de chargement
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
+        // Récupération des produits depuis l'API
+        const response = await fetch('/api/products');
+        if (!response.ok) throw new Error('Erreur serveur');
+        const data = await response.json();
+        allProducts = data.products || [];
+
+        // Détection automatique de la catégorie pour chaque produit
+        allProducts.forEach(product => {
+          product.detectedCategory = product.detectedCategory || aiDetectCategory(product);
+        });
+
+        // Trier les produits par popularité (basé sur le nombre de commandes)
+        allProducts.sort((a, b) => (b.orders || 0) - (a.orders || 0));
+
+        displayProducts(allProducts);
+      } catch (err) {
+        console.error("Erreur lors du chargement des produits:", err);
+      } finally {
         loadingIndicator.style.display = 'none';
-        if (filteredProducts.length === 0) {
-          productGrid.innerHTML = "<p style='text-align:center;'>Aucun produit trouvé pour cette catégorie.</p>";
-        } else {
-          displayProducts(filteredProducts);
-        }
-      }, 500);
-    });
-  });
-}
-
-// Fonction de détection automatique de catégorie améliorée
-function aiDetectCategory(product, chosenCategory) {
-  if (chosenCategory) return chosenCategory.toLowerCase();
-  const name = product.productName ? product.productName.toLowerCase() : '';
-  const description = product.description ? product.description.toLowerCase() : '';
-  const imageUrl = product.imageUrl ? product.imageUrl.toLowerCase() : '';
-  const categoriesKeywords = {
-    "homme": ["homme", "men", "garçon", "costume", "habit", "veste", "pantalon", "chemise"],
-    "femme": ["femme", "woman", "dame", "robe", "jupe", "blouse", "maquillage", "sac à main"],
-    "garçon": ["garçon", "boy", "enfant garçon", "jeune homme", "ado garçon", "t-shirt garçon"],
-    "fille": ["fille", "girl", "jeune fille", "ado fille", "robe fille", "jupe fille"],
-    "bébé": ["bébé", "enfant", "nourrisson", "bambin"],
-    "cosmétique": ["cosmétique", "makeup", "maquillage", "parfum", "soin"],
-    "matériels": ["matériel", "outil", "machine"],
-    "accessoires": ["accessoire", "sac", "ceinture", "montre", "bijoux", "lunettes"],
-    "electronique": ["électronique", "smartphone", "ordinateur", "tablet", "tv", "caméra", "audio"],
-    "livres": ["livre", "book", "roman", "manga", "bd", "bande dessinée", "éducation"],
-    "sport": ["sport", "football", "basket", "tennis", "running", "fitness", "vélo", "musculation"]
-  };
-  // Parcours des catégories et recherche d'un mot-clé correspondant
-  for (const [category, keywords] of Object.entries(categoriesKeywords)) {
-    for (const keyword of keywords) {
-      if (name.includes(keyword) || description.includes(keyword) || imageUrl.includes(keyword)) {
-        return category;
+        productGrid.style.display = 'grid';
       }
     }
-  }
-  return "autres";
-}
 
-// Fonction pour ajouter un produit au panier
-function addToCart(name, price, description, imageUrl, sellerEmail, button) {
-  button.textContent = "Ajouté!";
-  button.disabled = true;
-  button.style.backgroundColor = "#28a745";
-  fetch('/api/add-to-cart', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, price, description, imageUrl, sellerEmail })
-  })
-  .then(response => response.ok ? response.json() : Promise.reject('Erreur API'))
-  .then(data => {
-    if (data.success) {
-      cartCount++;
-      updateCartCount();
-    } else {
-      throw new Error("Erreur lors de l'ajout au panier");
-    }
-  })
-  .catch(err => {
-    console.error("Échec lors de l'ajout au panier:", err);
-    button.textContent = "Réessayer";
-    button.disabled = false;
-  });
-  showNotification(`${name} ajouté au panier!`);
-}
+    // Affichage des produits dans la grille
+    function displayProducts(products) {
+      const productGrid = document.getElementById("productGrid");
+      productGrid.innerHTML = products.length
+        ? ""
+        : "<p style='text-align:center;'>Aucun produit publié pour le moment.</p>";
 
-// Mise à jour du compteur du panier
-function updateCartCount() {
-  document.getElementById("cartCount").textContent = cartCount;
-}
+      products.forEach(product => {
+        const productItem = document.createElement("div");
+        productItem.className = 'grid-item';
 
-// Affichage d'une notification temporaire
-function showNotification(message) {
-  const notification = document.getElementById("notification");
-  if (!notification) return;
-  notification.textContent = message;
-  notification.classList.add("show");
-  setTimeout(() => notification.classList.remove("show"), 3000);
-}
+        // Badge "Nouveau"
+        let badgeHTML = '';
+        if (product.publishedAt) {
+          const publishedDate = new Date(product.publishedAt);
+          const now = new Date();
+          const diffDays = (now - publishedDate) / (1000 * 60 * 60 * 24);
+          if (diffDays < 7) {
+            badgeHTML = '<span class="new-badge">Nouveau</span>';
+          }
+        }
 
-// Affichage du détail du produit dans la section dédiée
-function showProductDetailView(product) {
-  currentProduct = product;
-  // Masquer la grille et afficher la section de détail
-  document.getElementById("productGrid").style.display = "none";
-  document.getElementById("detailSection").style.display = "block";
+        productItem.innerHTML =
+          `<div class="product-image-wrapper" style="position: relative;">
+             <img src="${product.imageUrl}" alt="${product.productName}" class="product-image">
+             ${badgeHTML}
+           </div>
+           <div class="product-name">
+             ${product.productName}
+           </div>
+           <div class="product-description" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+             ${product.description}
+           </div>
+           <div class="product-price">${product.price} FCFA</div>
+           <div style="margin-top: 10px;">
+             <!-- Boutons masqués : on utilise le clic sur l'élément -->
+           </div>`;
+           
+        // Navigation vers la vue détaillée au clic sur le produit
+        productItem.addEventListener("click", () => {
+          showProductDetailView(product);
+        });
 
-  // Mise à jour des informations du produit (affichage de toutes les infos disponibles)
-  document.getElementById("detailImage").src = product.imageUrl || "";
-  document.getElementById("detailImage").alt = product.productName || "Image du produit";
-  document.getElementById("detailName").innerText = product.productName || "Nom inconnu";
-  document.getElementById("detailDescription").innerText = product.description || "";
-  document.getElementById("detailPrice").innerText = product.price ? `${product.price.toFixed(2)} FCFA` : "";
-  document.getElementById("detailSeller").innerText = product.sellerEmail || "Inconnu";
-  
-  // Informations complémentaires (supposées retournées par votre product controller)
-  if (document.getElementById("detailDiscount"))
-    document.getElementById("detailDiscount").innerText = product.discount ? product.discount + (product.discountType === "percentage" ? " %" : " FCFA") : "Aucune remise";
-  if (document.getElementById("detailBrand"))
-    document.getElementById("detailBrand").innerText = product.brand || "Non spécifiée";
-  if (document.getElementById("detailSKU"))
-    document.getElementById("detailSKU").innerText = product.sku || "N/A";
-  if (document.getElementById("detailWeight"))
-    document.getElementById("detailWeight").innerText = product.weight ? product.weight + " kg" : "Non spécifié";
-  if (document.getElementById("detailDimensions") && product.dimensions) {
-    const { length, width, height } = product.dimensions;
-    document.getElementById("detailDimensions").innerText = `${length || 0} x ${width || 0} x ${height || 0} cm`;
-  }
-  if (document.getElementById("detailShippingCost"))
-    document.getElementById("detailShippingCost").innerText = product.shippingCost ? product.shippingCost + " FCFA" : "Gratuit";
-  if (document.getElementById("detailEstimatedDelivery"))
-    document.getElementById("detailEstimatedDelivery").innerText = product.estimatedDelivery ? product.estimatedDelivery + " jours" : "Non précisé";
-  if (document.getElementById("detailReturnPolicy"))
-    document.getElementById("detailReturnPolicy").innerText = product.returnPolicy || "Non spécifiée";
-  if (document.getElementById("detailWarranty"))
-    document.getElementById("detailWarranty").innerText = product.warranty || "Aucune";
-
-  if (document.getElementById("detailCreatedAt") && product.createdAt)
-    document.getElementById("detailCreatedAt").innerText = new Date(product.createdAt).toLocaleDateString();
-  if (document.getElementById("detailOrders") && product.orders !== undefined)
-    document.getElementById("detailOrders").innerText = product.orders;
-  if (document.getElementById("detailViews") && product.views !== undefined)
-    document.getElementById("detailViews").innerText = product.views;
-  if (document.getElementById("detailAddToCart") && product.addToCart !== undefined)
-    document.getElementById("detailAddToCart").innerText = product.addToCart;
-
-  // Gestion de la vidéo du produit
-  if (product.videoUrl) {
-    document.getElementById("detailVideo").src = product.videoUrl;
-    document.getElementById("detailVideoSection").style.display = "block";
-  } else {
-    document.getElementById("detailVideoSection").style.display = "none";
-  }
-
-  // Affichage de la galerie d'images complémentaires
-  const imageCarousel = document.getElementById("imageCarousel");
-  if (imageCarousel) {
-    imageCarousel.innerHTML = "";
-    if (Array.isArray(product.images)) {
-      product.images.forEach(imageUrl => {
-        const img = document.createElement("img");
-        img.src = imageUrl;
-        img.alt = product.productName;
-        imageCarousel.appendChild(img);
+        productGrid.appendChild(productItem);
       });
     }
-  }
 
-  // Filtrage et affichage des produits similaires
-  const similarProducts = allProducts.filter(p => 
-    p.detectedCategory === product.detectedCategory && p._id !== product._id
-  );
-  displaySimilarProducts(similarProducts);
+    // Filtre pour afficher les produits dont le prix est inférieur à 10 000 FCFA
+    function filterCheapProducts() {
+      const filteredProducts = allProducts.filter(product => product.price < 10000);
+      displayProducts(filteredProducts);
+    }
 
-  // Affichage des avis du produit
-  const reviewSection = document.getElementById("reviewSection");
-  if (reviewSection) reviewSection.innerHTML = "";
-  if (Array.isArray(product.reviews)) {
-    product.reviews.forEach(review => {
-      const div = document.createElement("div");
-      div.className = "review-item";
-      div.innerHTML = `<p>${review.comment}</p><p>${review.rating} ★</p>`;
-      reviewSection.appendChild(div);
-    });
-  }
-  
-  // Boutons de navigation (produit suivant/précédent)
-  const nextBtn = document.getElementById("nextProduct");
-  if (nextBtn) {
-    nextBtn.onclick = function() {
-      const currentIndex = allProducts.findIndex(p => p._id === currentProduct._id);
-      const nextProduct = allProducts[(currentIndex + 1) % allProducts.length];
-      showProductDetailView(nextProduct);
-    };
-  }
-  const prevBtn = document.getElementById("prevProduct");
-  if (prevBtn) {
-    prevBtn.onclick = function() {
-      const currentIndex = allProducts.findIndex(p => p._id === currentProduct._id);
-      const prevProduct = allProducts[(currentIndex - 1 + allProducts.length) % allProducts.length];
-      showProductDetailView(prevProduct);
-    };
-  }
+    // Recherche sur tous les produits
+    function setupSearch() {
+      const searchBtn = document.getElementById("searchBtn");
+      const searchBox = document.getElementById("searchBox");
+      searchBtn.addEventListener("click", () => {
+        const query = searchBox.value.trim().toLowerCase();
+        const filtered = allProducts.filter(product => {
+          return (product.productName && product.productName.toLowerCase().includes(query)) ||
+                 (product.description && product.description.toLowerCase().includes(query)) ||
+                 (product.detectedCategory && product.detectedCategory.toLowerCase().includes(query));
+        });
+        displayProducts(filtered);
+      });
+      searchBox.addEventListener("keyup", (event) => {
+        if (event.key === "Enter") searchBtn.click();
+      });
+    }
 
-  // Afficher le bouton pour contacter le vendeur
-  const contactSellerButton = document.getElementById("contactSellerButton");
-  if (contactSellerButton) contactSellerButton.style.display = "block";
+    // Mise en place des filtres par catégorie
+    function setupCategoryFilters() {
+      const buttons = document.querySelectorAll('.category-button');
+      const productGrid = document.getElementById('productGrid');
+      const loadingIndicator = document.getElementById('loading');
+      buttons.forEach(button => {
+        button.addEventListener('click', () => {
+          const category = button.getAttribute('data-category');
+          loadingIndicator.style.display = 'block';
+          setTimeout(() => {
+            let filteredProducts;
+            if (category.toLowerCase() === 'tous') {
+              filteredProducts = allProducts;
+            } else {
+              filteredProducts = allProducts.filter(product =>
+                product.detectedCategory &&
+                product.detectedCategory.toLowerCase().includes(category.toLowerCase())
+              );
+            }
+            loadingIndicator.style.display = 'none';
+            if (filteredProducts.length === 0) {
+              productGrid.innerHTML = "<p style='text-align:center;'>Aucun produit trouvé pour cette catégorie.</p>";
+            } else {
+              displayProducts(filteredProducts);
+            }
+          }, 500);
+        });
+      });
+    }
 
-  // Charger les avis via l'API pour ce produit
-  loadReviews(product._id);
-}
+    // Fonction de détection automatique de catégorie
+    function aiDetectCategory(product, chosenCategory) {
+      if (chosenCategory) return chosenCategory.toLowerCase();
+      const name = product.productName ? product.productName.toLowerCase() : '';
+      const description = product.description ? product.description.toLowerCase() : '';
+      const imageUrl = product.imageUrl ? product.imageUrl.toLowerCase() : '';
+      const categoriesKeywords = {
+        "homme": ["homme", "men", "garçon", "costume", "habit", "veste", "pantalon", "chemise"],
+        "femme": ["femme", "woman", "dame", "robe", "jupe", "blouse", "maquillage", "sac à main"],
+        "garçon": ["garçon", "boy", "enfant garçon", "jeune homme", "ado garçon", "t-shirt garçon"],
+        "fille": ["fille", "girl", "jeune fille", "ado fille", "robe fille", "jupe fille"],
+        "bébé": ["bébé", "enfant", "nourrisson", "bambin"],
+        "cosmétique": ["cosmétique", "makeup", "maquillage", "parfum", "soin"],
+        "matériels": ["matériel", "outil", "machine"],
+        "accessoires": ["accessoire", "sac", "ceinture", "montre", "bijoux", "lunettes"],
+        "electronique": ["électronique", "smartphone", "ordinateur", "tablet", "tv", "caméra", "audio"],
+        "livres": ["livre", "book", "roman", "manga", "bd", "bande dessinée", "éducation"],
+        "sport": ["sport", "football", "basket", "tennis", "running", "fitness", "vélo", "musculation"]
+      };
+      for (const [category, keywords] of Object.entries(categoriesKeywords)) {
+        for (const keyword of keywords) {
+          if (name.includes(keyword) || description.includes(keyword) || imageUrl.includes(keyword)) {
+            return category;
+          }
+        }
+      }
+      return "autres";
+    }
 
-// Affichage des produits similaires dans la grille dédiée
-function displaySimilarProducts(products) {
-  const similarGrid = document.getElementById("similarGrid");
-  if (!similarGrid) return;
-  similarGrid.innerHTML = "";
-  if (products.length === 0) {
-    similarGrid.innerHTML = "<p>Aucun produit similaire trouvé.</p>";
-    return;
-  }
-  products.forEach(prod => {
-    const div = document.createElement("div");
-    div.className = "similar-item";
-    div.innerHTML = `
-      <img src="${prod.imageUrl}" alt="${prod.productName}">
-      <p>${prod.productName}</p>
-      <p>${prod.price} FCFA</p>
-    `;
-    div.onclick = () => showProductDetailView(prod);
-    similarGrid.appendChild(div);
-  });
+    // Fonction pour ajouter un produit au panier
+    function addToCart(name, price, description, imageUrl, sellerEmail, button) {
+      button.textContent = "Ajouté!";
+      button.disabled = true;
+      button.style.backgroundColor = "#28a745";
+      fetch('/api/add-to-cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, price, description, imageUrl, sellerEmail })
+      })
+      .then(response => response.ok ? response.json() : Promise.reject('Erreur API'))
+      .then(data => {
+        if (data.success) {
+          cartCount++;
+          updateCartCount();
+        } else {
+          throw new Error("Erreur lors de l'ajout au panier");
+        }
+      })
+      .catch(err => {
+        console.error("Échec lors de l'ajout au panier:", err);
+        button.textContent = "Réessayer";
+        button.disabled = false;
+      });
+      showNotification(`${name} ajouté au panier!`);
+    }
 
-  // Ajout d'une section pour soumettre un avis
-  const reviewForm = document.createElement("div");
-  reviewForm.className = "review-form";
-  reviewForm.innerHTML = `<h3>Donnez votre avis</h3>
-                          <textarea id="reviewComment" placeholder="Votre commentaire"></textarea>
-                          <select id="reviewRating">
-                            <option value="1">1 ★</option>
-                            <option value="2">2 ★</option>
-                            <option value="3">3 ★</option>
-                            <option value="4">4 ★</option>
-                            <option value="5">5 ★</option>
-                          </select>
-                          <button onclick="submitReview()">Soumettre</button>`;
-  similarGrid.appendChild(reviewForm);
-}
+    // Mise à jour du compteur du panier
+    function updateCartCount() {
+      document.getElementById("cartCount").textContent = cartCount;
+    }
 
-// Fonction pour soumettre un avis
-async function submitReview() {
-  const comment = document.getElementById("reviewComment").value;
-  const rating = document.getElementById("reviewRating").value;
-  if (!comment || !rating) {
-    alert("Veuillez remplir le commentaire et la note.");
-    return;
-  }
-  const reviewData = {
-    comment: comment,
-    rating: rating,
-    productId: currentProduct._id
-  };
-  try {
-    const response = await fetch('/api/reviews', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(reviewData)
-    });
-    const data = await response.json();
-    if (data.success) {
-      alert("Avis soumis avec succès !");
-      currentProduct.reviews.push(data.review);
+    // Affichage d'une notification temporaire
+    function showNotification(message) {
+      const notification = document.getElementById("notification");
+      if (!notification) return;
+      notification.textContent = message;
+      notification.classList.add("show");
+      setTimeout(() => notification.classList.remove("show"), 3000);
+    }
+
+    // Vue détaillée du produit
+    function showProductDetailView(product) {
+      currentProduct = product;
+      // Masquer la grille et afficher la section de détail
+      document.getElementById("productGrid").style.display = "none";
+      document.getElementById("detailSection").style.display = "block";
+
+      // Mise à jour des informations de base
+      document.getElementById("detailImage").src = product.imageUrl || "";
+      document.getElementById("detailImage").alt = product.productName || "Image du produit";
+      document.getElementById("detailName").innerText = product.productName || "Nom inconnu";
+      document.getElementById("detailDescription").innerText = product.description || "";
+      document.getElementById("detailPrice").innerText = product.price ? `${product.price.toFixed(2)} FCFA` : "";
+      document.getElementById("detailSeller").innerText = product.sellerEmail || "Inconnu";
+      
+      // Informations complémentaires
+      if (document.getElementById("detailDiscount"))
+        document.getElementById("detailDiscount").innerText = product.discount ? product.discount + (product.discountType === "percentage" ? " %" : " FCFA") : "Aucune remise";
+      if (document.getElementById("detailBrand"))
+        document.getElementById("detailBrand").innerText = product.brand || "Non spécifiée";
+      if (document.getElementById("detailSKU"))
+        document.getElementById("detailSKU").innerText = product.sku || "N/A";
+      if (document.getElementById("detailWeight"))
+        document.getElementById("detailWeight").innerText = product.weight ? product.weight + " kg" : "Non spécifié";
+      if (document.getElementById("detailDimensions") && product.dimensions) {
+        const { length, width, height } = product.dimensions;
+        document.getElementById("detailDimensions").innerText = `${length || 0} x ${width || 0} x ${height || 0} cm`;
+      }
+      if (document.getElementById("detailShippingCost"))
+        document.getElementById("detailShippingCost").innerText = product.shippingCost ? product.shippingCost + " FCFA" : "Gratuit";
+      if (document.getElementById("detailEstimatedDelivery"))
+        document.getElementById("detailEstimatedDelivery").innerText = product.estimatedDelivery ? product.estimatedDelivery + " jours" : "Non précisé";
+      if (document.getElementById("detailReturnPolicy"))
+        document.getElementById("detailReturnPolicy").innerText = product.returnPolicy || "Non spécifiée";
+      if (document.getElementById("detailWarranty"))
+        document.getElementById("detailWarranty").innerText = product.warranty || "Aucune";
+
+      if (document.getElementById("detailCreatedAt") && product.createdAt)
+        document.getElementById("detailCreatedAt").innerText = new Date(product.createdAt).toLocaleDateString();
+      if (document.getElementById("detailOrders") && product.orders !== undefined)
+        document.getElementById("detailOrders").innerText = product.orders;
+      if (document.getElementById("detailViews") && product.views !== undefined)
+        document.getElementById("detailViews").innerText = product.views;
+      if (document.getElementById("detailAddToCart") && product.addToCart !== undefined)
+        document.getElementById("detailAddToCart").innerText = product.addToCart;
+
+      // Gestion de la vidéo du produit
+      if (product.videoUrl) {
+        document.getElementById("detailVideo").src = product.videoUrl;
+        document.getElementById("detailVideo").style.display = "block";
+      } else {
+        document.getElementById("detailVideo").style.display = "none";
+      }
+
+      // Affichage de la galerie d'images complémentaires
+      const imageCarousel = document.getElementById("imageCarousel");
+      if (imageCarousel) {
+        imageCarousel.innerHTML = "";
+        if (Array.isArray(product.images)) {
+          product.images.forEach(imageUrl => {
+            const img = document.createElement("img");
+            img.src = imageUrl;
+            img.alt = product.productName;
+            imageCarousel.appendChild(img);
+          });
+        }
+      }
+
+      // Affichage des produits similaires (en utilisant une détection alternative si besoin)
+      const similarProducts = allProducts.filter(p => {
+        return (p._id !== product._id) && 
+          (p.detectedCategory === product.detectedCategory || aiDetectCategory(p) === aiDetectCategory(product));
+      });
+      displaySimilarProducts(similarProducts);
+
+      // Affichage des avis du produit
       const reviewSection = document.getElementById("reviewSection");
-      if (reviewSection) {
-        reviewSection.innerHTML += `<div class="review-item">
-          <p>${data.review.comment}</p>
-          <p>${data.review.rating} ★</p>
-        </div>`;
+      if (reviewSection) reviewSection.innerHTML = "";
+      if (Array.isArray(product.reviews)) {
+        product.reviews.forEach(review => {
+          const div = document.createElement("div");
+          div.className = "review-item";
+          div.innerHTML = `<p>${review.comment}</p><p>${review.rating} ★</p>`;
+          reviewSection.appendChild(div);
+        });
       }
-    } else {
-      alert("Erreur lors de la soumission de l'avis : " + data.message);
+
+      // Boutons de navigation (produit suivant/précédent)
+      const nextBtn = document.getElementById("nextProduct");
+      if (nextBtn) {
+        nextBtn.onclick = function() {
+          const currentIndex = allProducts.findIndex(p => p._id === currentProduct._id);
+          const nextProduct = allProducts[(currentIndex + 1) % allProducts.length];
+          showProductDetailView(nextProduct);
+        };
+      }
+      const prevBtn = document.getElementById("prevProduct");
+      if (prevBtn) {
+        prevBtn.onclick = function() {
+          const currentIndex = allProducts.findIndex(p => p._id === currentProduct._id);
+          const prevProduct = allProducts[(currentIndex - 1 + allProducts.length) % allProducts.length];
+          showProductDetailView(prevProduct);
+        };
+      }
+
+      // Afficher le bouton pour contacter le vendeur
+      const contactSellerButton = document.getElementById("contactSellerButton");
+      if (contactSellerButton) contactSellerButton.style.display = "block";
+
+      loadReviews(product._id);
     }
-  } catch (error) {
-    console.error('Erreur:', error);
-    alert("Une erreur s'est produite lors de la soumission de l'avis.");
-  }
-}
 
-// Fonction pour charger les avis d'un produit via l'API
-async function loadReviews(productId) {
-  try {
-    const response = await fetch(`/api/products/${productId}/reviews`);
-    const reviews = await response.json();
-    const reviewSection = document.getElementById("review-section");
-    if (!reviewSection) return;
-    if (reviews.length === 0) {
-      reviewSection.innerHTML = "<p>Aucun avis pour le moment.</p>";
-      return;
+    // Affichage des produits similaires dans la grille dédiée
+    function displaySimilarProducts(products) {
+      const similarGrid = document.getElementById("similarGrid");
+      if (!similarGrid) return;
+      similarGrid.innerHTML = "";
+      if (products.length === 0) {
+        similarGrid.innerHTML = "<p>Aucun produit similaire trouvé.</p>";
+        return;
+      }
+      products.forEach(prod => {
+        const div = document.createElement("div");
+        div.className = "similar-item";
+        div.innerHTML = `
+          <img src="${prod.imageUrl}" alt="${prod.productName}">
+          <p>${prod.productName}</p>
+          <p>${prod.price} FCFA</p>
+        `;
+        div.onclick = () => showProductDetailView(prod);
+        similarGrid.appendChild(div);
+      });
+      // Ajout d'une section pour soumettre un avis
+      const reviewForm = document.createElement("div");
+      reviewForm.className = "review-form";
+      reviewForm.innerHTML = `<h3>Donnez votre avis</h3>
+                              <textarea id="reviewComment" placeholder="Votre commentaire"></textarea>
+                              <select id="reviewRating">
+                                <option value="1">1 ★</option>
+                                <option value="2">2 ★</option>
+                                <option value="3">3 ★</option>
+                                <option value="4">4 ★</option>
+                                <option value="5">5 ★</option>
+                              </select>
+                              <button onclick="submitReview()">Soumettre</button>`;
+      similarGrid.appendChild(reviewForm);
     }
-    reviewSection.innerHTML = reviews.map(review => {
-      const stars = "★".repeat(review.rating) + "☆".repeat(5 - review.rating);
-      return `
-        <div class="review">
-          <p><strong>${review.userName || "Utilisateur"}</strong> - ${stars}</p>
-          <p>${review.comment}</p>
-        </div>
-      `;
-    }).join("");
-  } catch (err) {
-    console.error("Erreur lors du chargement des avis:", err);
-  }
-}
 
-// Fonction pour masquer la section de détail et revenir à la grille de produits
-function hideDetailSection() {
-  document.getElementById("detailSection").style.display = "none";
-  document.getElementById("productGrid").style.display = "grid";
-}
+    async function submitReview() {
+      const comment = document.getElementById("reviewComment").value;
+      const rating = document.getElementById("reviewRating").value;
+      if (!comment || !rating) {
+        alert("Veuillez remplir le commentaire et la note.");
+        return;
+      }
+      const reviewData = {
+        comment: comment,
+        rating: rating,
+        productId: currentProduct._id
+      };
+      try {
+        const response = await fetch('/api/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(reviewData)
+        });
+        const data = await response.json();
+        if (data.success) {
+          alert("Avis soumis avec succès !");
+          currentProduct.reviews.push(data.review);
+          const reviewSection = document.getElementById("reviewSection");
+          if (reviewSection) {
+            reviewSection.innerHTML += `<div class="review-item">
+              <p>${data.review.comment}</p>
+              <p>${data.review.rating} ★</p>
+            </div>`;
+          }
+        } else {
+          alert("Erreur lors de la soumission de l'avis : " + data.message);
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        alert("Une erreur s'est produite lors de la soumission de l'avis.");
+      }
+    }
 
-// Fonction pour le bouton "Commander" qui ajoute le produit au panier
-function orderProduct(button) {
-  if (!currentProduct) return;
-  addToCart(
-    currentProduct.productName,
-    currentProduct.price,
-    currentProduct.description,
-    currentProduct.imageUrl,
-    currentProduct.sellerEmail,
-    button
-  );
-}
+    async function loadReviews(productId) {
+      try {
+        const response = await fetch(`/api/products/${productId}/reviews`);
+        const reviews = await response.json();
+        const reviewSection = document.getElementById("review-section");
+        if (!reviewSection) return;
+        if (reviews.length === 0) {
+          reviewSection.innerHTML = "<p>Aucun avis pour le moment.</p>";
+          return;
+        }
+        reviewSection.innerHTML = reviews.map(review => {
+          const stars = "★".repeat(review.rating) + "☆".repeat(5 - review.rating);
+          return `
+            <div class="review">
+              <p><strong>${review.userName || "Utilisateur"}</strong> - ${stars}</p>
+              <p>${review.comment}</p>
+            </div>
+          `;
+        }).join("");
+      } catch (err) {
+        console.error("Erreur lors du chargement des avis:", err);
+      }
+    }
 
-// Filtrage des produits par mot-clé (utilisé dans la sidebar)
-function filterProductsByKeyword(keyword) {
-  const searchText = keyword.toLowerCase();
-  const filtered = allProducts.filter(product => {
-    return (product.productName && product.productName.toLowerCase().includes(searchText)) ||
-           (product.description && product.description.toLowerCase().includes(searchText)) ||
-           (product.detectedCategory && product.detectedCategory.toLowerCase().includes(searchText));
-  });
-  displayProducts(filtered);
-}
+    function hideDetailSection() {
+      document.getElementById("detailSection").style.display = "none";
+      document.getElementById("productGrid").style.display = "grid";
+    }
 
-// Fonction pour envoyer un message au vendeur
-function contactSeller() {
-  const messageInput = document.getElementById("contactSellerMessage");
-  const message = messageInput ? messageInput.value : "";
-  if (!message.trim()) {
-    alert("Veuillez saisir votre message.");
-    return;
-  }
-  // Implémenter ici la logique d'envoi du message au vendeur via une API
-  alert("Message envoyé au vendeur : " + message);
-  if (messageInput) messageInput.value = "";
-}
+    function orderProduct(button) {
+      if (!currentProduct) return;
+      addToCart(
+        currentProduct.productName,
+        currentProduct.price,
+        currentProduct.description,
+        currentProduct.imageUrl,
+        currentProduct.sellerEmail,
+        button
+      );
+    }
 
-// Mise en place des filtres de la sidebar (si un tableau de filtres existe)
-function setupSidebarFilters() {
-  const rows = document.querySelectorAll('#filterTable td');
-  rows.forEach(row => {
-    row.addEventListener('click', () => {
-      const keyword = row.textContent.trim();
-      filterProductsByKeyword(keyword);
+    function filterProductsByKeyword(keyword) {
+      const searchText = keyword.toLowerCase();
+      const filtered = allProducts.filter(product => {
+        return (product.productName && product.productName.toLowerCase().includes(searchText)) ||
+               (product.description && product.description.toLowerCase().includes(searchText)) ||
+               (product.detectedCategory && product.detectedCategory.toLowerCase().includes(searchText));
+      });
+      displayProducts(filtered);
+    }
+
+    function contactSeller() {
+      const messageInput = document.getElementById("contactSellerMessage");
+      const message = messageInput ? messageInput.value : "";
+      if (!message.trim()) {
+        alert("Veuillez saisir votre message.");
+        return;
+      }
+      alert("Message envoyé au vendeur : " + message);
+      if (messageInput) messageInput.value = "";
+    }
+
+    function setupSidebarFilters() {
+      const rows = document.querySelectorAll('#filterTable td');
+      rows.forEach(row => {
+        row.addEventListener('click', () => {
+          const keyword = row.textContent.trim();
+          filterProductsByKeyword(keyword);
+        });
+      });
+    }
+
+    async function loadPopularProducts() {
+      try {
+        const response = await fetch("/api/products/popular");
+        const produits = await response.json();
+        const container = document.getElementById("popularProducts");
+        if (!container) return;
+        if (produits.length === 0) {
+          container.innerHTML = "<p>Aucun produit populaire trouvé.</p>";
+          return;
+        }
+        container.innerHTML = produits.map(produit => `
+          <div class="popular-item">
+            <span class="badge">Populaire</span>
+            <img src="${produit.imageUrl}" alt="${produit.productName}">
+            <p>${produit.productName}</p>
+            <p>${produit.price} FCFA</p>
+          </div>
+        `).join("");
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const carousel = document.querySelector(".popular-carousel");
+      if (carousel) {
+        setInterval(() => {
+          carousel.scrollBy({ left: 200, behavior: "smooth" });
+          if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth) {
+            carousel.scrollTo({ left: 0, behavior: "smooth" });
+          }
+        }, 3000);
+      }
+      loadPopularProducts();
     });
-  });
-}
 
-// Chargement des produits populaires et affichage dans la section dédiée
-async function loadPopularProducts() {
-  try {
-    const response = await fetch("/api/products/popular");
-    const produits = await response.json();
-    const container = document.getElementById("popularProducts");
-    if (!container) return;
-    if (produits.length === 0) {
-      container.innerHTML = "<p>Aucun produit populaire trouvé.</p>";
-      return;
+    // Fonctions pour le menu profil
+    function toggleProfileMenu(event) {
+      event.stopPropagation();
+      const menu = document.getElementById("profileMenu");
+      menu.style.display = (menu.style.display === "block") ? "none" : "block";
     }
-    container.innerHTML = produits.map(produit => `
-      <div class="popular-item">
-        <span class="badge">Populaire</span>
-        <img src="${produit.imageUrl}" alt="${produit.productName}">
-        <p>${produit.productName}</p>
-        <p>${produit.price} FCFA</p>
-      </div>
-    `).join("");
-  } catch (err) {
-    console.error(err);
-  }
-}
+    function goToAccount() {
+      alert("Redirection vers Mon Compte");
+    }
+    function goToSettings() {
+      alert("Redirection vers Réglages");
+    }
+    function logout() {
+      alert("Déconnexion");
+    }
 
-// Initialisation du carrousel pour les produits populaires
-document.addEventListener("DOMContentLoaded", function () {
-  const carousel = document.querySelector(".popular-carousel");
-  if (carousel) {
-    setInterval(() => {
-      carousel.scrollBy({ left: 200, behavior: "smooth" });
-      if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth) {
-        carousel.scrollTo({ left: 0, behavior: "smooth" });
-      }
-    }, 3000);
-  }
-  loadPopularProducts();
-});
-
-// Exposition de certaines fonctions pour utilisation dans les attributs HTML inline
-window.showProductDetailView = showProductDetailView;
-window.hideDetailSection = hideDetailSection;
-window.orderProduct = orderProduct;
-window.contactSeller = contactSeller;
-window.filterProductsByKeyword = filterProductsByKeyword;
+    // Exposition de certaines fonctions pour utilisation inline
+    window.showProductDetailView = showProductDetailView;
+    window.hideDetailSection = hideDetailSection;
+    window.orderProduct = orderProduct;
+    window.contactSeller = contactSeller;
+    window.filterProductsByKeyword = filterProductsByKeyword;
   </script>
 </body>
 </html>

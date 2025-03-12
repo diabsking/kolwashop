@@ -274,7 +274,7 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    /* Modal pour les détails du produit */
+    /* Modal pour les détails d'un produit */
     #productModal {
       display: none;
       position: fixed;
@@ -484,113 +484,181 @@
     </div>
   </div>
 
+  <!-- Section de détail du produit -->
+  <div id="detailSection" style="display: none;">
+    <img id="detailImage" src="" alt="">
+    <div id="imageCarousel" class="carousel"></div>
+    <video id="detailVideo" controls style="display: none;"></video>
+    <h1 id="detailName"></h1>
+    <p id="detailDescription"></p>
+    <p id="detailPrice"></p>
+    <p id="detailSeller"></p>
+    <p id="detailStock"></p>
+    <p id="detailCreatedAt"></p>
+    <p id="detailOrders"></p>
+    <p id="detailViews"></p>
+    <p id="detailAddToCart"></p>
+    <!-- Informations complémentaires -->
+    <p id="detailDiscount"></p>
+    <p id="detailBrand"></p>
+    <p id="detailSKU"></p>
+    <p id="detailWeight"></p>
+    <p id="detailDimensions"></p>
+    <p id="detailShippingCost"></p>
+    <p id="detailEstimatedDelivery"></p>
+    <p id="detailReturnPolicy"></p>
+    <p id="detailWarranty"></p>
+    <div id="reviewSection"></div>
+    <button id="contactSellerButton" style="display: none;">Contacter le vendeur</button>
+    <button id="addToCartButton">Ajouter au panier</button>
+    <button id="buyNowButton">Acheter maintenant</button>
+    <button id="prevProduct">Produit précédent</button>
+    <button id="nextProduct">Produit suivant</button>
+    <div id="similarGrid"></div>
+    <!-- Section pour discuter avec le vendeur -->
+    <div id="contactSellerSection">
+      <h3>Discuter avec le vendeur</h3>
+      <textarea id="contactSellerMessage" placeholder="Votre message"></textarea>
+      <button onclick="contactSeller()">Envoyer</button>
+    </div>
+  </div>
+  <div id="review-section">
+    <!-- Les avis clients s'afficheront ici -->
+  </div>
+
   <script>
-// Soumission du formulaire
-document.getElementById("productForm").addEventListener("submit", async function(event) {
-  event.preventDefault();
-  
-  const productName = document.getElementById("productName").value;
-  const description = document.getElementById("description").value;
-  const category = document.getElementById("category").value;
-  const price = document.getElementById("price").value;
-  const deliveryTime = document.getElementById("deliveryTime").value;
-  const image = document.getElementById("image").files[0];
+    // Variables globales
+    let allProducts = [];
+    let cartCount = 0;
+    let currentProduct = null;
 
-  // Champs optionnels
-  const photos = document.getElementById("photos").files;
-  const video = document.getElementById("video").files[0];
-  const discount = document.getElementById("discount").value;
-  const discountType = document.getElementById("discountType").value;
-  const brand = document.getElementById("brand").value;
-  const stock = document.getElementById("stock").value;
-  const sku = document.getElementById("sku").value;
-  const weight = document.getElementById("weight").value;
-  const length = document.getElementById("length").value;
-  const width = document.getElementById("width").value;
-  const height = document.getElementById("height").value;
-  const shippingCost = document.getElementById("shippingCost").value;
-  const estimatedDelivery = document.getElementById("estimatedDelivery").value;
-  const returnPolicy = document.getElementById("returnPolicy").value;
-  const warranty = document.getElementById("warranty").value;
+    // Fonction pour afficher/cacher le formulaire de publication
+    function togglePublicationForm() {
+      const formSection = document.getElementById("publicationForm");
+      if (formSection.style.display === "none" || formSection.style.display === "") {
+        formSection.style.display = "block";
+      } else {
+        formSection.style.display = "none";
+      }
+    }
 
-  if (!image) {
-    document.getElementById("publishMessage").innerText = "Veuillez ajouter une image principale.";
-    document.getElementById("publishMessage").style.color = "#dc3545";
-    return;
-  }
-  if (!category) {
-    document.getElementById("publishMessage").innerText = "Veuillez sélectionner une catégorie.";
-    document.getElementById("publishMessage").style.color = "#dc3545";
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('productName', productName);
-  formData.append('description', description);
-  formData.append('category', category);
-  formData.append('price', price);
-  formData.append('deliveryTime', deliveryTime);
-  formData.append('image', image);
-
-  // Ajoute les photos complémentaires (si sélectionnées)
-  for (let i = 0; i < photos.length; i++) {
-    formData.append('photos', photos[i]);
-  }
-
-  // Ajoute la vidéo (si sélectionnée)
-  if (video) {
-    formData.append('video', video);
-  }
-
-  // Champs optionnels
-  formData.append('discount', discount);
-  formData.append('discountType', discountType);
-  formData.append('brand', brand);
-  formData.append('stock', stock);
-  formData.append('sku', sku);
-  formData.append('weight', weight);
-  formData.append('length', length);
-  formData.append('width', width);
-  formData.append('height', height);
-  formData.append('shippingCost', shippingCost);
-  formData.append('estimatedDelivery', estimatedDelivery);
-  formData.append('returnPolicy', returnPolicy);
-  formData.append('warranty', warranty);
-
-  const token = localStorage.getItem('token');
-  if (!token) {
-    document.getElementById("publishMessage").innerText = "Vous devez être connecté.";
-    document.getElementById("publishMessage").style.color = "#dc3545";
-    return;
-  }
-
-  try {
-    const response = await fetch('/api/products/publish', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
-      body: formData
+    // Initialisation unique lors du chargement de la page
+    window.addEventListener('load', function() {
+      loadProducts();
+      setupCategoryFilters();
+      setupSearch();
+      setupSidebarFilters();
+      displayConfirmationMessage();
+      fetchSellerProducts();
     });
 
-    const result = await response.json();
-    console.log(result); // Pour déboguer
+    // Soumission du formulaire
+    document.getElementById("productForm").addEventListener("submit", async function(event) {
+      event.preventDefault();
+      
+      const productName = document.getElementById("productName").value;
+      const description = document.getElementById("description").value;
+      const category = document.getElementById("category").value;
+      const price = document.getElementById("price").value;
+      const deliveryTime = document.getElementById("deliveryTime").value;
+      const image = document.getElementById("image").files[0];
 
-    document.getElementById("publishMessage").innerText = result.message;
-    if (response.ok) {
-      document.getElementById("publishMessage").style.color = "green";
-      document.getElementById("productForm").reset();
-      fetchSellerProducts();
-    } else {
-      document.getElementById("publishMessage").style.color = "#dc3545";
-    }
-  } catch (error) {
-    console.error('Erreur:', error);
-    document.getElementById("publishMessage").innerText = "Erreur lors de la publication.";
-    document.getElementById("publishMessage").style.color = "#dc3545";
-  }
-});
-// Récupération et affichage des produits du vendeur
+      // Champs optionnels
+      const photos = document.getElementById("photos").files;
+      const video = document.getElementById("video").files[0];
+      const discount = document.getElementById("discount").value;
+      const discountType = document.getElementById("discountType").value;
+      const brand = document.getElementById("brand").value;
+      const stock = document.getElementById("stock").value;
+      const sku = document.getElementById("sku").value;
+      const weight = document.getElementById("weight").value;
+      const length = document.getElementById("length").value;
+      const width = document.getElementById("width").value;
+      const height = document.getElementById("height").value;
+      const shippingCost = document.getElementById("shippingCost").value;
+      const estimatedDelivery = document.getElementById("estimatedDelivery").value;
+      const returnPolicy = document.getElementById("returnPolicy").value;
+      const warranty = document.getElementById("warranty").value;
+
+      if (!image) {
+        document.getElementById("publishMessage").innerText = "Veuillez ajouter une image principale.";
+        document.getElementById("publishMessage").style.color = "#dc3545";
+        return;
+      }
+      if (!category) {
+        document.getElementById("publishMessage").innerText = "Veuillez sélectionner une catégorie.";
+        document.getElementById("publishMessage").style.color = "#dc3545";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('productName', productName);
+      formData.append('description', description);
+      formData.append('category', category);
+      formData.append('price', price);
+      formData.append('deliveryTime', deliveryTime);
+      formData.append('image', image);
+
+      // Ajoute les photos complémentaires (si sélectionnées)
+      for (let i = 0; i < photos.length; i++) {
+        formData.append('photos', photos[i]);
+      }
+
+      // Ajoute la vidéo (si sélectionnée)
+      if (video) {
+        formData.append('video', video);
+      }
+
+      // Champs optionnels
+      formData.append('discount', discount);
+      formData.append('discountType', discountType);
+      formData.append('brand', brand);
+      formData.append('stock', stock);
+      formData.append('sku', sku);
+      formData.append('weight', weight);
+      formData.append('length', length);
+      formData.append('width', width);
+      formData.append('height', height);
+      formData.append('shippingCost', shippingCost);
+      formData.append('estimatedDelivery', estimatedDelivery);
+      formData.append('returnPolicy', returnPolicy);
+      formData.append('warranty', warranty);
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        document.getElementById("publishMessage").innerText = "Vous devez être connecté.";
+        document.getElementById("publishMessage").style.color = "#dc3545";
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/products/publish', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        const result = await response.json();
+        console.log(result); // Pour déboguer
+
+        document.getElementById("publishMessage").innerText = result.message;
+        if (response.ok) {
+          document.getElementById("publishMessage").style.color = "green";
+          document.getElementById("productForm").reset();
+          fetchSellerProducts();
+        } else {
+          document.getElementById("publishMessage").style.color = "#dc3545";
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        document.getElementById("publishMessage").innerText = "Erreur lors de la publication.";
+        document.getElementById("publishMessage").style.color = "#dc3545";
+      }
+    });
+
+    // Récupération et affichage des produits du vendeur
     async function fetchSellerProducts() {
       const token = localStorage.getItem('token');
       if (!token) return;
@@ -666,28 +734,28 @@ document.getElementById("productForm").addEventListener("submit", async function
     function editProduct(productId) {
       window.location.href = `/modification.html?id=${productId}`;
     }
-function showProductDetails(product) {
-  // Vérifiez que chaque élément existe avant de mettre à jour son contenu
-  const modal = document.getElementById("productModal");
-  const productName = document.getElementById("modalProductName");
-  const productImage = document.getElementById("modalProductImage");
-  const productDescription = document.getElementById("modalProductDescription");
-  const productPrice = document.getElementById("modalProductPrice");
-  const productDelivery = document.getElementById("modalProductDelivery");
 
-  if (!modal || !productName || !productImage || !productDescription || !productPrice || !productDelivery) {
-    console.error("Élément modal manquant");
-    return;
-  }
+    function showProductDetails(product) {
+      const modal = document.getElementById("productModal");
+      const productName = document.getElementById("modalProductName");
+      const productImage = document.getElementById("modalProductImage");
+      const productDescription = document.getElementById("modalProductDescription");
+      const productPrice = document.getElementById("modalProductPrice");
+      const productDelivery = document.getElementById("modalProductDelivery");
 
-  productName.innerText = product.productName;
-  productImage.src = product.imageUrl;
-  productImage.alt = product.productName;
-  productDescription.innerText = product.description;
-  productPrice.innerText = `${product.price} FCFA`;
-  productDelivery.innerText = product.deliveryTime;
-  modal.style.display = "block";
-}
+      if (!modal || !productName || !productImage || !productDescription || !productPrice || !productDelivery) {
+        console.error("Élément modal manquant");
+        return;
+      }
+
+      productName.innerText = product.productName;
+      productImage.src = product.imageUrl;
+      productImage.alt = product.productName;
+      productDescription.innerText = product.description;
+      productPrice.innerText = `${product.price} FCFA`;
+      productDelivery.innerText = product.deliveryTime;
+      modal.style.display = "block";
+    }
 
     function displayConfirmationMessage() {
       const message = localStorage.getItem('updateMessage');
@@ -717,10 +785,303 @@ function showProductDetails(product) {
       alert("Déconnexion");
     }
 
-    window.onload = function() {
-      displayConfirmationMessage();
-      fetchSellerProducts();
-    };
+    // Vue détaillée du produit
+    function showProductDetailView(product) {
+      currentProduct = product;
+      // Masquer la liste des produits et afficher la section de détail
+      document.getElementById("productList").style.display = "none";
+      document.getElementById("detailSection").style.display = "block";
+
+      // Mise à jour des informations de base
+      document.getElementById("detailImage").src = product.imageUrl || "";
+      document.getElementById("detailImage").alt = product.productName || "Image du produit";
+      document.getElementById("detailName").innerText = product.productName || "Nom inconnu";
+      document.getElementById("detailDescription").innerText = product.description || "";
+      document.getElementById("detailPrice").innerText = product.price ? `${product.price.toFixed(2)} FCFA` : "";
+      document.getElementById("detailSeller").innerText = product.sellerEmail || "Inconnu";
+      
+      // Informations complémentaires
+      if (document.getElementById("detailDiscount"))
+        document.getElementById("detailDiscount").innerText = product.discount ? product.discount + (product.discountType === "percentage" ? " %" : " FCFA") : "Aucune remise";
+      if (document.getElementById("detailBrand"))
+        document.getElementById("detailBrand").innerText = product.brand || "Non spécifiée";
+      if (document.getElementById("detailSKU"))
+        document.getElementById("detailSKU").innerText = product.sku || "N/A";
+      if (document.getElementById("detailWeight"))
+        document.getElementById("detailWeight").innerText = product.weight ? product.weight + " kg" : "Non spécifié";
+      if (document.getElementById("detailDimensions") && product.dimensions) {
+        const { length, width, height } = product.dimensions;
+        document.getElementById("detailDimensions").innerText = `${length || 0} x ${width || 0} x ${height || 0} cm`;
+      }
+      if (document.getElementById("detailShippingCost"))
+        document.getElementById("detailShippingCost").innerText = product.shippingCost ? product.shippingCost + " FCFA" : "Gratuit";
+      if (document.getElementById("detailEstimatedDelivery"))
+        document.getElementById("detailEstimatedDelivery").innerText = product.estimatedDelivery ? product.estimatedDelivery + " jours" : "Non précisé";
+      if (document.getElementById("detailReturnPolicy"))
+        document.getElementById("detailReturnPolicy").innerText = product.returnPolicy || "Non spécifiée";
+      if (document.getElementById("detailWarranty"))
+        document.getElementById("detailWarranty").innerText = product.warranty || "Aucune";
+
+      if (document.getElementById("detailCreatedAt") && product.createdAt)
+        document.getElementById("detailCreatedAt").innerText = new Date(product.createdAt).toLocaleDateString();
+      if (document.getElementById("detailOrders") && product.orders !== undefined)
+        document.getElementById("detailOrders").innerText = product.orders;
+      if (document.getElementById("detailViews") && product.views !== undefined)
+        document.getElementById("detailViews").innerText = product.views;
+      if (document.getElementById("detailAddToCart") && product.addToCart !== undefined)
+        document.getElementById("detailAddToCart").innerText = product.addToCart;
+
+      // Gestion de la vidéo du produit
+      if (product.videoUrl) {
+        document.getElementById("detailVideo").src = product.videoUrl;
+        document.getElementById("detailVideo").style.display = "block";
+      } else {
+        document.getElementById("detailVideo").style.display = "none";
+      }
+
+      // Galerie d'images complémentaires
+      const imageCarousel = document.getElementById("imageCarousel");
+      if (imageCarousel) {
+        imageCarousel.innerHTML = "";
+        if (Array.isArray(product.images)) {
+          product.images.forEach(imageUrl => {
+            const img = document.createElement("img");
+            img.src = imageUrl;
+            img.alt = product.productName;
+            imageCarousel.appendChild(img);
+          });
+        }
+      }
+
+      // Affichage des produits similaires
+      const similarProducts = allProducts.filter(p => 
+        p.detectedCategory === product.detectedCategory && p._id !== product._id
+      );
+      displaySimilarProducts(similarProducts);
+
+      // Affichage des avis du produit
+      const reviewSection = document.getElementById("reviewSection");
+      if (reviewSection) reviewSection.innerHTML = "";
+      if (Array.isArray(product.reviews)) {
+        product.reviews.forEach(review => {
+          const div = document.createElement("div");
+          div.className = "review-item";
+          div.innerHTML = `<p>${review.comment}</p><p>${review.rating} ★</p>`;
+          reviewSection.appendChild(div);
+        });
+      }
+      
+      // Boutons de navigation (produit suivant/précédent)
+      const nextBtn = document.getElementById("nextProduct");
+      if (nextBtn) {
+        nextBtn.onclick = function() {
+          const currentIndex = allProducts.findIndex(p => p._id === currentProduct._id);
+          const nextProduct = allProducts[(currentIndex + 1) % allProducts.length];
+          showProductDetailView(nextProduct);
+        };
+      }
+      const prevBtn = document.getElementById("prevProduct");
+      if (prevBtn) {
+        prevBtn.onclick = function() {
+          const currentIndex = allProducts.findIndex(p => p._id === currentProduct._id);
+          const prevProduct = allProducts[(currentIndex - 1 + allProducts.length) % allProducts.length];
+          showProductDetailView(prevProduct);
+        };
+      }
+
+      // Afficher le bouton pour contacter le vendeur
+      const contactSellerButton = document.getElementById("contactSellerButton");
+      if (contactSellerButton) contactSellerButton.style.display = "block";
+
+      loadReviews(product._id);
+    }
+
+    function displaySimilarProducts(products) {
+      const similarGrid = document.getElementById("similarGrid");
+      if (!similarGrid) return;
+      similarGrid.innerHTML = "";
+      if (products.length === 0) {
+        similarGrid.innerHTML = "<p>Aucun produit similaire trouvé.</p>";
+        return;
+      }
+      products.forEach(prod => {
+        const div = document.createElement("div");
+        div.className = "similar-item";
+        div.innerHTML = `
+          <img src="${prod.imageUrl}" alt="${prod.productName}">
+          <p>${prod.productName}</p>
+          <p>${prod.price} FCFA</p>
+        `;
+        div.onclick = () => showProductDetailView(prod);
+        similarGrid.appendChild(div);
+      });
+
+      const reviewForm = document.createElement("div");
+      reviewForm.className = "review-form";
+      reviewForm.innerHTML = `<h3>Donnez votre avis</h3>
+                              <textarea id="reviewComment" placeholder="Votre commentaire"></textarea>
+                              <select id="reviewRating">
+                                <option value="1">1 ★</option>
+                                <option value="2">2 ★</option>
+                                <option value="3">3 ★</option>
+                                <option value="4">4 ★</option>
+                                <option value="5">5 ★</option>
+                              </select>
+                              <button onclick="submitReview()">Soumettre</button>`;
+      similarGrid.appendChild(reviewForm);
+    }
+
+    async function submitReview() {
+      const comment = document.getElementById("reviewComment").value;
+      const rating = document.getElementById("reviewRating").value;
+      if (!comment || !rating) {
+        alert("Veuillez remplir le commentaire et la note.");
+        return;
+      }
+      const reviewData = {
+        comment: comment,
+        rating: rating,
+        productId: currentProduct._id
+      };
+      try {
+        const response = await fetch('/api/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(reviewData)
+        });
+        const data = await response.json();
+        if (data.success) {
+          alert("Avis soumis avec succès !");
+          currentProduct.reviews.push(data.review);
+          const reviewSection = document.getElementById("reviewSection");
+          if (reviewSection) {
+            reviewSection.innerHTML += `<div class="review-item">
+              <p>${data.review.comment}</p>
+              <p>${data.review.rating} ★</p>
+            </div>`;
+          }
+        } else {
+          alert("Erreur lors de la soumission de l'avis : " + data.message);
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        alert("Une erreur s'est produite lors de la soumission de l'avis.");
+      }
+    }
+
+    async function loadReviews(productId) {
+      try {
+        const response = await fetch(`/api/products/${productId}/reviews`);
+        const reviews = await response.json();
+        const reviewSection = document.getElementById("review-section");
+        if (!reviewSection) return;
+        if (reviews.length === 0) {
+          reviewSection.innerHTML = "<p>Aucun avis pour le moment.</p>";
+          return;
+        }
+        reviewSection.innerHTML = reviews.map(review => {
+          const stars = "★".repeat(review.rating) + "☆".repeat(5 - review.rating);
+          return `
+            <div class="review">
+              <p><strong>${review.userName || "Utilisateur"}</strong> - ${stars}</p>
+              <p>${review.comment}</p>
+            </div>
+          `;
+        }).join("");
+      } catch (err) {
+        console.error("Erreur lors du chargement des avis:", err);
+      }
+    }
+
+    function hideDetailSection() {
+      document.getElementById("detailSection").style.display = "none";
+      document.getElementById("productList").style.display = "block";
+    }
+
+    function orderProduct(button) {
+      if (!currentProduct) return;
+      addToCart(
+        currentProduct.productName,
+        currentProduct.price,
+        currentProduct.description,
+        currentProduct.imageUrl,
+        currentProduct.sellerEmail,
+        button
+      );
+    }
+
+    function filterProductsByKeyword(keyword) {
+      const searchText = keyword.toLowerCase();
+      const filtered = allProducts.filter(product => {
+        return (product.productName && product.productName.toLowerCase().includes(searchText)) ||
+               (product.description && product.description.toLowerCase().includes(searchText)) ||
+               (product.detectedCategory && product.detectedCategory.toLowerCase().includes(searchText));
+      });
+      displayProducts(filtered);
+    }
+
+    function contactSeller() {
+      const messageInput = document.getElementById("contactSellerMessage");
+      const message = messageInput ? messageInput.value : "";
+      if (!message.trim()) {
+        alert("Veuillez saisir votre message.");
+        return;
+      }
+      alert("Message envoyé au vendeur : " + message);
+      if (messageInput) messageInput.value = "";
+    }
+
+    function setupSidebarFilters() {
+      const rows = document.querySelectorAll('#filterTable td');
+      rows.forEach(row => {
+        row.addEventListener('click', () => {
+          const keyword = row.textContent.trim();
+          filterProductsByKeyword(keyword);
+        });
+      });
+    }
+
+    async function loadPopularProducts() {
+      try {
+        const response = await fetch("/api/products/popular");
+        const produits = await response.json();
+        const container = document.getElementById("popularProducts");
+        if (!container) return;
+        if (produits.length === 0) {
+          container.innerHTML = "<p>Aucun produit populaire trouvé.</p>";
+          return;
+        }
+        container.innerHTML = produits.map(produit => `
+          <div class="popular-item">
+            <span class="badge">Populaire</span>
+            <img src="${produit.imageUrl}" alt="${produit.productName}">
+            <p>${produit.productName}</p>
+            <p>${produit.price} FCFA</p>
+          </div>
+        `).join("");
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const carousel = document.querySelector(".popular-carousel");
+      if (carousel) {
+        setInterval(() => {
+          carousel.scrollBy({ left: 200, behavior: "smooth" });
+          if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth) {
+            carousel.scrollTo({ left: 0, behavior: "smooth" });
+          }
+        }, 3000);
+      }
+      loadPopularProducts();
+    });
+
+    window.showProductDetailView = showProductDetailView;
+    window.hideDetailSection = hideDetailSection;
+    window.orderProduct = orderProduct;
+    window.contactSeller = contactSeller;
+    window.filterProductsByKeyword = filterProductsByKeyword;
   </script>
 </body>
 </html>
