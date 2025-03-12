@@ -1102,26 +1102,20 @@ footer {
   <div id="productContainer"></div>
   
   <script>
-    // Variables globales
+       // Variables globales
     let allProducts = [];
     let cartCount = 0;
     let currentProduct = null;
 
-    // Fonction pour afficher/cacher le formulaire de publication (si utilisé)
+    // Fonctions utilitaires manquantes (dummy)
     function togglePublicationForm() {
       const formSection = document.getElementById("publicationForm");
       if(formSection) {
         formSection.style.display = (formSection.style.display === "block") ? "none" : "block";
       }
     }
-
-    // Fonctions manquantes (dummy)
-    function displayConfirmationMessage() {
-      console.log("Confirmation message affichée.");
-    }
-    function fetchSellerProducts() {
-      console.log("fetchSellerProducts appelé.");
-    }
+    function displayConfirmationMessage() { console.log("Confirmation affichée."); }
+    function fetchSellerProducts() { console.log("fetchSellerProducts appelé."); }
     function setupSidebarFilters() {
       const rows = document.querySelectorAll('#filterTable td');
       rows.forEach(row => {
@@ -1145,12 +1139,11 @@ footer {
       const reviewSection = document.getElementById("review-section");
       reviewSection.innerHTML = "<p>Aucun avis pour le moment.</p>";
     }
-  // Fonction pour masquer la section détail et afficher la grille de produits
-function hideDetailSection() {
-  document.getElementById("detailSection").style.display = "none";
-  document.getElementById("productGrid").style.display = "grid";
-  currentProduct = null; // Optionnel : réinitialiser le produit sélectionné
-}
+    function hideDetailSection() {
+      document.getElementById("detailSection").style.display = "none";
+      document.getElementById("productGrid").style.display = "grid";
+      currentProduct = null;
+    }
     function orderProduct(button) {
       if (!currentProduct) return;
       addToCart(currentProduct.productName, currentProduct.price, currentProduct.description, currentProduct.imageUrl, currentProduct.sellerEmail, button);
@@ -1164,7 +1157,6 @@ function hideDetailSection() {
       setupSidebarFilters();
       displayConfirmationMessage();
       fetchSellerProducts();
-      // Événement pour le bouton "Ajouter au panier" dans la vue détaillée
       document.getElementById("addToCartButton").addEventListener("click", function() {
         if (currentProduct) {
           addToCart(currentProduct.productName, currentProduct.price, currentProduct.description, currentProduct.imageUrl, currentProduct.sellerEmail, this);
@@ -1217,7 +1209,7 @@ function hideDetailSection() {
         const productItem = document.createElement("div");
         productItem.className = 'grid-item';
 
-        // Badge "Nouveau"
+        // Badge "Nouveau" si le produit est récent
         let badgeHTML = '';
         if (product.publishedAt) {
           const publishedDate = new Date(product.publishedAt);
@@ -1233,17 +1225,15 @@ function hideDetailSection() {
              <img src="${product.imageUrl}" alt="${product.productName}" class="product-image">
              ${badgeHTML}
            </div>
-           <div class="product-name">
-             ${product.productName}
-           </div>
+           <div class="product-name">${product.productName}</div>
            <div class="product-description" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
              ${product.description}
            </div>
            <div class="product-price">${product.price} FCFA</div>`;
-           
-        // Navigation vers la vue détaillée au clic sur le produit
+
+        // Redirection vers la page de détail lors du clic sur le conteneur
         productItem.addEventListener("click", () => {
-          showProductDetailView(product);
+          window.location.href = `detail.html?id=${product._id}`;
         });
 
         productGrid.appendChild(productItem);
@@ -1368,129 +1358,6 @@ function hideDetailSection() {
       setTimeout(() => notification.classList.remove("show"), 3000);
     }
 
-    // Affichage de la vue détail d'un produit
-    function showProductDetailView(product) {
-      currentProduct = product;
-      
-      // Réinitialiser le bouton "Ajouter au panier"
-      const addToCartButton = document.getElementById("addToCartButton");
-      if (addToCartButton) {
-        addToCartButton.textContent = "Ajouter au panier";
-        addToCartButton.disabled = false;
-        addToCartButton.style.backgroundColor = ""; // Réinitialiser le style si nécessaire
-      }
-
-      // Masquer la grille et afficher la section de détail
-      document.getElementById("productGrid").style.display = "none";
-      document.getElementById("detailSection").style.display = "block";
-
-      // Mise à jour des informations de base
-      document.getElementById("detailImage").src = product.imageUrl || "";
-      document.getElementById("detailImage").alt = product.productName || "Image du produit";
-      document.getElementById("detailName").innerText = product.productName || "Nom inconnu";
-      document.getElementById("detailDescription").innerText = product.description || "";
-      document.getElementById("detailPrice").innerText = product.price ? `${product.price.toFixed(2)} FCFA` : "";
-      document.getElementById("detailSeller").innerText = product.sellerEmail || "Inconnu";
-
-      // Informations complémentaires
-      if (document.getElementById("detailDiscount"))
-        document.getElementById("detailDiscount").innerText = product.discount ? product.discount + (product.discountType === "percentage" ? " %" : " FCFA") : "Aucune remise";
-      if (document.getElementById("detailBrand"))
-        document.getElementById("detailBrand").innerText = product.brand || "Non spécifiée";
-      if (document.getElementById("detailSKU"))
-        document.getElementById("detailSKU").innerText = product.sku || "N/A";
-      if (document.getElementById("detailWeight"))
-        document.getElementById("detailWeight").innerText = product.weight ? product.weight + " kg" : "Non spécifié";
-      if (document.getElementById("detailDimensions") && product.dimensions) {
-        const { length, width, height } = product.dimensions;
-        document.getElementById("detailDimensions").innerText = `${length || 0} x ${width || 0} x ${height || 0} cm`;
-      }
-      if (document.getElementById("detailShippingCost"))
-        document.getElementById("detailShippingCost").innerText = product.shippingCost ? product.shippingCost + " FCFA" : "Gratuit";
-      if (document.getElementById("detailEstimatedDelivery"))
-        document.getElementById("detailEstimatedDelivery").innerText = product.estimatedDelivery ? product.estimatedDelivery + " jours" : "Non précisé";
-      if (document.getElementById("detailReturnPolicy"))
-        document.getElementById("detailReturnPolicy").innerText = product.returnPolicy || "Non spécifiée";
-      if (document.getElementById("detailWarranty"))
-        document.getElementById("detailWarranty").innerText = product.warranty || "Aucune";
-
-      if (document.getElementById("detailCreatedAt") && product.createdAt)
-        document.getElementById("detailCreatedAt").innerText = new Date(product.createdAt).toLocaleDateString();
-      if (document.getElementById("detailOrders") && product.orders !== undefined)
-        document.getElementById("detailOrders").innerText = product.orders;
-      if (document.getElementById("detailViews") && product.views !== undefined)
-        document.getElementById("detailViews").innerText = product.views;
-      if (document.getElementById("detailAddToCart") && product.addToCart !== undefined)
-        document.getElementById("detailAddToCart").innerText = product.addToCart;
-
-      // Gestion de la vidéo du produit
-      if (product.videoUrl) {
-        document.getElementById("detailVideo").src = product.videoUrl;
-        document.getElementById("detailVideo").style.display = "block";
-      } else {
-        document.getElementById("detailVideo").style.display = "none";
-      }
-
-      // Affichage de la galerie d'images complémentaires
-      const imageCarousel = document.getElementById("imageCarousel");
-      if (imageCarousel) {
-        imageCarousel.innerHTML = "";
-        if (Array.isArray(product.images)) {
-          product.images.forEach(imageUrl => {
-            const img = document.createElement("img");
-            img.src = imageUrl;
-            img.alt = product.productName;
-            imageCarousel.appendChild(img);
-          });
-        }
-      }
-
-      // Affichage des produits similaires
-      const similarProducts = allProducts.filter(p => {
-        return (p._id !== product._id) && 
-          (p.detectedCategory === product.detectedCategory || aiDetectCategory(p) === aiDetectCategory(product));
-      });
-      displaySimilarProducts(similarProducts);
-
-      // Affichage des avis du produit
-      const reviewSection = document.getElementById("reviewSection");
-      if (reviewSection) reviewSection.innerHTML = "";
-      if (Array.isArray(product.reviews)) {
-        product.reviews.forEach(review => {
-          const div = document.createElement("div");
-          div.className = "review-item";
-          div.innerHTML = `<p>${review.comment}</p><p>${review.rating} ★</p>`;
-          reviewSection.appendChild(div);
-        });
-      }
-
-      // Boutons de navigation (produit suivant/précédent)
-      const nextBtn = document.getElementById("nextProduct");
-      if (nextBtn) {
-        nextBtn.onclick = function() {
-          const currentIndex = allProducts.findIndex(p => p._id === currentProduct._id);
-          const nextProduct = allProducts[(currentIndex + 1) % allProducts.length];
-          showProductDetailView(nextProduct);
-        };
-      }
-      const prevBtn = document.getElementById("prevProduct");
-      if (prevBtn) {
-        prevBtn.onclick = function() {
-          const currentIndex = allProducts.findIndex(p => p._id === currentProduct._id);
-          const prevProduct = allProducts[(currentIndex - 1 + allProducts.length) % allProducts.length];
-          showProductDetailView(prevProduct);
-        };
-      }
-      // Bouton "Retour aux produits"
-      document.getElementById("returnToProductsButton").addEventListener("click", hideDetailSection);
-      
-      // Afficher le bouton pour contacter le vendeur
-      const contactSellerButton = document.getElementById("contactSellerButton");
-      if (contactSellerButton) contactSellerButton.style.display = "block";
-
-      loadReviews(product._id);
-    }
-
     // Fonction pour afficher les produits similaires dans la vue détail
     function displaySimilarProducts(products) {
       const similarGrid = document.getElementById("similarGrid");
@@ -1509,18 +1376,16 @@ function hideDetailSection() {
           <div class="product-price">${prod.price} FCFA</div>
           <button class="add-to-cart" onclick="addToCart('${prod.productName}', ${prod.price}, '${prod.description}', '${prod.imageUrl}', '${prod.sellerEmail}', this)">Ajouter au panier</button>
         `;
-        // Permet de naviguer vers le détail en cliquant sur l'élément
+        // Redirection vers la page de détail lors du clic sur l'élément
         div.addEventListener("click", function() {
-          showProductDetailView(prod);
+          window.location.href = `detail.html?id=${prod._id}`;
         });
         similarGrid.appendChild(div);
       });
     }
 
     // Exposition de certaines fonctions pour utilisation inline
-    window.showProductDetailView = showProductDetailView;
-    window.hideDetailSection = hideDetailSection;
-    window.orderProduct = orderProduct;
+    window.filterProductsByKeyword = filterProductsByKeyword;
     window.contactSeller = function() {
       const messageInput = document.getElementById("contactSellerMessage");
       const message = messageInput ? messageInput.value : "";
@@ -1531,7 +1396,9 @@ function hideDetailSection() {
       alert("Message envoyé au vendeur : " + message);
       if (messageInput) messageInput.value = "";
     };
-    window.filterProductsByKeyword = filterProductsByKeyword;
+  </script>
+</body>
+</html>
   </script>
 </body>
 </html>
