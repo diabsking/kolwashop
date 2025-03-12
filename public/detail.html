@@ -303,38 +303,53 @@
   <div id="notification" class="notification"></div>
   
   <script>
-    // Variables globales
-    let cartCount = 0;
-    let currentProduct = {};
-    let allProducts = [];
-    
-    // Récupère l'ID du produit depuis l'URL et charge ses données via l'API
-    document.addEventListener("DOMContentLoaded", () => {
-      const params = new URLSearchParams(window.location.search);
-      const productId = params.get('id');
-      if (productId) {
-        fetchProduct(productId);
-      } else {
+// Variables globales
+let cartCount = 0;
+let currentProduct = {};
+let allProducts = [];
+
+// Récupère l'ID du produit depuis l'URL et charge ses données via l'API
+document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get('id');
+
+    if (!productId) {
+        console.error("⚠️ Aucun ID produit trouvé dans l'URL.");
         alert("Produit non identifié.");
-      }
-    });
-    
-    // Appel à l'API pour récupérer les données d'un produit
-    function fetchProduct(productId) {
-      fetch(`/api/products/${productId}`)
-        .then(response => {
-          if (!response.ok) throw new Error("Erreur réseau");
-          return response.json();
-        })
-        .then(product => {
-          currentProduct = product;
-          showProductDetailView(product);
-        })
-        .catch(error => {
-          console.error("Erreur lors de la récupération du produit :", error);
-          alert("Erreur lors du chargement du produit.");
-        });
+        return;
     }
+
+    console.log("✅ ID du produit récupéré :", productId);
+    fetchProduct(productId);
+});
+
+// Appel à l'API pour récupérer les données d'un produit
+async function fetchProduct(productId) {
+    try {
+        console.log(`🔍 Récupération des données pour le produit ID : ${productId}...`);
+
+        const response = await fetch(`/api/products/${productId}`);
+        
+        if (!response.ok) {
+            throw new Error(`❌ Erreur API, statut : ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log("✅ Produit récupéré depuis l'API :", data);
+
+        if (!data || !data.product) {
+            console.error("❌ Produit introuvable ou réponse mal formattée :", data);
+            alert("Erreur : Produit introuvable.");
+            return;
+        }
+
+        currentProduct = data.product;
+        showProductDetailView(data.product);
+    } catch (error) {
+        console.error("❌ Erreur lors de la récupération du produit :", error);
+        alert("Erreur lors du chargement du produit. Vérifiez votre connexion ou réessayez plus tard.");
+    }
+}
     
 // Affiche les détails du produit et prépare la galerie et les produits similaires
 function showProductDetailView(product) {
