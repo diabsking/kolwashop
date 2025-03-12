@@ -341,81 +341,12 @@
   }
 }
 
-/* Ajustement pour les téléphones */
+/* Ajustement pour les petits écrans (téléphones) */
 @media (max-width: 768px) {
   .grid-container {
     grid-template-columns: repeat(3, 1fr); /* 3 produits par ligne */
-    gap: 10px; /* Réduction de l’espace */
-    padding: 10px; /* Réduction du padding global */
-  }
-
-  .grid-item {
-    padding: 8px;
-    border-radius: 10px; /* Coins plus arrondis */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Ombre légère */
-    transition: transform 0.2s ease-in-out;
-  }
-
-  .grid-item:hover {
-    transform: scale(1.05); /* Effet zoom au survol */
-  }
-
-  .grid-item img {
-    height: 120px; /* Réduction de la hauteur des images */
-    border-radius: 5px; /* Arrondi des bords */
-  }
-
-  .grid-item .product-name {
-    font-size: 14px; /* Augmentation légère pour lisibilité */
-    font-weight: bold;
-  }
-
-  .grid-item .product-price {
-    font-size: 12px;
-    color: #ff5722; /* Changement de couleur pour plus de visibilité */
   }
 }
-
-/* Affichage en liste sur très petits écrans (moins de 480px) */
-@media (max-width: 480px) {
-  .grid-container {
-    display: flex;
-    flex-direction: column; /* Affichage en colonne */
-    gap: 15px;
-  }
-
-  .grid-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
-    background: #fff;
-    border-radius: 10px;
-  }
-
-  .grid-item img {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 5px;
-  }
-
-  .grid-item .product-details {
-    flex: 1; /* Permet d'occuper l'espace restant */
-  }
-
-  .grid-item .product-name {
-    font-size: 16px;
-    font-weight: bold;
-  }
-
-  .grid-item .product-price {
-    font-size: 14px;
-    color: #ff5722;
-    font-weight: bold;
-  }
-}
-
 
 /* Ajustement pour les très petits écrans (mobiles étroits) */
 @media (max-width: 480px) {
