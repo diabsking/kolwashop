@@ -8,251 +8,280 @@
         integrity="sha512-Fo3rlrZj/k7ujTTXRFbPy1Y9T3rxg+e0B7IQbj0gfpQxRwN7rjkCrzEd3c3edczpPJp5eZ7Bs+F6W/6Knf8p1A==" 
         crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
-    /* Réinitialisation */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    
-    /* Style global */
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #f9f9f9;
-      color: #333;
-      line-height: 1.6;
-      padding: 20px;
-      animation: fadeIn 1s ease forwards;
-    }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    
-    /* HEADER : Barre de navigation */
-    header {
-      margin-bottom: 30px;
-    }
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 20px;
-      background-color: #131921;
-      border-bottom: 2px solid #333;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      border-radius: 8px;
-    }
-    .navbar a {
-      color: #fff;
-      font-size: 24px;
-      text-decoration: none;
-      margin: 0 10px;
-      transition: transform 0.3s, color 0.3s;
-    }
-    .navbar a:hover {
-      transform: scale(1.1);
-      color: #f44336;
-    }
-    .cart-icon {
-      position: relative;
-    }
-    .cart-icon span {
-      position: absolute;
-      top: -5px;
-      right: -10px;
-      background: red;
-      color: #fff;
-      font-size: 14px;
-      font-weight: bold;
-      padding: 3px 7px;
-      border-radius: 50%;
-    }
-    
-    /* MAIN : Contenu principal */
-    main {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 40px;
-    }
-    
-/* Section : Détail du produit */
+/* Réinitialisation */
+* { 
+  margin: 0; 
+  padding: 0; 
+  box-sizing: border-box; 
+}
+
+/* Style global */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+  line-height: 1.6;
+  padding: 20px;
+  animation: fadeIn 1s ease forwards;
+}
+
+@keyframes fadeIn { 
+  from { opacity: 0; } 
+  to { opacity: 1; } 
+}
+
+/* HEADER : Barre de navigation */
+header {
+  margin-bottom: 30px;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #131921;
+  border-bottom: 2px solid #333;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  border-radius: 8px;
+}
+
+.navbar a {
+  color: #fff;
+  font-size: 24px;
+  text-decoration: none;
+  margin: 0 10px;
+  transition: transform 0.3s, color 0.3s;
+}
+
+.navbar a:hover {
+  transform: scale(1.1);
+  color: #f44336;
+}
+
+.cart-icon {
+  position: relative;
+}
+
+.cart-icon span {
+  position: absolute;
+  top: -5px;
+  right: -10px;
+  background: red;
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 3px 7px;
+  border-radius: 50%;
+}
+
+/* MAIN : Contenu principal */
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* Section : Détail du produit (mise en page en deux colonnes) */
 #detailSection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
   background: #fff;
   border-radius: 10px;
   padding: 30px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   animation: slideIn 0.8s ease forwards;
 }
-@keyframes slideIn {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+
+/* Partie gauche : Image principale + Galerie + Vidéo */
+#detailMedia {
+  flex: 1;
+  min-width: 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
-#detailSection img {
+
+#detailMedia img {
   width: 100%;
-  max-width: 500px;
-  height: auto;
+  max-width: 400px;
   border-radius: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   transition: transform 0.3s ease;
   cursor: pointer;
 }
-#detailSection img:hover {
+
+#detailMedia img:hover {
   transform: scale(1.03);
 }
-#detailSection h2 {
-  margin-bottom: 15px;
-  font-size: 32px;
-  color: #007bff;
-}
-#detailSection p {
-  margin-bottom: 12px;
-  font-size: 18px;
-}
 
-/* Styles pour les autres détails du produit */
-#detailStock,
-#detailCreatedAt,
-#detailOrders,
-#detailViews,
-#detailDiscount,
-#detailDiscountType,
-#detailBrand,
-#detailSKU,
-#detailWeight,
-#detailDimensions,
-#detailShippingCost,
-#detailEstimatedDelivery,
-#detailReturnPolicy,
-#detailWarranty {
-  font-size: 16px;
-  margin-bottom: 10px;
-  color: #555;
-}
-
-/* Vidéo du produit */
 #detailVideo {
   width: 100%;
-  max-width: 500px;
+  max-width: 400px;
   border-radius: 8px;
-  margin-bottom: 20px;
+  margin-top: 15px;
 }
 
-/* Galerie d'images complémentaires */
+/* Galerie d'images */
 #imageCarousel {
   display: flex;
   gap: 10px;
   overflow-x: auto;
   padding-bottom: 10px;
   margin-bottom: 20px;
+  justify-content: center;
 }
+
 #imageCarousel img {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   object-fit: cover;
   border-radius: 8px;
   cursor: pointer;
   transition: transform 0.3s ease;
 }
+
 #imageCarousel img:hover {
   transform: scale(1.1);
 }
-    
-    /* Boutons d'action */
-    .btn {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.3s ease;
-      font-size: 18px;
-      margin-right: 10px;
-    }
-    .btn-primary {
-      background: #28a745;
-      color: #fff;
-    }
-    .btn-primary:hover {
-      background: #218838;
-      transform: scale(1.05);
-    }
-    .btn-secondary {
-      background: #007bff;
-      color: #fff;
-    }
-    .btn-secondary:hover {
-      background: #0069d9;
-      transform: scale(1.05);
-    }
-    
-    /* Section : Produits similaires */
-    #similarGrid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-    }
-    .similar-item {
-      background: #fff;
-      border-radius: 8px;
-      padding: 15px;
-      text-align: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      cursor: pointer;
-    }
-    .similar-item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    .similar-item img {
-      width: 100%;
-      height: auto;
-      border-radius: 6px;
-      margin-bottom: 10px;
-    }
-    .similar-item .product-name {
-      font-weight: bold;
-      margin-bottom: 5px;
-      font-size: 18px;
-    }
-    .similar-item .product-price {
-      color: #28a745;
-      margin-bottom: 10px;
-      font-size: 16px;
-    }
-    .similar-item .add-to-cart {
-      padding: 8px 12px;
-      background: #007bff;
-      border: none;
-      color: #fff;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      font-size: 16px;
-    }
-    .similar-item .add-to-cart:hover {
-      background: #0069d9;
-    }
-    
-    /* Notification */
-    #notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #28a745;
-      color: #fff;
-      padding: 15px 25px;
-      border-radius: 8px;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-      z-index: 1000;
-    }
-    #notification.show { opacity: 1; }
-    
-    /* Responsivité */
-    @media (max-width: 768px) {
-      #detailSection, #detailVideo, #detailSection img {
-        max-width: 100%;
-      }
-      .btn { font-size: 16px; padding: 10px 16px; }
-      #detailSection h2 { font-size: 28px; }
-      #detailSection p { font-size: 16px; }
-    }
+
+/* Partie droite : Détails du produit */
+#detailInfo {
+  flex: 1;
+  min-width: 50%;
+}
+
+#detailInfo h2 {
+  margin-bottom: 15px;
+  font-size: 28px;
+  color: #007bff;
+}
+
+#detailInfo p {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #555;
+}
+
+/* Boutons */
+.btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+.btn-primary {
+  background: #28a745;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #218838;
+  transform: scale(1.05);
+}
+
+.btn-secondary {
+  background: #007bff;
+  color: #fff;
+}
+
+.btn-secondary:hover {
+  background: #0069d9;
+  transform: scale(1.05);
+}
+
+/* Section : Produits similaires */
+#similarGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.similar-item {
+  background: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.similar-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.similar-item img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.similar-item .product-name {
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 18px;
+}
+
+.similar-item .product-price {
+  color: #28a745;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.similar-item .add-to-cart {
+  padding: 8px 12px;
+  background: #007bff;
+  border: none;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-size: 16px;
+}
+
+.similar-item .add-to-cart:hover {
+  background: #0069d9;
+}
+
+/* Notification */
+#notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #28a745;
+  color: #fff;
+  padding: 15px 25px;
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 1000;
+}
+
+#notification.show { 
+  opacity: 1; 
+}
+
+/* Responsivité : empiler les éléments en colonne sur mobile */
+@media (max-width: 768px) {
+  #detailSection {
+    flex-direction: column;
+  }
+  
+  #detailMedia, #detailInfo {
+    width: 100%;
+  }
+}
   </style>
 </head>
 <body>
@@ -271,27 +300,48 @@
   
   <!-- MAIN : Détail du produit et Produits similaires -->
   <main>
-    <!-- Section : Détail du produit -->
-    <section id="detailSection">
-      <button id="goBackButton" class="btn btn-secondary" onclick="goBack()">Retour</button>
-      <img id="detailImage" src="https://via.placeholder.com/500x400" alt="Image du produit">
-      <h2 id="detailName">Nom du produit</h2>
-      <p id="detailDescription">Description détaillée du produit...</p>
-      <p id="detailPrice">Prix : 0 FCFA</p>
-      <p id="detailSeller">Vendu par : vendeur@example.com</p>
-      
-      <!-- Vidéo du produit (affichée si disponible) -->
-      <video id="detailVideo" controls style="display: none;"></video>
-      
-      <!-- Galerie d'images complémentaires -->
-      <div id="imageCarousel">
-        <!-- Les images seront générées dynamiquement -->
-      </div>
-      
-      <!-- Boutons d'action -->
-      <button id="addToCartButton" class="btn btn-primary" onclick="addToCart(currentProduct.productName, currentProduct.price, currentProduct.description, currentProduct.imageUrl, currentProduct.sellerEmail, this)">Ajouter au panier</button>
-      <button id="contactSellerButton" class="btn btn-secondary" style="display: none;">Contacter le vendeur</button>
-    </section>
+   <!-- Section : Détail du produit -->
+<section id="detailSection">
+  <button id="goBackButton" class="btn btn-secondary" onclick="goBack()">Retour</button>
+  
+  <!-- Image principale -->
+  <img id="detailImage" src="https://via.placeholder.com/500x400" alt="Image du produit">
+  
+  <h2 id="detailName">Nom du produit</h2>
+  <p id="detailDescription">Description détaillée du produit...</p>
+  <p><strong>Prix :</strong> <span id="detailPrice">0 FCFA</span></p>
+  <p><strong>Vendu par :</strong> <span id="detailSeller">vendeur@example.com</span></p>
+
+  <!-- Vidéo du produit (si disponible) -->
+  <video id="detailVideo" controls style="display: none;"></video>
+
+  <!-- Galerie d'images complémentaires -->
+  <div id="imageCarousel">
+    <!-- Les images seront ajoutées dynamiquement -->
+  </div>
+
+  <!-- Détails supplémentaires -->
+  <div id="productDetails">
+    <p><strong>Stock :</strong> <span id="detailStock">Non précisé</span></p>
+    <p><strong>Date de publication :</strong> <span id="detailCreatedAt">Non précisée</span></p>
+    <p><strong>Commandes :</strong> <span id="detailOrders">0</span></p>
+    <p><strong>Vues :</strong> <span id="detailViews">0</span></p>
+    <p><strong>Remise :</strong> <span id="detailDiscount">Aucune</span></p>
+    <p><strong>Type de remise :</strong> <span id="detailDiscountType">Non spécifié</span></p>
+    <p><strong>Marque :</strong> <span id="detailBrand">Non précisée</span></p>
+    <p><strong>Référence (SKU) :</strong> <span id="detailSKU">Non précisée</span></p>
+    <p><strong>Poids :</strong> <span id="detailWeight">Non précisé</span></p>
+    <p><strong>Dimensions :</strong> <span id="detailDimensions">Non précisées</span></p>
+    <p><strong>Coût d'expédition :</strong> <span id="detailShippingCost">Non précisé</span></p>
+    <p><strong>Délai de livraison :</strong> <span id="detailEstimatedDelivery">Non précisé</span></p>
+    <p><strong>Politique de retour :</strong> <span id="detailReturnPolicy">Non précisée</span></p>
+    <p><strong>Garantie :</strong> <span id="detailWarranty">Non précisée</span></p>
+  </div>
+
+  <!-- Boutons d'action -->
+  <button id="addToCartButton" class="btn btn-primary">Ajouter au panier</button>
+  <button id="contactSellerButton" class="btn btn-secondary" style="display: none;">Contacter le vendeur</button>
+</section>
     
     <!-- Section : Produits similaires -->
     <section id="similarGrid">
