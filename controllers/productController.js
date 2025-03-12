@@ -1,5 +1,5 @@
 const Product = require("../models/Product");
-const transporter = require("../config/mailer");
+const transporter = require("../config/mailer"); // Utilisation d'un module configuré pour nodemailer
 const SITE_OWNER_EMAIL = process.env.SITE_OWNER_EMAIL || "dieyediabal75@gmail.com";
 const express = require('express');
 const cloudinary = require('cloudinary').v2;
@@ -43,7 +43,7 @@ async function processWavePayment(amount, phoneNumber) {
   });
 }
 
-// Publication d'un produit avec gestion de l'image principale, des photos complémentaires, de la vidéo
+// Publication d'un produit avec gestion de l'image principale, des photos complémentaires et de la vidéo
 exports.publishProduct = async (req, res) => {
   try {
     console.log("Corps de la requête:", req.body);
@@ -65,10 +65,8 @@ exports.publishProduct = async (req, res) => {
     const returnPolicy = req.body.returnPolicy || "";
     const warranty = req.body.warranty || "";
 
-    // Supposons que le middleware multer est configuré pour traiter plusieurs champs:
-    // req.files.image (tableau avec 1 élément), req.files.photos (tableau), req.files.video (tableau avec 1 élément)
+    // Vérification des champs obligatoires
     const imageFile = req.files && req.files.image ? req.files.image[0] : null;
-
     if (!productName || !description || !price || !deliveryTime || !category || !imageFile) {
       return res.status(400).json({ message: "Tous les champs obligatoires sont requis !" });
     }
@@ -84,11 +82,10 @@ exports.publishProduct = async (req, res) => {
       return res.status(400).json({ message: "Image principale non conforme." });
     }
 
-    // Upload des photos complémentaires (si fournies)
+    // Upload des photos complémentaires (limitées à 4)
     let photosUrls = [];
     if (req.files && req.files.photos) {
       for (let file of req.files.photos) {
-        // Limiter à 4 photos (contrôle côté client mais aussi ici)
         if (photosUrls.length >= 4) break;
         const uploadPhoto = await cloudinary.uploader.upload(file.path, {
           folder: 'kolwaz_shop_products',
@@ -114,6 +111,7 @@ exports.publishProduct = async (req, res) => {
       return res.status(400).json({ message: "Prix ou délai de livraison invalide." });
     }
 
+    // Traitement du paiement via Wave si activé
     if (process.env.WAVE_PAYMENT_ENABLED === "true") {
       console.log("Traitement du paiement via Wave...");
       try {
@@ -131,19 +129,15 @@ exports.publishProduct = async (req, res) => {
       deliveryTime: deliveryTimeNumber,
       sellerEmail: req.user.email,
       imageUrl,
-      photos: photosUrls,    // Ajout des photos complémentaires
-      videoUrl,             // Ajout de la vidéo
+      photos: photosUrls,
+      videoUrl,
       discount,
       discountType,
       brand,
       stock,
       sku,
       weight,
-      dimensions: {
-        length,
-        width,
-        height,
-      },
+      dimensions: { length, width, height },
       shippingCost,
       estimatedDelivery,
       returnPolicy,
@@ -154,22 +148,12 @@ exports.publishProduct = async (req, res) => {
     await newProduct.save();
     console.log("Produit enregistré:", productName);
 
-    // Partage sur Twitter (fonction à définir séparément)
+    // Partage sur Twitter (si la fonction shareOnTwitter est définie)
     if (typeof shareOnTwitter === "function") {
       await shareOnTwitter(newProduct); 
     }
 
-    // Envoi d'un email de notification
-    const transporter = nodemailer.createTransport({
-      host: 'mail.mailo.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.MAILO_USER,
-        pass: process.env.MAILO_PASSWORD,
-      },
-    });
-
+    // Envoi d'un email de notification en utilisant le transporter configuré
     const mailOptions = {
       from: process.env.MAILO_USER,
       to: SITE_OWNER_EMAIL,
@@ -240,7 +224,10 @@ exports.getPopularProducts = async (req, res) => {
     const produitsPopulaires = produits.map((produit) => {
       const { productName, imageUrl, price } = produit;
       // Calcul d'un score en fonction des vues, ajouts au panier, commandes et de l'ancienneté
-      const score = (produit.views * 0.2) + (produit.addToCart * 0.5) + (produit.orders * 1) - ((Date.now() - new Date(produit.publicationDate)) / (1000 * 60 * 60 * 24 * 7));
+      const score = (produit.views * 0.2) +
+                    (produit.addToCart * 0.5) +
+                    (produit.orders * 1) -
+                    ((Date.now() - new Date(produit.createdAt)) / (1000 * 60 * 60 * 24 * 7));
       return { productName, imageUrl, price, score };
     });
     produitsPopulaires.sort((a, b) => b.score - a.score);
@@ -264,7 +251,6 @@ exports.updateProduct = async (req, res) => {
 
     // Extraction des champs du corps de la requête
     const { productName, description, price, deliveryTime } = req.body;
-    // Vérification si aucun champ n'est fourni
     if (
       !productName && !description && !price && !deliveryTime &&
       !req.body.discount && !req.body.discountType && !req.body.brand && !req.body.stock &&
@@ -312,7 +298,7 @@ exports.updateProduct = async (req, res) => {
     if (req.body.returnPolicy) product.returnPolicy = req.body.returnPolicy;
     if (req.body.warranty) product.warranty = req.body.warranty;
 
-    // Si une nouvelle image principale est fournie
+    // Mise à jour de la nouvelle image principale, si fournie
     if (req.files && req.files.image) {
       const imageFile = req.files.image[0];
       if (!validateProductImage(imageFile.path)) {
