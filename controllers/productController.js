@@ -43,13 +43,28 @@ async function processWavePayment(amount, phoneNumber) {
   });
 }
 
-// Publication d'un produit avec gestion de l'image principale, des photos complémentaires et de la vidéo
+// Publication d'un produit avec gestion de l'image principale, des photos complémentaires, de la vidéo
 exports.publishProduct = async (req, res) => {
   try {
     console.log("Corps de la requête:", req.body);
     console.log("Fichiers de la requête:", req.files);
 
     const { productName, description, price, deliveryTime, category } = req.body;
+    // Extraction des champs optionnels supplémentaires
+    const discount = req.body.discount ? parseFloat(req.body.discount) : 0;
+    const discountType = req.body.discountType || "";
+    const brand = req.body.brand || "";
+    const stock = req.body.stock ? parseInt(req.body.stock, 10) : 0;
+    const sku = req.body.sku || "";
+    const weight = req.body.weight ? parseFloat(req.body.weight) : 0;
+    const length = req.body.length ? parseFloat(req.body.length) : 0;
+    const width = req.body.width ? parseFloat(req.body.width) : 0;
+    const height = req.body.height ? parseFloat(req.body.height) : 0;
+    const shippingCost = req.body.shippingCost ? parseFloat(req.body.shippingCost) : 0;
+    const estimatedDelivery = req.body.estimatedDelivery ? parseInt(req.body.estimatedDelivery, 10) : 0;
+    const returnPolicy = req.body.returnPolicy || "";
+    const warranty = req.body.warranty || "";
+
     // Supposons que le middleware multer est configuré pour traiter plusieurs champs:
     // req.files.image (tableau avec 1 élément), req.files.photos (tableau), req.files.video (tableau avec 1 élément)
     const imageFile = req.files && req.files.image ? req.files.image[0] : null;
@@ -116,8 +131,23 @@ exports.publishProduct = async (req, res) => {
       deliveryTime: deliveryTimeNumber,
       sellerEmail: req.user.email,
       imageUrl,
-      photos: photosUrls,    // ajout des photos complémentaires
-      videoUrl,             // ajout de la vidéo
+      photos: photosUrls,    // Ajout des photos complémentaires
+      videoUrl,             // Ajout de la vidéo
+      discount,
+      discountType,
+      brand,
+      stock,
+      sku,
+      weight,
+      dimensions: {
+        length,
+        width,
+        height,
+      },
+      shippingCost,
+      estimatedDelivery,
+      returnPolicy,
+      warranty,
       createdAt: new Date(),
     });
 
@@ -209,6 +239,7 @@ exports.getPopularProducts = async (req, res) => {
     const produits = await Product.find();
     const produitsPopulaires = produits.map((produit) => {
       const { productName, imageUrl, price } = produit;
+      // Calcul d'un score en fonction des vues, ajouts au panier, commandes et de l'ancienneté
       const score = (produit.views * 0.2) + (produit.addToCart * 0.5) + (produit.orders * 1) - ((Date.now() - new Date(produit.publicationDate)) / (1000 * 60 * 60 * 24 * 7));
       return { productName, imageUrl, price, score };
     });
@@ -231,9 +262,16 @@ exports.updateProduct = async (req, res) => {
       return res.status(404).json({ message: "Produit non trouvé ou modification non autorisée." });
     }
 
+    // Extraction des champs du corps de la requête
     const { productName, description, price, deliveryTime } = req.body;
-
-    if (!productName && !description && !price && !deliveryTime && (!req.files || (!req.files.image && !req.files.photos && !req.files.video))) {
+    // Vérification si aucun champ n'est fourni
+    if (
+      !productName && !description && !price && !deliveryTime &&
+      !req.body.discount && !req.body.discountType && !req.body.brand && !req.body.stock &&
+      !req.body.sku && !req.body.weight && !req.body.length && !req.body.width && !req.body.height &&
+      !req.body.shippingCost && !req.body.estimatedDelivery && !req.body.returnPolicy && !req.body.warranty &&
+      (!req.files || (!req.files.image && !req.files.photos && !req.files.video))
+    ) {
       console.error("Aucune donnée à mettre à jour.");
       return res.status(400).json({ message: "Aucune donnée à mettre à jour." });
     }
@@ -254,6 +292,25 @@ exports.updateProduct = async (req, res) => {
       }
       product.deliveryTime = deliveryTimeNumber;
     }
+
+    // Mise à jour des champs optionnels
+    if (req.body.discount !== undefined) product.discount = parseFloat(req.body.discount);
+    if (req.body.discountType) product.discountType = req.body.discountType;
+    if (req.body.brand) product.brand = req.body.brand;
+    if (req.body.stock !== undefined) product.stock = parseInt(req.body.stock, 10);
+    if (req.body.sku) product.sku = req.body.sku;
+    if (req.body.weight !== undefined) product.weight = parseFloat(req.body.weight);
+    if (req.body.length !== undefined || req.body.width !== undefined || req.body.height !== undefined) {
+      product.dimensions = {
+        length: req.body.length ? parseFloat(req.body.length) : (product.dimensions ? product.dimensions.length : 0),
+        width: req.body.width ? parseFloat(req.body.width) : (product.dimensions ? product.dimensions.width : 0),
+        height: req.body.height ? parseFloat(req.body.height) : (product.dimensions ? product.dimensions.height : 0),
+      };
+    }
+    if (req.body.shippingCost !== undefined) product.shippingCost = parseFloat(req.body.shippingCost);
+    if (req.body.estimatedDelivery !== undefined) product.estimatedDelivery = parseInt(req.body.estimatedDelivery, 10);
+    if (req.body.returnPolicy) product.returnPolicy = req.body.returnPolicy;
+    if (req.body.warranty) product.warranty = req.body.warranty;
 
     // Si une nouvelle image principale est fournie
     if (req.files && req.files.image) {

@@ -485,131 +485,112 @@
   </div>
 
   <script>
-    // Vérifie que maximum 4 photos sont sélectionnées
-    function checkPhotoCount(input) {
-      if (input.files.length > 4) {
-        alert("Vous pouvez sélectionner jusqu'à 4 photos maximum.");
-        input.value = "";
-      }
-    }
+// Soumission du formulaire
+document.getElementById("productForm").addEventListener("submit", async function(event) {
+  event.preventDefault();
+  
+  const productName = document.getElementById("productName").value;
+  const description = document.getElementById("description").value;
+  const category = document.getElementById("category").value;
+  const price = document.getElementById("price").value;
+  const deliveryTime = document.getElementById("deliveryTime").value;
+  const image = document.getElementById("image").files[0];
 
-    // Gestion du loader
-    function showLoader() {
-      document.getElementById('loader').style.display = 'block';
-    }
-    function hideLoader() {
-      document.getElementById('loader').style.display = 'none';
-    }
+  // Champs optionnels
+  const photos = document.getElementById("photos").files;
+  const video = document.getElementById("video").files[0];
+  const discount = document.getElementById("discount").value;
+  const discountType = document.getElementById("discountType").value;
+  const brand = document.getElementById("brand").value;
+  const stock = document.getElementById("stock").value;
+  const sku = document.getElementById("sku").value;
+  const weight = document.getElementById("weight").value;
+  const length = document.getElementById("length").value;
+  const width = document.getElementById("width").value;
+  const height = document.getElementById("height").value;
+  const shippingCost = document.getElementById("shippingCost").value;
+  const estimatedDelivery = document.getElementById("estimatedDelivery").value;
+  const returnPolicy = document.getElementById("returnPolicy").value;
+  const warranty = document.getElementById("warranty").value;
 
-    // Fonction pour basculer l'affichage du formulaire de publication
-    function togglePublicationForm() {
-      const formSection = document.getElementById("publicationForm");
-      formSection.style.display = formSection.style.display === "block" ? "none" : "block";
-    }
+  if (!image) {
+    document.getElementById("publishMessage").innerText = "Veuillez ajouter une image principale.";
+    document.getElementById("publishMessage").style.color = "#dc3545";
+    return;
+  }
+  if (!category) {
+    document.getElementById("publishMessage").innerText = "Veuillez sélectionner une catégorie.";
+    document.getElementById("publishMessage").style.color = "#dc3545";
+    return;
+  }
 
-    // Soumission du formulaire
-    document.getElementById("productForm").addEventListener("submit", async function(event) {
-      event.preventDefault();
-      
-      const productName = document.getElementById("productName").value;
-      const description = document.getElementById("description").value;
-      const category = document.getElementById("category").value;
-      const price = document.getElementById("price").value;
-      const deliveryTime = document.getElementById("deliveryTime").value;
-      const image = document.getElementById("image").files[0];
+  const formData = new FormData();
+  formData.append('productName', productName);
+  formData.append('description', description);
+  formData.append('category', category);
+  formData.append('price', price);
+  formData.append('deliveryTime', deliveryTime);
+  formData.append('image', image);
 
-      // Champs optionnels
-      const photos = document.getElementById("photos").files;
-      const video = document.getElementById("video").files[0];
-      const discount = document.getElementById("discount").value;
-      const discountType = document.getElementById("discountType").value;
-      const brand = document.getElementById("brand").value;
-      const stock = document.getElementById("stock").value;
-      const sku = document.getElementById("sku").value;
-      const weight = document.getElementById("weight").value;
-      const length = document.getElementById("length").value;
-      const width = document.getElementById("width").value;
-      const height = document.getElementById("height").value;
-      const shippingCost = document.getElementById("shippingCost").value;
-      const estimatedDelivery = document.getElementById("estimatedDelivery").value;
-      const returnPolicy = document.getElementById("returnPolicy").value;
-      const warranty = document.getElementById("warranty").value;
+  // Ajoute les photos complémentaires (si sélectionnées)
+  for (let i = 0; i < photos.length; i++) {
+    formData.append('photos', photos[i]);
+  }
 
-      if (!image) {
-        document.getElementById("publishMessage").innerText = "Veuillez ajouter une image principale.";
-        document.getElementById("publishMessage").style.color = "#dc3545";
-        return;
-      }
-      if (!category) {
-        document.getElementById("publishMessage").innerText = "Veuillez sélectionner une catégorie.";
-        document.getElementById("publishMessage").style.color = "#dc3545";
-        return;
-      }
+  // Ajoute la vidéo (si sélectionnée)
+  if (video) {
+    formData.append('video', video);
+  }
 
-      const formData = new FormData();
-      formData.append('productName', productName);
-      formData.append('description', description);
-      formData.append('category', category);
-      formData.append('price', price);
-      formData.append('deliveryTime', deliveryTime);
-      formData.append('image', image);
+  // Champs optionnels
+  formData.append('discount', discount);
+  formData.append('discountType', discountType);
+  formData.append('brand', brand);
+  formData.append('stock', stock);
+  formData.append('sku', sku);
+  formData.append('weight', weight);
+  formData.append('length', length);
+  formData.append('width', width);
+  formData.append('height', height);
+  formData.append('shippingCost', shippingCost);
+  formData.append('estimatedDelivery', estimatedDelivery);
+  formData.append('returnPolicy', returnPolicy);
+  formData.append('warranty', warranty);
 
-      // Ajoute les photos complémentaires (si sélectionnées)
-      for (let i = 0; i < photos.length; i++) {
-        formData.append('photos', photos[i]);
-      }
+  const token = localStorage.getItem('token');
+  if (!token) {
+    document.getElementById("publishMessage").innerText = "Vous devez être connecté.";
+    document.getElementById("publishMessage").style.color = "#dc3545";
+    return;
+  }
 
-      // Ajoute la vidéo (si sélectionnée)
-      if(video) {
-        formData.append('video', video);
-      }
-
-      // Champs optionnels
-      formData.append('discount', discount);
-      formData.append('discountType', discountType);
-      formData.append('brand', brand);
-      formData.append('stock', stock);
-      formData.append('sku', sku);
-      formData.append('weight', weight);
-      formData.append('length', length);
-      formData.append('width', width);
-      formData.append('height', height);
-      formData.append('shippingCost', shippingCost);
-      formData.append('estimatedDelivery', estimatedDelivery);
-      formData.append('returnPolicy', returnPolicy);
-      formData.append('warranty', warranty);
-
-      const token = localStorage.getItem('token');
-      if (!token) {
-        document.getElementById("publishMessage").innerText = "Vous devez être connecté.";
-        document.getElementById("publishMessage").style.color = "#dc3545";
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/products/publish', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          body: formData
-        });
-        const result = await response.json();
-        document.getElementById("publishMessage").innerText = result.message;
-        if (response.ok) {
-          document.getElementById("publishMessage").style.color = "green";
-          document.getElementById("productForm").reset();
-          fetchSellerProducts();
-        } else {
-          document.getElementById("publishMessage").style.color = "#dc3545";
-        }
-      } catch (error) {
-        document.getElementById("publishMessage").innerText = "Erreur lors de la publication.";
-        document.getElementById("publishMessage").style.color = "#dc3545";
-      }
+  try {
+    const response = await fetch('/api/products/publish', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
     });
 
-    // Récupération et affichage des produits du vendeur
+    const result = await response.json();
+    console.log(result); // Pour déboguer
+
+    document.getElementById("publishMessage").innerText = result.message;
+    if (response.ok) {
+      document.getElementById("publishMessage").style.color = "green";
+      document.getElementById("productForm").reset();
+      fetchSellerProducts();
+    } else {
+      document.getElementById("publishMessage").style.color = "#dc3545";
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+    document.getElementById("publishMessage").innerText = "Erreur lors de la publication.";
+    document.getElementById("publishMessage").style.color = "#dc3545";
+  }
+});
+// Récupération et affichage des produits du vendeur
     async function fetchSellerProducts() {
       const token = localStorage.getItem('token');
       if (!token) return;
@@ -685,19 +666,28 @@
     function editProduct(productId) {
       window.location.href = `/modification.html?id=${productId}`;
     }
+function showProductDetails(product) {
+  // Vérifiez que chaque élément existe avant de mettre à jour son contenu
+  const modal = document.getElementById("productModal");
+  const productName = document.getElementById("modalProductName");
+  const productImage = document.getElementById("modalProductImage");
+  const productDescription = document.getElementById("modalProductDescription");
+  const productPrice = document.getElementById("modalProductPrice");
+  const productDelivery = document.getElementById("modalProductDelivery");
 
-    function showProductDetails(product) {
-      document.getElementById("modalProductName").innerText = product.productName;
-      document.getElementById("modalProductImage").src = product.imageUrl;
-      document.getElementById("modalProductImage").alt = product.productName;
-      document.getElementById("modalProductDescription").innerText = product.description;
-      document.getElementById("modalProductPrice").innerText = product.price;
-      document.getElementById("modalProductDelivery").innerText = product.deliveryTime;
-      document.getElementById("productModal").style.display = "block";
-    }
-    function closeModal() {
-      document.getElementById("productModal").style.display = "none";
-    }
+  if (!modal || !productName || !productImage || !productDescription || !productPrice || !productDelivery) {
+    console.error("Élément modal manquant");
+    return;
+  }
+
+  productName.innerText = product.productName;
+  productImage.src = product.imageUrl;
+  productImage.alt = product.productName;
+  productDescription.innerText = product.description;
+  productPrice.innerText = `${product.price} FCFA`;
+  productDelivery.innerText = product.deliveryTime;
+  modal.style.display = "block";
+}
 
     function displayConfirmationMessage() {
       const message = localStorage.getItem('updateMessage');
