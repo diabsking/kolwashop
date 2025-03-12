@@ -31,6 +31,8 @@ const upload = multer({
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 }, // Limite de taille de fichier à 5 Mo
 });
+// D'abord, la route pour récupérer les produits similaires
+router.get('/api/products/similar', getSimilarProducts);
 
 router.get('/products/popular', getPopularProducts); // ✅ Route spécifique d'abord
 
