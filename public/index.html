@@ -324,36 +324,21 @@
       font-weight: bold;
       margin: 5px 0;
     }
-   .grid-container {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr); /* Par défaut, 5 produits par ligne */
-  gap: 20px;
-  width: 100%;
-  max-width: 100%;
-  padding: 20px;
-  margin: 0 auto;
-}
-
-/* Ajustement pour les écrans moyens (tablettes) */
-@media (max-width: 1024px) {
-  .grid-container {
-    grid-template-columns: repeat(4, 1fr); /* 4 produits par ligne */
-  }
-}
-
-/* Ajustement pour les petits écrans (téléphones) */
-@media (max-width: 768px) {
-  .grid-container {
-    grid-template-columns: repeat(3, 1fr); /* 3 produits par ligne */
-  }
-}
-
-/* Ajustement pour les très petits écrans (mobiles étroits) */
-@media (max-width: 480px) {
-  .grid-container {
-    grid-template-columns: repeat(2, 1fr); /* 2 produits par ligne */
-  }
-}
+    @media (max-width: 1024px) {
+      .similar-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+    @media (max-width: 768px) {
+      .similar-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 480px) {
+      .similar-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
     
     /* Footer */
     footer {
