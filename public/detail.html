@@ -18,7 +18,7 @@
 /* Style global */
 body {
   font-family: 'Poppins', sans-serif;
-  background-color: #f9f9f9;
+  background-color: #fff; /* Fond blanc */
   color: #333;
   line-height: 1.6;
   padding: 20px;
@@ -29,52 +29,12 @@ body {
   from { opacity: 0; } 
   to { opacity: 1; } 
 }
-
 /* HEADER : Barre de navigation */
 header {
   margin-bottom: 30px;
 }
 
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 20px;
-  background-color: #131921;
-  border-bottom: 2px solid #333;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  border-radius: 8px;
-}
-
-.navbar a {
-  color: #fff;
-  font-size: 24px;
-  text-decoration: none;
-  margin: 0 10px;
-  transition: transform 0.3s, color 0.3s;
-}
-
-.navbar a:hover {
-  transform: scale(1.1);
-  color: #f44336;
-}
-
-.cart-icon {
-  position: relative;
-}
-
-.cart-icon span {
-  position: absolute;
-  top: -5px;
-  right: -10px;
-  background: red;
-  color: #fff;
-  font-size: 14px;
-  font-weight: bold;
-  padding: 3px 7px;
-  border-radius: 50%;
-}
-
+.
 /* MAIN : Contenu principal */
 main {
   max-width: 1200px;
@@ -167,13 +127,29 @@ main {
   color: #555;
 }
 
-/* Tronquer la description après 7 lignes */
+/* Description avec bouton Suite */
 #detailDescription {
-  display: -webkit-box;
-  -webkit-line-clamp: 7;
-  -webkit-box-orient: vertical;
+  position: relative;
   overflow: hidden;
-  text-overflow: ellipsis;
+  max-height: 150px;
+  transition: max-height 0.5s ease;
+}
+
+#detailDescription.expand {
+  max-height: none;
+}
+
+.read-more {
+  display: block;
+  margin-top: 10px;
+  color: blue;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.read-more:hover {
+  color: darkblue;
 }
 
 /* Détails (ex. délai de livraison) en bleu */
