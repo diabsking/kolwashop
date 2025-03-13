@@ -377,31 +377,5 @@ const getPopularProducts = async (req, res) => {
     }
 };
 
-// Récupérer les produits similaires en fonction du nom, description et catégorie
-const getSimilarProducts = async (req, res) => {
-  try {
-    const { productId } = req.params;
-    const product = await Product.findById(productId);
-
-    if (!product) {
-      return res.status(404).json({ message: "Produit non trouvé" });
-    }
-
-    // Filtrer par nom, description et catégorie pour trouver des produits similaires
-    const similarProducts = await Product.find({
-      $or: [
-        { name: { $regex: product.name, $options: "i" } },
-        { description: { $regex: product.description, $options: "i" } },
-        { category: product.category },
-      ],
-    }).limit(10); // Limiter le nombre de résultats
-
-    res.status(200).json(similarProducts);
-  } catch (error) {
-    console.error("Erreur lors de la récupération des produits similaires:", error);
-    res.status(500).json({ message: "Erreur serveur" });
-  }
-};
-
 // Exporter les fonctions
-module.exports = { getSimilarProducts, getPopularProducts };
+module.exports = {getPopularProducts };
