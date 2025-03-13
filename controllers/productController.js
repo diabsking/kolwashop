@@ -236,26 +236,6 @@ exports.getPopularProducts = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur", error });
   }
 };
-const getSimilarProducts = async (req, res) => {
-  try {
-    const { name, category, description } = req.query;
-
-    if (!name && !category && !description) {
-      return res.status(400).json({ message: "Veuillez fournir au moins un critère (nom, catégorie ou description) pour rechercher des produits similaires." });
-    }
-
-    const filter = {};
-    if (name) filter.name = { $regex: name, $options: "i" };
-    if (category) filter.category = { $regex: category, $options: "i" };
-    if (description) filter.description = { $regex: description, $options: "i" };
-
-    const similarProducts = await Product.find(filter).limit(10);
-
-    res.json(similarProducts);
-  } catch (error) {
-    res.status(500).json({ message: "Erreur lors de la récupération des produits similaires", error });
-  }
-};
 exports.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -367,6 +347,7 @@ exports.updateProduct = async (req, res) => {
   }
 };
 
+// Suppression d'un produit
 exports.deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -384,6 +365,7 @@ exports.deleteProduct = async (req, res) => {
     res.status(500).json({ error: "Erreur lors de la suppression du produit" });
   }
 };
+
 // Récupérer les produits populaires (exemple basé sur les vues)
 const getPopularProducts = async (req, res) => {
     try {
@@ -394,4 +376,32 @@ const getPopularProducts = async (req, res) => {
         res.status(500).json({ message: "Erreur serveur" });
     }
 };
-module.exports = { getSimilarProducts, getPopularProducts }; 
+
+// Récupérer les produits similaires en fonction du nom, description et catégorie
+const getSimilarProducts = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({ message: "Produit non trouvé" });
+    }
+
+    // Filtrer par nom, description et catégorie pour trouver des produits similaires
+    const similarProducts = await Product.find({
+      $or: [
+        { name: { $regex: product.name, $options: "i" } },
+        { description: { $regex: product.description, $options: "i" } },
+        { category: product.category },
+      ],
+    }).limit(10); // Limiter le nombre de résultats
+
+    res.status(200).json(similarProducts);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des produits similaires:", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+// Exporter les fonctions
+module.exports = { getSimilarProducts, getPopularProducts };
