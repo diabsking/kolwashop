@@ -334,11 +334,13 @@
         <label for="image">Image Principale du Produit :</label>
         <input type="file" id="image" name="image" accept="image/*" required>
 
-        <!-- Photos complémentaires et vidéo -->
+        <!-- Photos complémentaires (nom modifié pour un tableau) -->
         <label for="photos">Photos Complémentaires (max. 4) :</label>
-        <input type="file" id="photos" name="photos" accept="image/*" multiple>
+        <input type="file" id="photos" name="photos[]" accept="image/*" multiple onchange="checkPhotoCount(this)">
+
+        <!-- Vidéo du produit avec vérification -->
         <label for="video">Vidéo du Produit :</label>
-        <input type="file" id="video" name="video" accept="video/*">
+        <input type="file" id="video" name="video" accept="video/*" onchange="checkVideo(this)">
 
         <!-- Champs optionnels -->
         <label for="discount">Remise (optionnel) :</label>
@@ -464,7 +466,7 @@
         input.value = "";
         return;
       }
-      // Optionnel : Vérification de la taille (ici 50 Mo = 50 * 1024 * 1024 octets)
+      // Vérification de la taille (ici 50 Mo maximum)
       const maxSize = 50 * 1024 * 1024;
       if (file.size > maxSize) {
         alert("La taille de la vidéo ne doit pas dépasser 50 Mo.");
@@ -502,6 +504,7 @@
       document.getElementById("publishMessage").style.color = "#dc3545";
     }
   });
+
   // Récupération des produits du vendeur
   async function fetchSellerProducts() {
     const token = localStorage.getItem('token');
