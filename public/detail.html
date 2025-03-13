@@ -68,9 +68,9 @@ main {
 }
 
 #detailMedia img {
-  width: 300px; /* Taille fixe */
-  height: 300px; /* Hauteur fixe */
-  object-fit: cover; /* Évite la distorsion et garde une bonne apparence */
+  width: 300px; /* Taille fixe par défaut */
+  height: 300px;
+  object-fit: cover;
   border-radius: 8px;
   margin-bottom: 15px;
   transition: transform 0.3s ease;
@@ -161,9 +161,9 @@ main {
 
 /* Boutons */
 .btn {
-  height: 38px; /* Hauteur fixe d'environ 1 cm */
+  height: 38px; /* Hauteur fixe */
   line-height: 38px; /* Alignement vertical du texte */
-  padding: 0 20px; /* Ajoute de l'espace horizontal */
+  padding: 0 20px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -271,6 +271,7 @@ main {
   opacity: 1; 
 }
 
+/* Media Query pour écrans jusqu'à 768px (tablettes/mobile) */
 @media (max-width: 768px) {
   #detailSection {
     flex-direction: column;
@@ -281,12 +282,12 @@ main {
     width: 100%;
   }
 
-  /* Correction : utilisation de #detailMedia img pour la version mobile */
+  /* Dimensions fixes pour l'image principale sur tablette/mobile */
   #detailMedia img {
-    width: 250px; /* Largeur fixe */
-    height: 250px; /* Hauteur fixe */
-    object-fit: cover; /* Maintient le cadrage sans déformation */
-    margin: 0 auto; /* Centre l'image */
+    width: 250px;
+    height: 250px;
+    object-fit: cover;
+    margin: 0 auto;
   }
 
   #imageCarousel {
@@ -304,6 +305,21 @@ main {
     padding: 2px 5px;
     top: -2px;
     right: -5px;
+  }
+}
+
+/* Media Query pour smartphones (max-width: 480px) */
+@media (max-width: 480px) {
+  /* Dimensions réduites pour l'image principale sur smartphone */
+  #detailMedia img {
+    width: 200px;
+    height: 200px;
+  }
+
+  /* Dimensions réduites pour les vignettes de la galerie sur smartphone */
+  #imageCarousel img {
+    width: 60px;
+    height: 60px;
   }
 }
   </style>
