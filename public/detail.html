@@ -66,16 +66,15 @@
       align-items: center;
       text-align: center;
     }
-
-    #detailMedia img {
-      width: 300px;
-      height: 300px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      transition: transform 0.3s ease;
-      cursor: pointer;
-    }
+/* Pour la photo principale */
+#detailImage {
+  width: 24cm;
+  height: 24cm;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+  margin: 0 auto 15px; /* Centre horizontalement avec 15px de marge en bas */
+}
 
     #detailMedia img:hover {
       transform: scale(1.03);
