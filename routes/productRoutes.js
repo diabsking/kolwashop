@@ -20,8 +20,8 @@ const storage = multer.diskStorage({
 // Filtrage des types de fichiers (images et vidéos)
 const fileFilter = (req, file, cb) => {
   const allowedTypes = [
-    'image/jpeg', 'image/png', 'image/gif', // Images
-    'video/mp4', 'video/mpeg', 'video/quicktime' // Vidéos
+    'image/jpeg', 'image/png', 'image/gif',      // Images
+    'video/mp4', 'video/mpeg', 'video/quicktime'   // Vidéos
   ];
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
@@ -30,12 +30,20 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Initialisation de Multer
+// Initialisation de Multer avec limite de 50 Mo
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 50 * 1024 * 1024 } // Limite de 50 Mo
+  limits: { fileSize: 50 * 1024 * 1024 }
 });
+
+// Définition des champs attendus dans le formulaire
+const uploadFields = upload.fields([
+  { name: 'image', maxCount: 1 },
+  { name: 'photos', maxCount: 4 },
+  { name: 'video', maxCount: 1 }
+]);
+
 router.get('/search', productController.getProductsByNameDescription);
 
 // Route pour récupérer les produits populaires
