@@ -333,13 +333,24 @@
     }
 
     // Supprime un produit du panier
-    async function removeFromCart(index) {
-      const removedItem = cartItems.splice(index, 1)[0];
-      await updateCartOnServer(cartItems);
-      loadCart();
-      showNotification(`Produit "${removedItem.name}" supprimé du panier.`);
-    }
-
+function removeFromCart(index) {
+  if (index < 0 || index >= cartItems.length) {
+    console.error("Index de suppression invalide :", index);
+    return;
+  }
+  
+  // Supprime l'élément du tableau
+  const removedItem = cartItems.splice(index, 1)[0];
+  
+  // Mise à jour du panier dans le localStorage
+  localStorage.setItem('cart', JSON.stringify(cartItems));
+  
+  // Recharge le panier pour mettre à jour l'affichage
+  loadCart();
+  
+  // Affiche la notification de suppression
+  showNotification(`Produit "${removedItem.name}" supprimé du panier.`);
+}
     // Met à jour le panier côté serveur
     async function updateCartOnServer(cart) {
       try {

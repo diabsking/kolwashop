@@ -1,6 +1,11 @@
 const Order = require("../models/Order");
 const nodemailer = require("nodemailer");
 
+// Vérification de la présence du mot de passe dans les variables d'environnement
+if (!process.env.MAILO_PASSWORD) {
+  throw new Error("La variable d'environnement MAILO_PASSWORD n'est pas définie.");
+}
+
 // Configuration de Mailo
 const transporter = nodemailer.createTransport({
   host: "mail.mailo.com",
@@ -8,7 +13,7 @@ const transporter = nodemailer.createTransport({
   secure: true,
   auth: {
     user: "kolwazshopp@mailo.com",
-    pass: process.env.MAILO_PASSWORD // Assurez-vous que la variable d'environnement est bien définie
+    pass: process.env.MAILO_PASSWORD
   }
 });
 
@@ -27,14 +32,22 @@ exports.confirmOrder = async (req, res) => {
   try {
     const { email, customerName, shippingAddress, phoneNumber, cartItems } = req.body;
 
-    if (!email?.trim() || !customerName?.trim() || !shippingAddress?.trim() || !phoneNumber?.trim() || !Array.isArray(cartItems) || cartItems.length === 0) {
+    // Vérification des champs requis
+    if (
+      !email?.trim() ||
+      !customerName?.trim() ||
+      !shippingAddress?.trim() ||
+      !phoneNumber?.trim() ||
+      !Array.isArray(cartItems) ||
+      cartItems.length === 0
+    ) {
       return res.status(400).json({ message: "Tous les champs sont requis et le panier ne peut pas être vide !" });
     }
 
     const sellerOrders = {};
 
     // Enregistrer chaque commande et regrouper par vendeur
-    for (let item of cartItems) {
+    for (const item of cartItems) {
       if (!item.sellerEmail) {
         console.warn(`Produit "${item.name}" sans email vendeur.`);
         continue;
@@ -67,7 +80,7 @@ exports.confirmOrder = async (req, res) => {
     }
 
     // Envoi des emails aux vendeurs
-    for (let sellerEmail in sellerOrders) {
+    for (const sellerEmail in sellerOrders) {
       const ordersBySeller = sellerOrders[sellerEmail];
       const productDetails = ordersBySeller.map(order =>
         `- ${order.product.name} (${order.product.quantity} x ${order.product.price} FCFA)\n📷 Photo: ${order.product.imageUrl}`
