@@ -332,16 +332,16 @@
         <input type="number" id="deliveryTime" name="deliveryTime" required>
 
         <label for="image">Image Principale du Produit :</label>
-        <input type="file" id="image" name="image" accept="image/*" required>
+      <input type="file" id="image" name="image" accept="image/*" required>
 
         <!-- Photos complémentaires (nom modifié pour un tableau) -->
        <label for="photos">Photos Complémentaires (max. 4) :</label>
-       <input type="file" id="photos" name="photos" accept="image/*" multiple onchange="checkPhotoCount(this)">
+     <input type="file" id="photos" name="photos" accept="image/*" multiple onchange="checkPhotoCount(this)">
 
         <!-- Vidéo du produit avec vérification -->
         <label for="video">Vidéo du Produit :</label>
-        <input type="file" id="video" name="video" accept="video/*" onchange="checkVideo(this)">
-
+     <input type="file" id="video" name="video" accept="video/*" onchange="checkVideo(this)">
+        
         <!-- Champs optionnels -->
         <label for="discount">Remise (optionnel) :</label>
         <input type="number" id="discount" name="discount" placeholder="0" min="0">
