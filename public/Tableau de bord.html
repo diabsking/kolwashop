@@ -446,7 +446,34 @@
     fetchSellerProducts();
   });
 
-  // Publication d'un produit
+  // Limite de 4 photos pour les photos complémentaires
+  function checkPhotoCount(input) {
+    if (input.files.length > 4) {
+      alert("Vous ne pouvez sélectionner que 4 photos au maximum.");
+      input.value = ""; // Réinitialise la sélection
+    }
+  }
+
+  // Vérification de la vidéo : type et taille (par exemple, 50 Mo maximum)
+  function checkVideo(input) {
+    const file = input.files[0];
+    if (file) {
+      // Vérification du type MIME (doit commencer par "video/")
+      if (!file.type.startsWith("video/")) {
+        alert("Veuillez sélectionner un fichier vidéo valide.");
+        input.value = "";
+        return;
+      }
+      // Optionnel : Vérification de la taille (ici 50 Mo = 50 * 1024 * 1024 octets)
+      const maxSize = 50 * 1024 * 1024;
+      if (file.size > maxSize) {
+        alert("La taille de la vidéo ne doit pas dépasser 50 Mo.");
+        input.value = "";
+      }
+    }
+  }
+
+  // Publication du produit
   document.getElementById("productForm").addEventListener("submit", async function(event) {
     event.preventDefault();
     const formData = new FormData(this);
@@ -467,7 +494,7 @@
       document.getElementById("publishMessage").style.color = response.ok ? "green" : "#dc3545";
       if (response.ok) {
         document.getElementById("productForm").reset();
-        fetchSellerProducts();
+        // Rafraîchir la liste des produits si nécessaire
       }
     } catch (error) {
       console.error('Erreur:', error);
@@ -475,7 +502,6 @@
       document.getElementById("publishMessage").style.color = "#dc3545";
     }
   });
-
   // Récupération des produits du vendeur
   async function fetchSellerProducts() {
     const token = localStorage.getItem('token');
