@@ -4,7 +4,6 @@ const multer = require('multer');
 const path = require('path');
 const productController = require('../controllers/productController');
 const { isAuthenticated } = require('../middlewares/authMiddleware');
-const { getPopularProducts } = require('../controllers/productController');
 
 // Configuration du stockage pour Multer
 const storage = multer.diskStorage({
@@ -30,27 +29,27 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Initialisation de Multer avec limite de 50 Mo
+// Initialisation de Multer avec une limite de 50 Mo
 const upload = multer({
   storage,
   fileFilter,
   limits: { fileSize: 50 * 1024 * 1024 }
 });
 
-// Définition des champs attendus dans le formulaire
+// Déclaration des champs attendus dans le formulaire
 const uploadFields = upload.fields([
   { name: 'image', maxCount: 1 },
   { name: 'photos', maxCount: 4 },
   { name: 'video', maxCount: 1 }
 ]);
 
+// Recherche par nom et description
 router.get('/search', productController.getProductsByNameDescription);
 
 // Route pour récupérer les produits populaires
-router.get('/products/popular', getPopularProducts);
+router.get('/products/popular', productController.getPopularProducts);
 
-// Route pour récupérer les produits similaires
-// Si l'ID du produit n'est pas fourni, on renvoie une erreur explicite
+// Routes pour récupérer les produits similaires
 router.get('/products/similar', (req, res) => {
   res.status(400).json({ message: "L'ID du produit est requis pour récupérer les produits similaires." });
 });
@@ -62,15 +61,14 @@ router.get('/my-products', isAuthenticated, productController.getSellerProducts)
 // Route pour afficher tous les produits
 router.get('/', productController.getAllProducts);
 
-// Route pour afficher un produit spécifique par ID
-// Cette route doit être définie après les routes plus spécifiques
+// Route pour afficher un produit spécifique par ID (à définir en dernier pour éviter les conflits)
 router.get('/:id', productController.getProductById);
 
-// Route pour publier un produit (avec téléchargement d'une image)
-router.post('/publish', isAuthenticated, upload.single('image'), productController.publishProduct);
+// Route pour publier un produit (avec téléchargement d'image, photos et vidéo)
+router.post('/publish', isAuthenticated, uploadFields, productController.publishProduct);
 
-// Route pour mettre à jour un produit (avec téléchargement d'une image)
-router.put('/update/:id', isAuthenticated, upload.single('image'), productController.updateProduct);
+// Route pour mettre à jour un produit (avec téléchargement d'image, photos et vidéo)
+router.put('/update/:id', isAuthenticated, uploadFields, productController.updateProduct);
 
 // Route pour supprimer un produit
 router.delete('/delete/:id', isAuthenticated, productController.deleteProduct);
