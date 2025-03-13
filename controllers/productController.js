@@ -1,15 +1,14 @@
 const Product = require("../models/Product");
-const transporter = require("../config/mailer"); // Module configuré pour nodemailer
+const transporter = require("../config/mailer");
 const SITE_OWNER_EMAIL = process.env.SITE_OWNER_EMAIL || "dieyediabal75@gmail.com";
-const express = require('express');
-const cloudinary = require('cloudinary').v2;
-const nodemailer = require('nodemailer');
+const cloudinary = require("cloudinary").v2;
+const nodemailer = require("nodemailer");
 
 // Configuration de Cloudinary
 cloudinary.config({
-  cloud_name: 'dw9stpq7f',
-  api_key: '892817559812262',
-  api_secret: 'wx0QCh5x2hm7pCq7q__DGeT6ZR4'
+  cloud_name: "dw9stpq7f",
+  api_key: "892817559812262",
+  api_secret: "wx0QCh5x2hm7pCq7q__DGeT6ZR4",
 });
 
 console.log("WAVE_PAYMENT_ENABLED:", process.env.WAVE_PAYMENT_ENABLED);
@@ -17,7 +16,7 @@ console.log("WAVE_PHONE_NUMBER:", process.env.WAVE_PHONE_NUMBER);
 console.log("User:", process.env.EMAIL_USER);
 console.log("Pass:", process.env.EMAIL_PASS ? "OK" : "NON RÉCUPÉRÉ");
 
-// Fonction de validation pour s'assurer que l'URL de l'image ne contient pas de contenu inapproprié
+// Fonction de validation pour l'image du produit
 function validateProductImage(imagePath) {
   console.log("Validation de l'image:", imagePath);
   if (imagePath.includes("porn") || imagePath.includes("adult")) {
@@ -27,7 +26,7 @@ function validateProductImage(imagePath) {
   return true;
 }
 
-// Fonction pour simuler le traitement d'un paiement via Wave
+// Fonction pour simuler un paiement via Wave
 async function processWavePayment(amount, phoneNumber) {
   console.log(`Paiement de ${amount} FCFA via Wave au ${phoneNumber}...`);
   return new Promise((resolve, reject) => {
@@ -44,14 +43,14 @@ async function processWavePayment(amount, phoneNumber) {
   });
 }
 
-// Publication d'un produit avec gestion de l'image principale, des photos complémentaires et de la vidéo
-exports.publishProduct = async (req, res) => {
+// Fonction pour publier un produit
+const publishProduct = async (req, res) => {
   try {
     console.log("Corps de la requête:", req.body);
     console.log("Fichiers de la requête:", req.files);
 
     const { productName, description, price, deliveryTime, category } = req.body;
-    // Extraction des champs optionnels supplémentaires
+    // Champs optionnels
     const discount = req.body.discount ? parseFloat(req.body.discount) : 0;
     const discountType = req.body.discountType || "";
     const brand = req.body.brand || "";
@@ -62,19 +61,24 @@ exports.publishProduct = async (req, res) => {
     const width = req.body.width ? parseFloat(req.body.width) : 0;
     const height = req.body.height ? parseFloat(req.body.height) : 0;
     const shippingCost = req.body.shippingCost ? parseFloat(req.body.shippingCost) : 0;
-    const estimatedDelivery = req.body.estimatedDelivery ? parseInt(req.body.estimatedDelivery, 10) : 0;
+    const estimatedDelivery = req.body.estimatedDelivery
+      ? parseInt(req.body.estimatedDelivery, 10)
+      : 0;
     const returnPolicy = req.body.returnPolicy || "";
     const warranty = req.body.warranty || "";
 
     // Vérification des champs obligatoires
-    const imageFile = req.files && req.files.image ? req.files.image[0] : null;
+    const imageFile =
+      req.files && req.files.image ? req.files.image[0] : null;
     if (!productName || !description || !price || !deliveryTime || !category || !imageFile) {
-      return res.status(400).json({ message: "Tous les champs obligatoires sont requis !" });
+      return res
+        .status(400)
+        .json({ message: "Tous les champs obligatoires sont requis !" });
     }
 
     // Upload de l'image principale sur Cloudinary
     const cloudinaryUpload = await cloudinary.uploader.upload(imageFile.path, {
-      folder: 'kolwaz_shop_products',
+      folder: "kolwaz_shop_products",
     });
     const imageUrl = cloudinaryUpload.secure_url;
 
@@ -83,13 +87,13 @@ exports.publishProduct = async (req, res) => {
       return res.status(400).json({ message: "Image principale non conforme." });
     }
 
-    // Upload des photos complémentaires (limitées à 4)
+    // Upload des photos complémentaires (max 4)
     let photosUrls = [];
     if (req.files && req.files.photos) {
       for (let file of req.files.photos) {
         if (photosUrls.length >= 4) break;
         const uploadPhoto = await cloudinary.uploader.upload(file.path, {
-          folder: 'kolwaz_shop_products',
+          folder: "kolwaz_shop_products",
         });
         photosUrls.push(uploadPhoto.secure_url);
       }
@@ -100,7 +104,7 @@ exports.publishProduct = async (req, res) => {
     if (req.files && req.files.video && req.files.video[0]) {
       const videoFile = req.files.video[0];
       const uploadVideo = await cloudinary.uploader.upload(videoFile.path, {
-        folder: 'kolwaz_shop_products',
+        folder: "kolwaz_shop_products",
         resource_type: "video",
       });
       videoUrl = uploadVideo.secure_url;
@@ -108,8 +112,15 @@ exports.publishProduct = async (req, res) => {
 
     const priceNumber = parseFloat(price);
     const deliveryTimeNumber = parseInt(deliveryTime, 10);
-    if (isNaN(priceNumber) || priceNumber <= 0 || isNaN(deliveryTimeNumber) || deliveryTimeNumber <= 0) {
-      return res.status(400).json({ message: "Prix ou délai de livraison invalide." });
+    if (
+      isNaN(priceNumber) ||
+      priceNumber <= 0 ||
+      isNaN(deliveryTimeNumber) ||
+      deliveryTimeNumber <= 0
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Prix ou délai de livraison invalide." });
     }
 
     // Traitement du paiement via Wave si activé
@@ -149,7 +160,7 @@ exports.publishProduct = async (req, res) => {
     await newProduct.save();
     console.log("Produit enregistré:", productName);
 
-    // Si la fonction shareOnTwitter est définie, on l'appelle
+    // Optionnel : partage sur Twitter si la fonction shareOnTwitter existe
     if (typeof shareOnTwitter === "function") {
       await shareOnTwitter(newProduct);
     }
@@ -177,8 +188,8 @@ exports.publishProduct = async (req, res) => {
   }
 };
 
-// Récupération de tous les produits pour affichage sur la page d'accueil
-exports.getAllProducts = async (req, res) => {
+// Récupération de tous les produits
+const getAllProducts = async (req, res) => {
   try {
     console.log("Récupération des produits...");
     const products = await Product.find({}).sort({ createdAt: -1 });
@@ -191,7 +202,7 @@ exports.getAllProducts = async (req, res) => {
 };
 
 // Récupération des produits du vendeur connecté
-exports.getSellerProducts = async (req, res) => {
+const getSellerProducts = async (req, res) => {
   try {
     const sellerEmail = req.user.email;
     console.log("Récupération des produits pour le vendeur:", sellerEmail);
@@ -204,8 +215,8 @@ exports.getSellerProducts = async (req, res) => {
   }
 };
 
-// Récupération d'un produit par ID
-exports.getProductById = async (req, res) => {
+// Récupération d'un produit par son ID
+const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
@@ -220,16 +231,17 @@ exports.getProductById = async (req, res) => {
   }
 };
 
-// Récupération des produits populaires (basé sur les vues, ajouts au panier, commandes et ancienneté)
+// Récupération des produits populaires
 const getPopularProducts = async (req, res) => {
   try {
     const produits = await Product.find();
     const produitsPopulaires = produits.map((produit) => {
       const { productName, imageUrl, price } = produit;
-      const score = (produit.views * 0.2) +
-                    (produit.addToCart * 0.5) +
-                    (produit.orders * 1) -
-                    ((Date.now() - new Date(produit.createdAt)) / (1000 * 60 * 60 * 24 * 7));
+      const score =
+        (produit.views * 0.2) +
+        (produit.addToCart * 0.5) +
+        (produit.orders * 1) -
+        ((Date.now() - new Date(produit.createdAt)) / (1000 * 60 * 60 * 24 * 7));
       return { productName, imageUrl, price, score };
     });
     produitsPopulaires.sort((a, b) => b.score - a.score);
@@ -243,19 +255,17 @@ const getPopularProducts = async (req, res) => {
 const getSimilarProducts = async (req, res) => {
   try {
     const { productId } = req.params;
-    // Récupérer le produit de référence
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ message: "Produit de référence non trouvé" });
     }
-    // Rechercher des produits similaires par catégorie et (optionnellement) par nom ou description
     const similarProducts = await Product.find({
       category: product.category,
       _id: { $ne: productId },
       $or: [
         { productName: { $regex: new RegExp(product.productName, "i") } },
-        { description: { $regex: new RegExp(product.description, "i") } }
-      ]
+        { description: { $regex: new RegExp(product.description, "i") } },
+      ],
     }).limit(10);
     res.status(200).json(similarProducts);
   } catch (error) {
@@ -265,30 +275,40 @@ const getSimilarProducts = async (req, res) => {
 };
 
 // Mise à jour d'un produit
-exports.updateProduct = async (req, res) => {
+const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const sellerEmail = req.user.email;
     console.log("Mise à jour du produit:", id);
-
     const product = await Product.findOne({ _id: id, sellerEmail });
     if (!product) {
-      console.error("Produit non trouvé pour mise à jour ou non autorisé:", id);
+      console.error("Produit non trouvé ou non autorisé pour mise à jour:", id);
       return res.status(404).json({ message: "Produit non trouvé ou modification non autorisée." });
     }
-
     const { productName, description, price, deliveryTime } = req.body;
     if (
-      !productName && !description && !price && !deliveryTime &&
-      !req.body.discount && !req.body.discountType && !req.body.brand && !req.body.stock &&
-      !req.body.sku && !req.body.weight && !req.body.length && !req.body.width && !req.body.height &&
-      !req.body.shippingCost && !req.body.estimatedDelivery && !req.body.returnPolicy && !req.body.warranty &&
+      !productName &&
+      !description &&
+      !price &&
+      !deliveryTime &&
+      !req.body.discount &&
+      !req.body.discountType &&
+      !req.body.brand &&
+      !req.body.stock &&
+      !req.body.sku &&
+      !req.body.weight &&
+      !req.body.length &&
+      !req.body.width &&
+      !req.body.height &&
+      !req.body.shippingCost &&
+      !req.body.estimatedDelivery &&
+      !req.body.returnPolicy &&
+      !req.body.warranty &&
       (!req.files || (!req.files.image && !req.files.photos && !req.files.video))
     ) {
       console.error("Aucune donnée à mettre à jour.");
       return res.status(400).json({ message: "Aucune donnée à mettre à jour." });
     }
-
     if (productName) product.productName = productName;
     if (description) product.description = description;
     if (price) {
@@ -305,7 +325,6 @@ exports.updateProduct = async (req, res) => {
       }
       product.deliveryTime = deliveryTimeNumber;
     }
-
     if (req.body.discount !== undefined) product.discount = parseFloat(req.body.discount);
     if (req.body.discountType) product.discountType = req.body.discountType;
     if (req.body.brand) product.brand = req.body.brand;
@@ -323,16 +342,13 @@ exports.updateProduct = async (req, res) => {
     if (req.body.estimatedDelivery !== undefined) product.estimatedDelivery = parseInt(req.body.estimatedDelivery, 10);
     if (req.body.returnPolicy) product.returnPolicy = req.body.returnPolicy;
     if (req.body.warranty) product.warranty = req.body.warranty;
-
     if (req.files && req.files.image) {
       const imageFile = req.files.image[0];
       if (!validateProductImage(imageFile.path)) {
         console.error("Image non conforme:", imageFile.path);
         return res.status(400).json({ message: "Mise à jour refusée : image non conforme." });
       }
-      const cloudinaryUpload = await cloudinary.uploader.upload(imageFile.path, {
-        folder: 'kolwaz_shop_products',
-      });
+      const cloudinaryUpload = await cloudinary.uploader.upload(imageFile.path, { folder: "kolwaz_shop_products" });
       if (cloudinaryUpload && cloudinaryUpload.secure_url) {
         product.imageUrl = cloudinaryUpload.secure_url;
       } else {
@@ -340,34 +356,45 @@ exports.updateProduct = async (req, res) => {
         return res.status(500).json({ message: "Erreur lors de l'upload sur Cloudinary" });
       }
     }
-
     if (req.files && req.files.photos) {
       let photosUrls = [];
       for (let file of req.files.photos) {
         if (photosUrls.length >= 4) break;
-        const uploadPhoto = await cloudinary.uploader.upload(file.path, {
-          folder: 'kolwaz_shop_products',
-        });
+        const uploadPhoto = await cloudinary.uploader.upload(file.path, { folder: "kolwaz_shop_products" });
         photosUrls.push(uploadPhoto.secure_url);
       }
       product.photos = photosUrls;
     }
-
     if (req.files && req.files.video) {
       const videoFile = req.files.video[0];
-      const uploadVideo = await cloudinary.uploader.upload(videoFile.path, {
-        folder: 'kolwaz_shop_products',
-        resource_type: "video",
-      });
+      const uploadVideo = await cloudinary.uploader.upload(videoFile.path, { folder: "kolwaz_shop_products", resource_type: "video" });
       product.videoUrl = uploadVideo.secure_url;
     }
-
     await product.save();
     console.log("Produit mis à jour:", product);
     res.status(200).json({ message: "Produit mis à jour", product });
   } catch (err) {
     console.error("Erreur lors de la mise à jour du produit:", err.message);
     res.status(500).json({ error: err.message });
+  }
+};
+
+// Suppression d'un produit
+const deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    let product;
+    if (req.user.role === "admin") {
+      product = await Product.findByIdAndDelete(id);
+    } else {
+      product = await Product.findOneAndDelete({ _id: id, sellerEmail: req.user.email });
+    }
+    if (!product) {
+      return res.status(404).json({ message: "Produit non trouvé ou suppression non autorisée." });
+    }
+    res.status(200).json({ message: "Produit supprimé avec succès" });
+  } catch (err) {
+    res.status(500).json({ error: "Erreur lors de la suppression du produit" });
   }
 };
 
