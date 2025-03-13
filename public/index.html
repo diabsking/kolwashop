@@ -480,6 +480,25 @@ main section {
     font-size: 1.5rem;
   }
 }
+#detailMedia {
+  position: relative;
+}
+
+#detailMedia img {
+  position: relative;
+  z-index: 1;
+}
+
+#detailMedia::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white; /* Fond blanc */
+  z-index: 0;
+}
 /* Boutons dans la section détail */
 #addToCartButton,
 #returnToProductsButton {
@@ -989,54 +1008,6 @@ footer {
       <div id="productGrid" class="grid-container"></div>
     </section>
     <div id="productContainer" style="display: none;"></div>
-    <!-- Section de détail du produit -->
-  <div id="detailSection" style="display: none;">
-  <h2>Image principale du produit</h2>
-  <img id="detailImage" src="" alt="Image du produit">
-
-  <h3>Galerie d'images</h3>
-  <div id="imageCarousel" class="carousel"></div>
-
-  <h3>Vidéo du produit</h3>
-  <video id="detailVideo" controls style="display: none;"></video>
-</div>
-     <h1 id="detailName">Nom du produit : </h1>
-<p id="detailDescription"><strong>Description : </strong></p>
-<p id="detailPrice"><strong>Prix : </strong></p>
-<p id="detailSeller"><strong>Vendeur : </strong></p>
-<p id="detailStock"><strong>Stock disponible : </strong></p>
-<p id="detailCreatedAt"><strong>Date de publication : </strong></p>
-<p id="detailOrders"><strong>Nombre de commandes : </strong></p>
-<p id="detailViews"><strong>Nombre de vues : </strong></p>
-<p id="detailAddToCart"><strong>Option d'ajout au panier : </strong></p>
-      
-      <!-- Informations complémentaires -->
-      <p><strong>Remise :</strong> <span id="detailDiscount"></span></p>
-      <p><strong>Marque :</strong> <span id="detailBrand"></span></p>
-      <p><strong>Référence (SKU) :</strong> <span id="detailSKU"></span></p>
-      <p><strong>Poids :</strong> <span id="detailWeight"></span> kg</p>
-      <p><strong>Dimensions (L x l x H) :</strong> <span id="detailDimensions"></span> cm</p>
-      <p><strong>Frais de livraison :</strong> <span id="detailShippingCost"></span> FCFA</p>
-      <p><strong>Délai de livraison estimé :</strong> <span id="detailEstimatedDelivery"></span> jours</p>
-      <p><strong>Politique de retour :</strong> <span id="detailReturnPolicy"></span></p>
-      <p><strong>Garantie :</strong> <span id="detailWarranty"></span></p>
-      
-      <div id="reviewSection"></div>
-      <button id="contactSellerButton" style="display: none;">Contacter le vendeur</button>
-      <button id="addToCartButton">Ajouter au panier</button>
-      <button id="returnToProductsButton">Retour aux produits</button>
-      <div id="similarGrid" class="similar-grid"></div>
-      
-      <!-- Section pour discuter avec le vendeur -->
-      <div id="contactSellerSection">
-        <h3>Discuter avec le vendeur</h3>
-        <textarea id="contactSellerMessage" placeholder="Votre message"></textarea>
-        <button onclick="contactSeller()">Envoyer</button>
-      </div>
-    </div>
-    <div id="review-section">
-      <!-- Les avis clients s'afficheront ici -->
-    </div>
   </main>
   
   <!-- Pied de page -->
