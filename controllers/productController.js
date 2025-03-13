@@ -1,10 +1,11 @@
 const Product = require("../models/Product");
-const transporter = require("../config/mailer"); // Utilisation d'un module configuré pour nodemailer
+const transporter = require("../config/mailer"); // Module configuré pour nodemailer
 const SITE_OWNER_EMAIL = process.env.SITE_OWNER_EMAIL || "dieyediabal75@gmail.com";
 const express = require('express');
 const cloudinary = require('cloudinary').v2;
 const nodemailer = require('nodemailer');
 
+// Configuration de Cloudinary
 cloudinary.config({
   cloud_name: 'dw9stpq7f',
   api_key: '892817559812262',
@@ -31,7 +32,7 @@ async function processWavePayment(amount, phoneNumber) {
   console.log(`Paiement de ${amount} FCFA via Wave au ${phoneNumber}...`);
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      const isPaymentSuccessful = Math.random() > 0.2;  // 80% de chances de succès
+      const isPaymentSuccessful = Math.random() > 0.2; // 80% de chances de succès
       if (isPaymentSuccessful) {
         console.log("Paiement réussi !");
         resolve({ success: true });
@@ -148,12 +149,12 @@ exports.publishProduct = async (req, res) => {
     await newProduct.save();
     console.log("Produit enregistré:", productName);
 
-    // Partage sur Twitter (si la fonction shareOnTwitter est définie)
+    // Si la fonction shareOnTwitter est définie, on l'appelle
     if (typeof shareOnTwitter === "function") {
-      await shareOnTwitter(newProduct); 
+      await shareOnTwitter(newProduct);
     }
 
-    // Envoi d'un email de notification en utilisant le transporter configuré
+    // Envoi d'un email de notification
     const mailOptions = {
       from: process.env.MAILO_USER,
       to: SITE_OWNER_EMAIL,
@@ -203,6 +204,7 @@ exports.getSellerProducts = async (req, res) => {
   }
 };
 
+// Récupération d'un produit par ID
 exports.getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -218,12 +220,12 @@ exports.getProductById = async (req, res) => {
   }
 };
 
-exports.getPopularProducts = async (req, res) => {
+// Récupération des produits populaires (basé sur les vues, ajouts au panier, commandes et ancienneté)
+const getPopularProducts = async (req, res) => {
   try {
     const produits = await Product.find();
     const produitsPopulaires = produits.map((produit) => {
       const { productName, imageUrl, price } = produit;
-      // Calcul d'un score en fonction des vues, ajouts au panier, commandes et de l'ancienneté
       const score = (produit.views * 0.2) +
                     (produit.addToCart * 0.5) +
                     (produit.orders * 1) -
@@ -231,11 +233,38 @@ exports.getPopularProducts = async (req, res) => {
       return { productName, imageUrl, price, score };
     });
     produitsPopulaires.sort((a, b) => b.score - a.score);
-    res.json(produitsPopulaires.slice(0, 10));
+    res.status(200).json(produitsPopulaires.slice(0, 10));
   } catch (error) {
     res.status(500).json({ message: "Erreur serveur", error });
   }
 };
+
+// Récupération des produits similaires à partir d'un produit de référence
+const getSimilarProducts = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    // Récupérer le produit de référence
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Produit de référence non trouvé" });
+    }
+    // Rechercher des produits similaires par catégorie et (optionnellement) par nom ou description
+    const similarProducts = await Product.find({
+      category: product.category,
+      _id: { $ne: productId },
+      $or: [
+        { productName: { $regex: new RegExp(product.productName, "i") } },
+        { description: { $regex: new RegExp(product.description, "i") } }
+      ]
+    }).limit(10);
+    res.status(200).json(similarProducts);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des produits similaires:", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+// Mise à jour d'un produit
 exports.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -248,7 +277,6 @@ exports.updateProduct = async (req, res) => {
       return res.status(404).json({ message: "Produit non trouvé ou modification non autorisée." });
     }
 
-    // Extraction des champs du corps de la requête
     const { productName, description, price, deliveryTime } = req.body;
     if (
       !productName && !description && !price && !deliveryTime &&
@@ -278,7 +306,6 @@ exports.updateProduct = async (req, res) => {
       product.deliveryTime = deliveryTimeNumber;
     }
 
-    // Mise à jour des champs optionnels
     if (req.body.discount !== undefined) product.discount = parseFloat(req.body.discount);
     if (req.body.discountType) product.discountType = req.body.discountType;
     if (req.body.brand) product.brand = req.body.brand;
@@ -297,7 +324,6 @@ exports.updateProduct = async (req, res) => {
     if (req.body.returnPolicy) product.returnPolicy = req.body.returnPolicy;
     if (req.body.warranty) product.warranty = req.body.warranty;
 
-    // Mise à jour de la nouvelle image principale, si fournie
     if (req.files && req.files.image) {
       const imageFile = req.files.image[0];
       if (!validateProductImage(imageFile.path)) {
@@ -315,7 +341,6 @@ exports.updateProduct = async (req, res) => {
       }
     }
 
-    // Mise à jour des photos complémentaires
     if (req.files && req.files.photos) {
       let photosUrls = [];
       for (let file of req.files.photos) {
@@ -328,7 +353,6 @@ exports.updateProduct = async (req, res) => {
       product.photos = photosUrls;
     }
 
-    // Mise à jour de la vidéo
     if (req.files && req.files.video) {
       const videoFile = req.files.video[0];
       const uploadVideo = await cloudinary.uploader.upload(videoFile.path, {
@@ -347,35 +371,13 @@ exports.updateProduct = async (req, res) => {
   }
 };
 
-// Suppression d'un produit
-exports.deleteProduct = async (req, res) => {
-  try {
-    const { id } = req.params;
-    let product;
-    if (req.user.role === "admin") {
-      product = await Product.findByIdAndDelete(id);
-    } else {
-      product = await Product.findOneAndDelete({ _id: id, sellerEmail: req.user.email });
-    }
-    if (!product) {
-      return res.status(404).json({ message: "Produit non trouvé ou suppression non autorisée." });
-    }
-    res.status(200).json({ message: "Produit supprimé avec succès" });
-  } catch (err) {
-    res.status(500).json({ error: "Erreur lors de la suppression du produit" });
-  }
+module.exports = { 
+  publishProduct, 
+  getAllProducts, 
+  getSellerProducts, 
+  getProductById, 
+  getPopularProducts, 
+  getSimilarProducts, 
+  updateProduct, 
+  deleteProduct 
 };
-
-// Récupérer les produits populaires (exemple basé sur les vues)
-const getPopularProducts = async (req, res) => {
-    try {
-        const popularProducts = await Product.find().sort({ views: -1 }).limit(50); // Trier par vues
-        res.status(200).json(popularProducts);
-    } catch (error) {
-        console.error("Erreur lors de la récupération des produits populaires:", error);
-        res.status(500).json({ message: "Erreur serveur" });
-    }
-};
-
-// Exporter les fonctions
-module.exports = {getPopularProducts };

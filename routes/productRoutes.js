@@ -6,7 +6,7 @@ const productController = require('../controllers/productController');
 const { isAuthenticated } = require('../middlewares/authMiddleware');
 const { getPopularProducts } = require('../controllers/productController');
 
-// Configuration du stockage
+// Configuration du stockage pour Multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/'); // Dossier où les fichiers seront stockés
@@ -17,13 +17,12 @@ const storage = multer.diskStorage({
   },
 });
 
-// Filtrage des types de fichiers
+// Filtrage des types de fichiers (images et vidéos)
 const fileFilter = (req, file, cb) => {
   const allowedTypes = [
     'image/jpeg', 'image/png', 'image/gif', // Images
     'video/mp4', 'video/mpeg', 'video/quicktime' // Vidéos
   ];
-
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
@@ -35,15 +34,14 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 50 * 1024 * 1024 }, // Limite de 50 Mo (peut être ajustée)
+  limits: { fileSize: 50 * 1024 * 1024 } // Limite de 50 Mo
 });
 
-module.exports = {
-  uploadSingle: upload.single('file'), // Pour un seul fichier
-  uploadMultiple: upload.array('files', 10) // Pour plusieurs fichiers (max 10)
-};
+// Route pour récupérer les produits populaires
+router.get('/products/popular', getPopularProducts);
 
-router.get('/products/popular', getPopularProducts); // ✅ Route spécifique d'abord
+// Route pour récupérer les produits similaires
+router.get('/products/similar/:productId', productController.getSimilarProducts);
 
 // Route pour récupérer les produits du vendeur connecté
 router.get('/my-products', isAuthenticated, productController.getSellerProducts);
@@ -54,10 +52,10 @@ router.get('/', productController.getAllProducts);
 // Route pour afficher un produit spécifique par ID
 router.get('/:id', productController.getProductById);
 
-// Route pour publier un produit
+// Route pour publier un produit (avec téléchargement d'une image)
 router.post('/publish', isAuthenticated, upload.single('image'), productController.publishProduct);
 
-// Route pour mettre à jour un produit
+// Route pour mettre à jour un produit (avec téléchargement d'une image)
 router.put('/update/:id', isAuthenticated, upload.single('image'), productController.updateProduct);
 
 // Route pour supprimer un produit
