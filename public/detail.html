@@ -30,6 +30,12 @@ body {
   to { opacity: 1; } 
 }
 
+/* Animation slideIn ajoutée */
+@keyframes slideIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
 /* MAIN : Contenu principal */
 main {
   max-width: 1200px;
@@ -275,7 +281,8 @@ main {
     width: 100%;
   }
 
-  #detailImage {
+  /* Correction : utilisation de #detailMedia img pour la version mobile */
+  #detailMedia img {
     width: 250px; /* Largeur fixe */
     height: 250px; /* Hauteur fixe */
     object-fit: cover; /* Maintient le cadrage sans déformation */
