@@ -13,6 +13,17 @@ cloudinary.config({
   api_secret: "wx0QCh5x2hm7pCq7q__DGeT6ZR4",
 });
 
+// Configuration du transporteur pour l'envoi d'e-mails
+const transporter = nodemailer.createTransport({
+  host: "mail.mailo.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: "kolwazshopp@mailo.com",
+    pass: process.env.MAILO_PASSWORD,
+  }
+});
+
 console.log("WAVE_PAYMENT_ENABLED:", process.env.WAVE_PAYMENT_ENABLED);
 console.log("WAVE_PHONE_NUMBER:", process.env.WAVE_PHONE_NUMBER);
 console.log("User:", process.env.EMAIL_USER);
