@@ -1,21 +1,22 @@
 const Order = require("../models/Order");
 const nodemailer = require("nodemailer");
 
-// Vérification de la présence du mot de passe dans les variables d'environnement
-if (!process.env.MAILO_PASSWORD) {
-  throw new Error("La variable d'environnement MAILO_PASSWORD n'est pas définie.");
-}
-
-// Configuration de Mailo
+// Configuration du transporteur pour l'envoi d'e-mails
 const transporter = nodemailer.createTransport({
   host: "mail.mailo.com",
   port: 465,
   secure: true,
   auth: {
-    user: "kolwazshopp@mailo.com",
+     user: "kolwazshopp@mailo.com",
     pass: process.env.MAILO_PASSWORD,
   }
 });
+
+// Vérification de la présence du mot de passe dans les variables d'environnement
+if (!process.env.MAILO_PASSWORD) {
+  throw new Error("La variable d'environnement MAILO_PASSWORD n'est pas définie.");
+}
+
 
 // Fonction pour afficher le panier
 exports.viewCart = (req, res) => {
