@@ -310,13 +310,19 @@ main {
 
 /* Media Query pour smartphones (max-width: 480px) */
 @media (max-width: 480px) {
-  /* Dimensions réduites pour l'image principale sur smartphone */
+  /* Retrait des ombres sur le conteneur principal et les éléments similaires */
+  #detailSection, .similar-item {
+    box-shadow: none;
+  }
+
+  /* Dimensions réduites et prévention du débordement pour l'image principale */
   #detailMedia img {
     width: 200px;
     height: 200px;
+    max-width: 100%;
   }
 
-  /* Dimensions réduites pour les vignettes de la galerie sur smartphone */
+  /* Dimensions réduites pour les vignettes de la galerie */
   #imageCarousel img {
     width: 60px;
     height: 60px;
