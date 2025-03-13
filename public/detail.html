@@ -293,14 +293,35 @@ main {
   opacity: 1; 
 }
 
-/* Responsivité : empiler les éléments en colonne sur mobile */
 @media (max-width: 768px) {
   #detailSection {
     flex-direction: column;
+    padding: 15px;
   }
-  
+
   #detailMedia, #detailInfo {
     width: 100%;
+  }
+
+  #detailImage {
+    max-width: 90%;
+  }
+
+  #imageCarousel {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .btn {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .cart-icon span {
+    font-size: 12px;
+    padding: 2px 5px;
+    top: -2px;
+    right: -5px;
   }
 }
   </style>
