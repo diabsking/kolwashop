@@ -394,4 +394,4 @@ const getPopularProducts = async (req, res) => {
         res.status(500).json({ message: "Erreur serveur" });
     }
 };
-module.exports = { getPopularProducts, getSimilarProducts };
+module.exports = { getSimilarProducts, getPopularProducts }; 

@@ -5,7 +5,7 @@ const path = require('path');
 const productController = require('../controllers/productController');
 const { isAuthenticated } = require('../middlewares/authMiddleware');
 const { getPopularProducts } = require('../controllers/productController');
-const { getSimilarProducts } = require('../controllers/productController'); // Assure-toi que c'est bien importé
+const { getSimilarProducts } = require('../controllers/productController');
 
 // Configuration du stockage
 const storage = multer.diskStorage({
