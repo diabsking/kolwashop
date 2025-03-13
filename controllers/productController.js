@@ -61,19 +61,19 @@ const publishProduct = async (req, res) => {
     const width = req.body.width ? parseFloat(req.body.width) : 0;
     const height = req.body.height ? parseFloat(req.body.height) : 0;
     const shippingCost = req.body.shippingCost ? parseFloat(req.body.shippingCost) : 0;
-    const estimatedDelivery = req.body.estimatedDelivery
-      ? parseInt(req.body.estimatedDelivery, 10)
-      : 0;
+    const estimatedDelivery = req.body.estimatedDelivery ? parseInt(req.body.estimatedDelivery, 10) : 0;
     const returnPolicy = req.body.returnPolicy || "";
     const warranty = req.body.warranty || "";
 
     // Vérification des champs obligatoires
-    const imageFile =
-      req.files && req.files.image ? req.files.image[0] : null;
+    const imageFile = req.files && req.files.image ? req.files.image[0] : null;
     if (!productName || !description || !price || !deliveryTime || !category || !imageFile) {
-      return res
-        .status(400)
-        .json({ message: "Tous les champs obligatoires sont requis !" });
+      return res.status(400).json({ message: "Tous les champs obligatoires sont requis !" });
+    }
+
+    // Validation de l'image principale AVANT l'upload (optionnel, à adapter selon vos besoins)
+    if (!validateProductImage(imageFile.path)) {
+      return res.status(400).json({ message: "Image principale non conforme." });
     }
 
     // Upload de l'image principale sur Cloudinary
@@ -81,11 +81,6 @@ const publishProduct = async (req, res) => {
       folder: "kolwaz_shop_products",
     });
     const imageUrl = cloudinaryUpload.secure_url;
-
-    // Validation de l'image principale
-    if (!validateProductImage(imageFile.path)) {
-      return res.status(400).json({ message: "Image principale non conforme." });
-    }
 
     // Upload des photos complémentaires (max 4)
     let photosUrls = [];
@@ -112,15 +107,8 @@ const publishProduct = async (req, res) => {
 
     const priceNumber = parseFloat(price);
     const deliveryTimeNumber = parseInt(deliveryTime, 10);
-    if (
-      isNaN(priceNumber) ||
-      priceNumber <= 0 ||
-      isNaN(deliveryTimeNumber) ||
-      deliveryTimeNumber <= 0
-    ) {
-      return res
-        .status(400)
-        .json({ message: "Prix ou délai de livraison invalide." });
+    if (isNaN(priceNumber) || priceNumber <= 0 || isNaN(deliveryTimeNumber) || deliveryTimeNumber <= 0) {
+      return res.status(400).json({ message: "Prix ou délai de livraison invalide." });
     }
 
     // Traitement du paiement via Wave si activé
@@ -167,7 +155,8 @@ const publishProduct = async (req, res) => {
 
     // Envoi d'un email de notification
     const mailOptions = {
-      from: process.env.MAILO_USER,
+      // Correction : utilisation de process.env.EMAIL_USER pour être cohérent
+      from: process.env.EMAIL_USER,
       to: SITE_OWNER_EMAIL,
       subject: "Nouvelle annonce publiée",
       text: `Produit : ${productName}\nDescription : ${description}\nCatégorie : ${category}\nPrix : ${priceNumber} FCFA\nDélai : ${deliveryTimeNumber} jours`,
@@ -397,6 +386,7 @@ const deleteProduct = async (req, res) => {
     res.status(500).json({ error: "Erreur lors de la suppression du produit" });
   }
 };
+
 const getProductsByNameDescription = async (req, res) => {
   try {
     const { name, description } = req.query;
@@ -417,6 +407,7 @@ const getProductsByNameDescription = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 module.exports = { 
   publishProduct, 
   getAllProducts, 
@@ -426,5 +417,5 @@ module.exports = {
   getSimilarProducts, 
   updateProduct, 
   deleteProduct,
-   getProductsByNameDescription 
+  getProductsByNameDescription 
 };
