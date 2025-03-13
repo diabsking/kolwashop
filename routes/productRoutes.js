@@ -4,8 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const productController = require('../controllers/productController');
 const { isAuthenticated } = require('../middlewares/authMiddleware');
-const { getPopularProducts } = require('../controllers/productController');
-const { getSimilarProducts } = require('../controllers/productController');
+const { getPopularProducts, getSimilarProducts } = require('../controllers/productController');
 
 // Configuration du stockage
 const storage = multer.diskStorage({
@@ -43,11 +42,11 @@ module.exports = {
   uploadSingle: upload.single('file'), // Pour un seul fichier
   uploadMultiple: upload.array('files', 10) // Pour plusieurs fichiers (max 10)
 };
-router.get('/api/products/similar', getSimilarProducts);
+// Route pour récupérer les produits similaires
+router.get('/api/products/similar/:productId', getSimilarProducts);
 
 router.get('/products/popular', getPopularProducts); // ✅ Route spécifique d'abord
 
-router.get("/popular", productController.getPopularProducts);
 // Route pour récupérer les produits du vendeur connecté
 router.get('/my-products', isAuthenticated, productController.getSellerProducts);
 
