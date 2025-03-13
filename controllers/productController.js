@@ -29,7 +29,7 @@ console.log("Pass:", process.env.EMAIL_PASS ? "OK" : "NON RÉCUPÉRÉ");
 // Fonction de validation pour l'image du produit
 function validateProductImage(imagePath) {
   console.log("Validation de l'image:", imagePath);
-  // Vérifier certains mots interdits dans le chemin (exemple de validation)
+  // Vérification simple pour éviter certains contenus inappropriés
   if (imagePath.toLowerCase().includes("porn") || imagePath.toLowerCase().includes("adult")) {
     console.log("Image rejetée: contenu inapproprié");
     return false;
@@ -57,6 +57,7 @@ async function processWavePayment(amount, phoneNumber) {
 // Publication d'un produit
 const publishProduct = async (req, res) => {
   try {
+    // Pour faciliter le debug, on logue les données reçues
     console.log("req.body:", req.body);
     console.log("req.files:", req.files);
 
@@ -66,6 +67,7 @@ const publishProduct = async (req, res) => {
       return res.status(401).json({ message: "Utilisateur non authentifié" });
     }
 
+    // Extraction des champs obligatoires
     const { productName, description, price, deliveryTime, category } = req.body;
     // Champs optionnels
     const discount = req.body.discount ? parseFloat(req.body.discount) : 0;
@@ -113,8 +115,9 @@ const publishProduct = async (req, res) => {
 
     // Upload des photos complémentaires (max. 4)
     let photosUrls = [];
-    if (req.files && req.files.photos) {
+    if (req.files && req.files.photos && Array.isArray(req.files.photos)) {
       for (let file of req.files.photos) {
+        // Limiter à 4 photos
         if (photosUrls.length >= 4) break;
         const uploadPhoto = await cloudinary.uploader.upload(file.path, {
           folder: "kolwaz_shop_products",
@@ -129,7 +132,7 @@ const publishProduct = async (req, res) => {
 
     // Upload de la vidéo si elle est fournie
     let videoUrl = "";
-    if (req.files && req.files.video && req.files.video[0]) {
+    if (req.files && req.files.video && Array.isArray(req.files.video) && req.files.video[0]) {
       const videoFile = req.files.video[0];
       const uploadVideo = await cloudinary.uploader.upload(videoFile.path, {
         folder: "kolwaz_shop_products",
@@ -316,7 +319,7 @@ const updateProduct = async (req, res) => {
       return res.status(404).json({ message: "Produit non trouvé ou modification non autorisée." });
     }
     
-    // Vérification si aucune donnée n'est envoyée
+    // Vérifier qu'au moins une donnée (body ou fichier) est envoyée
     if (
       !Object.keys(req.body).length &&
       (!req.files || (!req.files.image && !req.files.photos && !req.files.video))
@@ -377,7 +380,7 @@ const updateProduct = async (req, res) => {
     }
 
     // Mise à jour des photos complémentaires
-    if (req.files && req.files.photos) {
+    if (req.files && req.files.photos && Array.isArray(req.files.photos)) {
       let photosUrls = [];
       for (let file of req.files.photos) {
         if (photosUrls.length >= 4) break;
@@ -386,11 +389,12 @@ const updateProduct = async (req, res) => {
           photosUrls.push(uploadPhoto.secure_url);
         }
       }
+      // Remplacer l'ensemble des photos existantes par les nouvelles
       product.photos = photosUrls;
     }
 
     // Mise à jour de la vidéo si fournie
-    if (req.files && req.files.video) {
+    if (req.files && req.files.video && Array.isArray(req.files.video) && req.files.video[0]) {
       const videoFile = req.files.video[0];
       const uploadVideo = await cloudinary.uploader.upload(videoFile.path, { folder: "kolwaz_shop_products", resource_type: "video" });
       if (uploadVideo && uploadVideo.secure_url) {
@@ -431,8 +435,6 @@ const deleteProduct = async (req, res) => {
 const getProductsByNameDescription = async (req, res) => {
   try {
     const { name, description } = req.query;
-
-    // Construire un objet de filtre selon les paramètres fournis
     const filter = {};
     if (name) {
       filter.productName = { $regex: name, $options: 'i' };
@@ -440,7 +442,6 @@ const getProductsByNameDescription = async (req, res) => {
     if (description) {
       filter.description = { $regex: description, $options: 'i' };
     }
-
     const products = await Product.find(filter);
     res.status(200).json({ products });
   } catch (err) {

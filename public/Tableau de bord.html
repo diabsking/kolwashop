@@ -300,7 +300,8 @@
     <!-- Formulaire de publication -->
     <section class="form-section" id="publicationForm">
       <h2>📦 Publier un Nouveau Produit</h2>
-      <form id="productForm" enctype="multipart/form-data">
+      <!-- Ajout de la méthode POST -->
+      <form id="productForm" method="POST" enctype="multipart/form-data">
         <label for="productName">Nom du Produit :</label>
         <input type="text" id="productName" name="productName" required>
 
@@ -332,15 +333,15 @@
         <input type="number" id="deliveryTime" name="deliveryTime" required>
 
         <label for="image">Image Principale du Produit :</label>
-      <input type="file" id="image" name="image" accept="image/*" required>
+        <input type="file" id="image" name="image" accept="image/*" required>
 
-        <!-- Photos complémentaires (nom modifié pour un tableau) -->
-       <label for="photos">Photos Complémentaires (max. 4) :</label>
-     <input type="file" id="photos" name="photos" accept="image/*" multiple onchange="checkPhotoCount(this)">
+        <!-- Photos complémentaires -->
+        <label for="photos">Photos Complémentaires (max. 4) :</label>
+        <input type="file" id="photos" name="photos" accept="image/*" multiple onchange="checkPhotoCount(this)">
 
-        <!-- Vidéo du produit avec vérification -->
+        <!-- Vidéo du produit -->
         <label for="video">Vidéo du Produit :</label>
-     <input type="file" id="video" name="video" accept="video/*" onchange="checkVideo(this)">
+        <input type="file" id="video" name="video" accept="video/*" onchange="checkVideo(this)">
         
         <!-- Champs optionnels -->
         <label for="discount">Remise (optionnel) :</label>
@@ -474,59 +475,61 @@
       }
     }
   }
-// Publication du produit
-document.addEventListener("DOMContentLoaded", function() {
-  const productForm = document.getElementById("productForm");
-  const publishMessage = document.getElementById("publishMessage");
 
-  if (!productForm) {
-    console.error("Le formulaire productForm n'a pas été trouvé.");
-    return;
-  }
+  // Publication du produit
+  document.addEventListener("DOMContentLoaded", function() {
+    const productForm = document.getElementById("productForm");
+    const publishMessage = document.getElementById("publishMessage");
 
-  productForm.addEventListener("submit", async function(event) {
-    event.preventDefault();
-    console.log("Début de la soumission du formulaire de publication.");
-    
-    const formData = new FormData(productForm);
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      publishMessage.innerText = "Vous devez être connecté.";
-      publishMessage.style.color = "#dc3545";
+    if (!productForm) {
+      console.error("Le formulaire productForm n'a pas été trouvé.");
       return;
     }
 
-    try {
-      const response = await fetch("/api/products/publish", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}` // Ne pas définir le Content-Type, FormData s'en charge
-        },
-        body: formData
-      });
+    productForm.addEventListener("submit", async function(event) {
+      event.preventDefault();
+      console.log("Début de la soumission du formulaire de publication.");
+      
+      const formData = new FormData(productForm);
+      const token = localStorage.getItem("token");
 
-      console.log("Réponse reçue:", response);
-      const result = await response.json();
-      console.log("Résultat:", result);
+      if (!token) {
+        publishMessage.innerText = "Vous devez être connecté.";
+        publishMessage.style.color = "#dc3545";
+        return;
+      }
 
-      if (response.ok) {
-        publishMessage.innerText = result.message || "Produit publié avec succès !";
-        publishMessage.style.color = "green";
-        productForm.reset();
-        // Optionnel : rafraîchir la liste des produits si nécessaire
-        // fetchSellerProducts();
-      } else {
-        publishMessage.innerText = result.message || "Erreur lors de la publication.";
+      try {
+        const response = await fetch("/api/products/publish", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}` // Ne pas définir le Content-Type, FormData s'en charge
+          },
+          body: formData
+        });
+
+        console.log("Réponse reçue:", response);
+        const result = await response.json();
+        console.log("Résultat:", result);
+
+        if (response.ok) {
+          publishMessage.innerText = result.message || "Produit publié avec succès !";
+          publishMessage.style.color = "green";
+          productForm.reset();
+          // Optionnel : rafraîchir la liste des produits si nécessaire
+          // fetchSellerProducts();
+        } else {
+          publishMessage.innerText = result.message || "Erreur lors de la publication.";
+          publishMessage.style.color = "#dc3545";
+        }
+      } catch (error) {
+        console.error("Erreur lors de la publication :", error);
+        publishMessage.innerText = "Erreur lors de la publication.";
         publishMessage.style.color = "#dc3545";
       }
-    } catch (error) {
-      console.error("Erreur lors de la publication :", error);
-      publishMessage.innerText = "Erreur lors de la publication.";
-      publishMessage.style.color = "#dc3545";
-    }
+    });
   });
-});
+
   // Récupération des produits du vendeur
   async function fetchSellerProducts() {
     const token = localStorage.getItem('token');
