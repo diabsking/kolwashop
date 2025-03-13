@@ -66,15 +66,15 @@
       align-items: center;
       text-align: center;
     }
-/* Pour la photo principale */
-#detailImage {
-  width: 24cm;
-  height: 24cm;
-  object-fit: cover;
-  border-radius: 8px;
-  display: block;
-  margin: 0 auto 15px; /* Centre horizontalement avec 15px de marge en bas */
-}
+    /* Pour la photo principale : dimensions fixes à 24 cm et centrage */
+    #detailImage {
+      width: 24cm;
+      height: 24cm;
+      object-fit: cover;
+      border-radius: 8px;
+      display: block;
+      margin: 0 auto 15px;
+    }
 
     #detailMedia img:hover {
       transform: scale(1.03);
@@ -505,7 +505,7 @@
         imageCarousel.appendChild(msg);
       }
     
-      // Produits similaires
+      // Récupération et affichage des produits similaires
       const similarProducts = await fetchSimilarProducts(product);
       displaySimilarProducts(similarProducts);
     }
@@ -537,23 +537,40 @@
     
     function goBack() { window.history.back(); }
     
+    // Fonction d'ajout au panier modifiée : stocke l'objet produit dans le localStorage "cart"
+    // et redirige vers "panier.html" après notification.
     function addToCart(name, price, description, imageUrl, sellerEmail, button) {
       button.textContent = "Ajouté !";
       button.disabled = true;
       button.style.backgroundColor = "#28a745";
+      
+      // Récupérer le panier depuis localStorage ou initialiser un tableau vide
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+      
+      // Création de l'objet produit
+      const productToAdd = {
+        name: name,
+        price: price,
+        description: description,
+        imageUrl: imageUrl,
+        sellerEmail: sellerEmail,
+        addedAt: new Date().toISOString()
+      };
+      
+      // Ajouter le produit au panier
+      cart.push(productToAdd);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      localStorage.setItem('cartCount', cart.length);
+      updateCartCount();
+      
+      showNotification(`${name} a été ajouté au panier !`);
       setTimeout(() => {
-        cartCount++;
-        updateCartCount();
-        localStorage.setItem('cartCount', cartCount);
-        showNotification(`${name} a été ajouté au panier !`);
-        setTimeout(() => {
-           window.location.href = "index.html";
-        }, 1000);
-      }, 500);
+         window.location.href = "panier.html";
+      }, 1000);
     }
     
     function updateCartCount() {
-      document.getElementById("cartCount").textContent = cartCount;
+      document.getElementById("cartCount").textContent = JSON.parse(localStorage.getItem('cart'))?.length || 0;
     }
     
     function showNotification(message) {
