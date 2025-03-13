@@ -397,6 +397,31 @@ const deleteProduct = async (req, res) => {
     res.status(500).json({ error: "Erreur lors de la suppression du produit" });
   }
 };
+const getProductsByNameDescription = async (req, res) => {
+  try {
+    const { name, description } = req.query;
+
+    // Construire un objet de filtre selon les paramètres fournis
+    const filter = {};
+    if (name) {
+      filter.productName = { $regex: name, $options: 'i' };
+    }
+    if (description) {
+      filter.description = { $regex: description, $options: 'i' };
+    }
+
+    const products = await Product.find(filter);
+    res.status(200).json({ products });
+  } catch (err) {
+    console.error("Erreur lors de la récupération des produits par nom et description:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = { 
+  ...otherExports, // Laisse les autres exports intacts
+  getProductsByNameDescription // Ajout de la nouvelle fonction
+};
 
 module.exports = { 
   publishProduct, 

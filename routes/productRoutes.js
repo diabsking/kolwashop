@@ -36,11 +36,16 @@ const upload = multer({
   fileFilter,
   limits: { fileSize: 50 * 1024 * 1024 } // Limite de 50 Mo
 });
+router.get('/search', productController.getProductsByNameDescription);
 
 // Route pour récupérer les produits populaires
 router.get('/products/popular', getPopularProducts);
 
 // Route pour récupérer les produits similaires
+// Si l'ID du produit n'est pas fourni, on renvoie une erreur explicite
+router.get('/products/similar', (req, res) => {
+  res.status(400).json({ message: "L'ID du produit est requis pour récupérer les produits similaires." });
+});
 router.get('/products/similar/:productId', productController.getSimilarProducts);
 
 // Route pour récupérer les produits du vendeur connecté
@@ -50,6 +55,7 @@ router.get('/my-products', isAuthenticated, productController.getSellerProducts)
 router.get('/', productController.getAllProducts);
 
 // Route pour afficher un produit spécifique par ID
+// Cette route doit être définie après les routes plus spécifiques
 router.get('/:id', productController.getProductById);
 
 // Route pour publier un produit (avec téléchargement d'une image)

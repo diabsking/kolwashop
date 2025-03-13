@@ -441,6 +441,23 @@ main {
         return [];
       }
     }
+    async function fetchSimilarProducts(product) {
+  try {
+    const url = `/api/products/search?name=${encodeURIComponent(product.productName)}&description=${encodeURIComponent(product.description)}`;
+    console.log("Requête API pour recherche par nom/description:", url); // Debug
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Erreur lors de la récupération des produits similaires');
+    }
+    
+    const data = await response.json();
+    return data.products;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
     
     // Affiche les détails du produit et prépare la galerie et les produits similaires
     async function showProductDetailView(product) {
