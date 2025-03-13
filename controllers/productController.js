@@ -419,7 +419,6 @@ const getProductsByNameDescription = async (req, res) => {
 };
 
 module.exports = { 
-  ...otherExports, // Laisse les autres exports intacts
   getProductsByNameDescription // Ajout de la nouvelle fonction
 };
 
