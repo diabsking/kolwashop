@@ -1,14 +1,14 @@
 const Order = require("../models/Order");
 const nodemailer = require("nodemailer");
 
-// Configuration du transporteur pour l'envoi d'e-mails
+// Configuration de Mailo
 const transporter = nodemailer.createTransport({
   host: "mail.mailo.com",
   port: 465,
   secure: true,
   auth: {
-     user: "kolwazshopp@mailo.com",
-    pass: process.env.MAILO_PASSWORD,
+    user: "kolwazshopp@mailo.com",
+    pass: process.env.MAILO_PASSWORD || "1O0C4HbGFMSw" // Utilisez une variable d'environnement pour le mot de passe
   }
 });
 
