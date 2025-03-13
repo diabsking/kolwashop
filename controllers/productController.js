@@ -1,10 +1,10 @@
 // controllers/productController.js
 
 const Product = require("../models/Product");
-const transporter = require("../config/mailer");
-const SITE_OWNER_EMAIL = process.env.SITE_OWNER_EMAIL || "dieyediabal75@gmail.com";
-const cloudinary = require("cloudinary").v2;
 const nodemailer = require("nodemailer");
+const cloudinary = require("cloudinary").v2;
+
+const SITE_OWNER_EMAIL = process.env.SITE_OWNER_EMAIL || "dieyediabal75@gmail.com";
 
 // Configuration de Cloudinary
 cloudinary.config({
@@ -20,10 +20,9 @@ const transporter = nodemailer.createTransport({
   secure: true,
   auth: {
     user: "kolwazshopp@mailo.com",
-    pass: process.env.MAILO_PASSWORD,
+    pass: process.env.MAILO_PASSWORD, // Assurez-vous que cette variable d'environnement est définie
   }
 });
-
 console.log("WAVE_PAYMENT_ENABLED:", process.env.WAVE_PAYMENT_ENABLED);
 console.log("WAVE_PHONE_NUMBER:", process.env.WAVE_PHONE_NUMBER);
 console.log("User:", process.env.EMAIL_USER);
