@@ -11,15 +11,14 @@ const transporter = nodemailer.createTransport({
     pass: process.env.MAILO_PASSWORD || "1O0C4HbGFMSw" // Utilisez une variable d'environnement pour le mot de passe
   }
 });
+
 // Fonction pour afficher le panier
 exports.viewCart = (req, res) => {
-  // Implémentez ici la logique d'affichage du panier
   res.status(200).json({ message: "Affichage du panier" });
 };
 
 // Fonction pour ajouter un produit au panier
 exports.addToCart = (req, res) => {
-  // Implémentez ici la logique d'ajout au panier
   res.status(200).json({ message: "Produit ajouté au panier" });
 };
 
@@ -39,10 +38,8 @@ exports.confirmOrder = async (req, res) => {
       if (!item.sellerEmail) {
         console.warn(`Produit "${item.name}" sans email vendeur.`);
         continue;
-        console.log("Nouvelle commande enregistrée :", savedOrder);
       }
 
-      // Si la quantité n'est pas fournie, on la définit à 1 par défaut
       const quantity = item.quantity || 1;
 
       const newOrder = new Order({
@@ -72,8 +69,8 @@ exports.confirmOrder = async (req, res) => {
     for (let sellerEmail in sellerOrders) {
       const ordersBySeller = sellerOrders[sellerEmail];
       const productDetails = ordersBySeller.map(order =>
-        `- ${order.product.name} (${order.product.quantity} x ${order.product.price} FCFA)`
-      ).join("\n");
+        `- ${order.product.name} (${order.product.quantity} x ${order.product.price} FCFA)\nPhoto: ${order.product.imageUrl}`
+      ).join("\n\n");
 
       await transporter.sendMail({
         from: "kolwazshopp@mailo.com",
@@ -104,6 +101,5 @@ exports.confirmOrder = async (req, res) => {
 
 // Fonction pour confirmer la livraison
 exports.confirmDelivery = (req, res) => {
-  // Implémentez ici la logique de confirmation de livraison
   res.status(200).json({ message: "Livraison confirmée" });
 };
