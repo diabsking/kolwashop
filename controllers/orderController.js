@@ -8,7 +8,7 @@ const transporter = nodemailer.createTransport({
   secure: true,
   auth: {
     user: "kolwazshopp@mailo.com",
-    pass: process.env.MAILO_PASSWORD || "1O0C4HbGFMSw" // Utilisez une variable d'environnement pour le mot de passe
+    pass: process.env.MAILO_PASSWORD // Assurez-vous que la variable d'environnement est bien définie
   }
 });
 
@@ -25,9 +25,9 @@ exports.addToCart = (req, res) => {
 // Fonction pour confirmer une commande
 exports.confirmOrder = async (req, res) => {
   try {
-    const { email, address, phoneNumber, cartItems } = req.body;
+    const { email, customerName, shippingAddress, phoneNumber, cartItems } = req.body;
 
-    if (!email || !address || !phoneNumber || !cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
+    if (!email?.trim() || !customerName?.trim() || !shippingAddress?.trim() || !phoneNumber?.trim() || !Array.isArray(cartItems) || cartItems.length === 0) {
       return res.status(400).json({ message: "Tous les champs sont requis et le panier ne peut pas être vide !" });
     }
 
@@ -43,8 +43,9 @@ exports.confirmOrder = async (req, res) => {
       const quantity = item.quantity || 1;
 
       const newOrder = new Order({
+        customerName,
         email,
-        address,
+        shippingAddress,
         phoneNumber,
         product: {
           name: item.name,
@@ -52,9 +53,9 @@ exports.confirmOrder = async (req, res) => {
           description: item.description,
           imageUrl: item.imageUrl,
           sellerEmail: item.sellerEmail,
-          quantity: quantity
+          quantity
         },
-        status: "Commande en préparation"
+        orderStatus: "Commande en préparation"
       });
 
       await newOrder.save();
@@ -69,14 +70,14 @@ exports.confirmOrder = async (req, res) => {
     for (let sellerEmail in sellerOrders) {
       const ordersBySeller = sellerOrders[sellerEmail];
       const productDetails = ordersBySeller.map(order =>
-        `- ${order.product.name} (${order.product.quantity} x ${order.product.price} FCFA)\nPhoto: ${order.product.imageUrl}`
+        `- ${order.product.name} (${order.product.quantity} x ${order.product.price} FCFA)\n📷 Photo: ${order.product.imageUrl}`
       ).join("\n\n");
 
       await transporter.sendMail({
         from: "kolwazshopp@mailo.com",
         to: sellerEmail,
         subject: "Nouvelle commande reçue",
-        text: `Bonjour,\n\nVous avez reçu une nouvelle commande.\n\n🛒 Détails de la commande :\n${productDetails}\n\n📍 Informations de livraison :\nAdresse : ${address}\n📞 Téléphone : ${phoneNumber}\n\nMerci de traiter cette commande rapidement.\n\n— Kolwaz Shop`
+        text: `Bonjour,\n\nVous avez reçu une nouvelle commande.\n\n🛒 Détails de la commande :\n${productDetails}\n\n📍 Informations de livraison :\n👤 Client : ${customerName}\n📍 Adresse : ${shippingAddress}\n📞 Téléphone : ${phoneNumber}\n\nMerci de traiter cette commande rapidement.\n\n— Kolwaz Shop`
       });
     }
 
@@ -89,7 +90,7 @@ exports.confirmOrder = async (req, res) => {
       from: "kolwazshopp@mailo.com",
       to: email,
       subject: "Confirmation de votre commande",
-      text: `Bonjour,\n\n✅ Votre commande a bien été enregistrée !\n\n🛒 Détails de votre commande :\n${clientProducts}\n\n🚚 Votre commande est en cours de préparation et sera livrée à :\n📍 ${address}\n📞 ${phoneNumber}\n\nMerci pour votre confiance !\n\n— Kolwaz Shop`
+      text: `Bonjour ${customerName},\n\n✅ Votre commande a bien été enregistrée !\n\n🛒 Détails de votre commande :\n${clientProducts}\n\n🚚 Votre commande est en cours de préparation et sera livrée à :\n📍 ${shippingAddress}\n📞 ${phoneNumber}\n\nMerci pour votre confiance !\n\n— Kolwaz Shop`
     });
 
     res.status(200).json({ message: `Commande confirmée pour ${cartItems.length} produit(s).` });
