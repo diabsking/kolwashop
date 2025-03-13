@@ -42,6 +42,29 @@
       font-weight: bold;
       color: #333;
     }
+    /* Zone de notifications */
+    .notification-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 2000;
+    }
+    .notification {
+      margin-bottom: 10px;
+      padding: 15px;
+      border-radius: 5px;
+      background-color: #f0f0f0;
+      color: #333;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      opacity: 0.9;
+      transition: opacity 0.3s ease;
+    }
+    .notification.success {
+      border-left: 5px solid #28a745;
+    }
+    .notification.error {
+      border-left: 5px solid #dc3545;
+    }
     /* Profil vendeur */
     .profile {
       position: absolute;
@@ -278,6 +301,9 @@
     <div class="spinner"></div>
   </div>
   
+  <!-- Zone de notifications -->
+  <div id="notification-container" class="notification-container"></div>
+  
   <div class="container">
     <header>
       <a href="/" class="back-arrow">&#8592;</a>
@@ -417,231 +443,248 @@
     </section>
   </div>
 
-<script>
-  let allProducts = [];
-  let currentProduct = null;
+  <script>
+    let allProducts = [];
+    let currentProduct = null;
 
-  // Afficher/cacher le formulaire de publication
-  function togglePublicationForm() {
-    const formSection = document.getElementById("publicationForm");
-    formSection.style.display = formSection.style.display === "block" ? "none" : "block";
-  }
-
-  // Gestion du profil
-  function toggleProfileMenu(event) {
-    event.stopPropagation();
-    const profileMenu = document.getElementById("profileMenu");
-    profileMenu.style.display = profileMenu.style.display === "block" ? "none" : "block";
-  }
-  function goToAccount() { window.location.href = '/account'; }
-  function goToSettings() { window.location.href = '/settings'; }
-  function logout() {
-    localStorage.removeItem('token');
-    window.location.href = '/';
-  }
-
-  // Affichage du loader
-  function showLoader() { document.getElementById("loader").style.display = "block"; }
-  function hideLoader() { document.getElementById("loader").style.display = "none"; }
-
-  // Initialisation : récupération des produits du vendeur
-  window.addEventListener('load', function() {
-    fetchSellerProducts();
-  });
-
-  // Limite de 4 photos pour les photos complémentaires
-  function checkPhotoCount(input) {
-    if (input.files.length > 4) {
-      alert("Vous ne pouvez sélectionner que 4 photos au maximum.");
-      input.value = ""; // Réinitialise la sélection
+    // Afficher/cacher le formulaire de publication
+    function togglePublicationForm() {
+      const formSection = document.getElementById("publicationForm");
+      formSection.style.display = formSection.style.display === "block" ? "none" : "block";
     }
-  }
 
-  // Vérification de la vidéo : type et taille (par exemple, 50 Mo maximum)
-  function checkVideo(input) {
-    const file = input.files[0];
-    if (file) {
-      // Vérification du type MIME (doit commencer par "video/")
-      if (!file.type.startsWith("video/")) {
-        alert("Veuillez sélectionner un fichier vidéo valide.");
-        input.value = "";
+    // Gestion du profil
+    function toggleProfileMenu(event) {
+      event.stopPropagation();
+      const profileMenu = document.getElementById("profileMenu");
+      profileMenu.style.display = profileMenu.style.display === "block" ? "none" : "block";
+    }
+    function goToAccount() { window.location.href = '/account'; }
+    function goToSettings() { window.location.href = '/settings'; }
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.href = '/';
+    }
+
+    // Affichage du loader
+    function showLoader() { document.getElementById("loader").style.display = "block"; }
+    function hideLoader() { document.getElementById("loader").style.display = "none"; }
+
+    // Fonction de notification
+    function showNotification(message, type) {
+      const container = document.getElementById("notification-container");
+      const notification = document.createElement("div");
+      notification.className = "notification " + type;
+      notification.innerText = message;
+      container.appendChild(notification);
+      setTimeout(() => {
+        notification.style.opacity = "0";
+        setTimeout(() => { container.removeChild(notification); }, 300);
+      }, 5000);
+    }
+
+    // Initialisation : récupération des produits du vendeur
+    window.addEventListener('load', function() {
+      fetchSellerProducts();
+    });
+
+    // Limite de 4 photos pour les photos complémentaires
+    function checkPhotoCount(input) {
+      if (input.files.length > 4) {
+        alert("Vous ne pouvez sélectionner que 4 photos au maximum.");
+        input.value = ""; // Réinitialise la sélection
+      }
+    }
+
+    // Vérification de la vidéo : type et taille (50 Mo maximum)
+    function checkVideo(input) {
+      const file = input.files[0];
+      if (file) {
+        if (!file.type.startsWith("video/")) {
+          alert("Veuillez sélectionner un fichier vidéo valide.");
+          input.value = "";
+          return;
+        }
+        const maxSize = 50 * 1024 * 1024;
+        if (file.size > maxSize) {
+          alert("La taille de la vidéo ne doit pas dépasser 50 Mo.");
+          input.value = "";
+        }
+      }
+    }
+
+    // Publication du produit
+    document.addEventListener("DOMContentLoaded", function() {
+      const productForm = document.getElementById("productForm");
+      const publishMessage = document.getElementById("publishMessage");
+
+      if (!productForm) {
+        console.error("Le formulaire productForm n'a pas été trouvé.");
         return;
       }
-      // Vérification de la taille (ici 50 Mo maximum)
-      const maxSize = 50 * 1024 * 1024;
-      if (file.size > maxSize) {
-        alert("La taille de la vidéo ne doit pas dépasser 50 Mo.");
-        input.value = "";
-      }
-    }
-  }
 
-  // Publication du produit
-  document.addEventListener("DOMContentLoaded", function() {
-    const productForm = document.getElementById("productForm");
-    const publishMessage = document.getElementById("publishMessage");
+      productForm.addEventListener("submit", async function(event) {
+        event.preventDefault();
+        showLoader();
+        console.log("Début de la soumission du formulaire de publication.");
 
-    if (!productForm) {
-      console.error("Le formulaire productForm n'a pas été trouvé.");
-      return;
-    }
+        const formData = new FormData(productForm);
+        const token = localStorage.getItem("token");
 
-    productForm.addEventListener("submit", async function(event) {
-      event.preventDefault();
-      console.log("Début de la soumission du formulaire de publication.");
-      
-      const formData = new FormData(productForm);
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        publishMessage.innerText = "Vous devez être connecté.";
-        publishMessage.style.color = "#dc3545";
-        return;
-      }
-
-      try {
-        const response = await fetch("/api/products/publish", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${token}` // Ne pas définir le Content-Type, FormData s'en charge
-          },
-          body: formData
-        });
-
-        console.log("Réponse reçue:", response);
-        const result = await response.json();
-        console.log("Résultat:", result);
-
-        if (response.ok) {
-          publishMessage.innerText = result.message || "Produit publié avec succès !";
-          publishMessage.style.color = "green";
-          productForm.reset();
-          // Optionnel : rafraîchir la liste des produits si nécessaire
-          // fetchSellerProducts();
-        } else {
-          publishMessage.innerText = result.message || "Erreur lors de la publication.";
+        if (!token) {
+          publishMessage.innerText = "Vous devez être connecté.";
           publishMessage.style.color = "#dc3545";
+          showNotification("Vous devez être connecté.", "error");
+          hideLoader();
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/products/publish", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${token}` // FormData s'occupe du Content-Type
+            },
+            body: formData
+          });
+
+          console.log("Réponse reçue:", response);
+          const result = await response.json();
+          console.log("Résultat:", result);
+
+          if (response.ok) {
+            publishMessage.innerText = result.message || "Produit publié avec succès !";
+            publishMessage.style.color = "green";
+            showNotification(result.message || "Produit publié avec succès !", "success");
+            productForm.reset();
+            // Optionnel : rafraîchir la liste des produits
+            // fetchSellerProducts();
+          } else {
+            publishMessage.innerText = result.message || "Erreur lors de la publication.";
+            publishMessage.style.color = "#dc3545";
+            showNotification(result.message || "Erreur lors de la publication.", "error");
+          }
+        } catch (error) {
+          console.error("Erreur lors de la publication :", error);
+          publishMessage.innerText = "Erreur lors de la publication.";
+          publishMessage.style.color = "#dc3545";
+          showNotification("Erreur lors de la publication.", "error");
+        } finally {
+          hideLoader();
+        }
+      });
+    });
+
+    // Récupération des produits du vendeur
+    async function fetchSellerProducts() {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      try {
+        showLoader();
+        const response = await fetch('/api/products/my-products', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (response.ok) {
+          allProducts = data.products;
+          displaySellerProducts(data.products);
         }
       } catch (error) {
-        console.error("Erreur lors de la publication :", error);
-        publishMessage.innerText = "Erreur lors de la publication.";
-        publishMessage.style.color = "#dc3545";
+        console.error("Erreur lors de la récupération des produits :", error);
+      } finally {
+        hideLoader();
       }
-    });
-  });
+    }
 
-  // Récupération des produits du vendeur
-  async function fetchSellerProducts() {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-    try {
-      showLoader();
-      const response = await fetch('/api/products/my-products', {
-        headers: { 'Authorization': `Bearer ${token}` }
+    // Affichage dans la grille des produits
+    function displaySellerProducts(products) {
+      const container = document.getElementById("productList");
+      container.innerHTML = "";
+      products.forEach(product => {
+        const productDiv = document.createElement("div");
+        productDiv.className = "product-item";
+        productDiv.innerHTML = `
+          <button class="menu-btn" onclick="toggleMenu(event)">⋮</button>
+          <div class="action-menu">
+            <button onclick='showProductDetailView(${JSON.stringify(product)})'>Détail</button>
+            <button onclick="editProduct('${product._id}')">Modifier</button>
+            <button onclick="deleteProduct('${product._id}')">Supprimer</button>
+          </div>
+          <h3>${product.productName}</h3>
+          <img src="${product.imageUrl}" alt="${product.productName}">
+          <p><strong>Prix :</strong> ${product.price} FCFA</p>
+        `;
+        container.appendChild(productDiv);
       });
-      const data = await response.json();
-      if (response.ok) {
-        allProducts = data.products;
-        displaySellerProducts(data.products);
+    }
+
+    // Gestion du menu des 3 points
+    function toggleMenu(event) {
+      event.stopPropagation();
+      const menu = event.currentTarget.nextElementSibling;
+      document.querySelectorAll('.action-menu').forEach(m => {
+        if (m !== menu) m.style.display = 'none';
+      });
+      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+    window.addEventListener('click', () => {
+      document.querySelectorAll('.action-menu').forEach(menu => menu.style.display = 'none');
+      document.getElementById("profileMenu").style.display = "none";
+    });
+
+    // Suppression d'un produit
+    async function deleteProduct(productId) {
+      const token = localStorage.getItem('token');
+      if (!token || !confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")) return;
+      try {
+        const response = await fetch(`/api/products/delete/${productId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) fetchSellerProducts();
+      } catch (error) {
+        console.error("Erreur lors de la suppression du produit :", error);
       }
-    } catch (error) {
-      console.error("Erreur lors de la récupération des produits :", error);
-    } finally {
-      hideLoader();
     }
-  }
 
-  // Affichage dans la grille des produits
-  function displaySellerProducts(products) {
-    const container = document.getElementById("productList");
-    container.innerHTML = "";
-    products.forEach(product => {
-      const productDiv = document.createElement("div");
-      productDiv.className = "product-item";
-      productDiv.innerHTML = `
-        <button class="menu-btn" onclick="toggleMenu(event)">⋮</button>
-        <div class="action-menu">
-          <button onclick='showProductDetailView(${JSON.stringify(product)})'>Détail</button>
-          <button onclick="editProduct('${product._id}')">Modifier</button>
-          <button onclick="deleteProduct('${product._id}')">Supprimer</button>
-        </div>
-        <h3>${product.productName}</h3>
-        <img src="${product.imageUrl}" alt="${product.productName}">
-        <p><strong>Prix :</strong> ${product.price} FCFA</p>
-      `;
-      container.appendChild(productDiv);
-    });
-  }
-
-  // Gestion du menu des 3 points
-  function toggleMenu(event) {
-    event.stopPropagation();
-    const menu = event.currentTarget.nextElementSibling;
-    document.querySelectorAll('.action-menu').forEach(m => {
-      if (m !== menu) m.style.display = 'none';
-    });
-    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-  }
-  window.addEventListener('click', () => {
-    document.querySelectorAll('.action-menu').forEach(menu => menu.style.display = 'none');
-    document.getElementById("profileMenu").style.display = "none";
-  });
-
-  // Suppression d'un produit
-  async function deleteProduct(productId) {
-    const token = localStorage.getItem('token');
-    if (!token || !confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")) return;
-    try {
-      const response = await fetch(`/api/products/delete/${productId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) fetchSellerProducts();
-    } catch (error) {
-      console.error("Erreur lors de la suppression du produit :", error);
+    // Redirection vers la page de modification
+    function editProduct(productId) {
+      window.location.href = `/modification.html?id=${productId}`;
     }
-  }
 
-  // Redirection vers la page de modification
-  function editProduct(productId) {
-    window.location.href = `/modification.html?id=${productId}`;
-  }
-
-  // Affichage des détails du produit
-  function showProductDetailView(product) {
-    currentProduct = product;
-    // Masquer la grille et afficher la section détail
-    document.getElementById("productList").style.display = "none";
-    document.getElementById("detailSection").style.display = "block";
-    // Remplir la section avec les infos du produit
-    document.getElementById("detailImage").src = product.imageUrl || "";
-    document.getElementById("detailName").innerText = product.productName || "";
-    document.getElementById("detailDescription").innerText = product.description || "";
-    document.getElementById("detailCategory").innerText = product.category || "";
-    document.getElementById("detailPrice").innerText = product.price ? parseFloat(product.price).toFixed(2) : "";
-    document.getElementById("detailDeliveryTime").innerText = product.deliveryTime || "";
-    document.getElementById("detailDiscount").innerText = product.discount ? product.discount + (product.discountType === "percentage" ? " %" : " FCFA") : "Aucune remise";
-    document.getElementById("detailBrand").innerText = product.brand || "Non spécifiée";
-    document.getElementById("detailStock").innerText = product.stock || "";
-    document.getElementById("detailSKU").innerText = product.sku || "";
-    document.getElementById("detailWeight").innerText = product.weight ? product.weight + " kg" : "";
-    if(product.dimensions) {
-      const { length, width, height } = product.dimensions;
-      document.getElementById("detailDimensions").innerText = `${length || 0} x ${width || 0} x ${height || 0} cm`;
-    } else {
-      document.getElementById("detailDimensions").innerText = "";
+    // Affichage des détails du produit
+    function showProductDetailView(product) {
+      currentProduct = product;
+      document.getElementById("productList").style.display = "none";
+      document.getElementById("detailSection").style.display = "block";
+      document.getElementById("detailImage").src = product.imageUrl || "";
+      document.getElementById("detailName").innerText = product.productName || "";
+      document.getElementById("detailDescription").innerText = product.description || "";
+      document.getElementById("detailCategory").innerText = product.category || "";
+      document.getElementById("detailPrice").innerText = product.price ? parseFloat(product.price).toFixed(2) : "";
+      document.getElementById("detailDeliveryTime").innerText = product.deliveryTime || "";
+      document.getElementById("detailDiscount").innerText = product.discount ? product.discount + (product.discountType === "percentage" ? " %" : " FCFA") : "Aucune remise";
+      document.getElementById("detailBrand").innerText = product.brand || "Non spécifiée";
+      document.getElementById("detailStock").innerText = product.stock || "";
+      document.getElementById("detailSKU").innerText = product.sku || "";
+      document.getElementById("detailWeight").innerText = product.weight ? product.weight + " kg" : "";
+      if(product.dimensions) {
+        const { length, width, height } = product.dimensions;
+        document.getElementById("detailDimensions").innerText = `${length || 0} x ${width || 0} x ${height || 0} cm`;
+      } else {
+        document.getElementById("detailDimensions").innerText = "";
+      }
+      document.getElementById("detailShippingCost").innerText = product.shippingCost ? product.shippingCost + " FCFA" : "Gratuit";
+      document.getElementById("detailEstimatedDelivery").innerText = product.estimatedDelivery || "";
+      document.getElementById("detailReturnPolicy").innerText = product.returnPolicy || "";
+      document.getElementById("detailWarranty").innerText = product.warranty || "";
     }
-    document.getElementById("detailShippingCost").innerText = product.shippingCost ? product.shippingCost + " FCFA" : "Gratuit";
-    document.getElementById("detailEstimatedDelivery").innerText = product.estimatedDelivery || "";
-    document.getElementById("detailReturnPolicy").innerText = product.returnPolicy || "";
-    document.getElementById("detailWarranty").innerText = product.warranty || "";
-  }
 
-  // Retour à la grille des produits
-  function hideDetailSection() {
-    document.getElementById("detailSection").style.display = "none";
-    document.getElementById("productList").style.display = "grid";
-  }
-</script>
+    // Retour à la grille des produits
+    function hideDetailSection() {
+      document.getElementById("detailSection").style.display = "none";
+      document.getElementById("productList").style.display = "grid";
+    }
+  </script>
 </body>
 </html>

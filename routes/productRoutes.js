@@ -18,14 +18,12 @@ const storage = multer.diskStorage({
 
 // Filtrage des types de fichiers (images et vidéos)
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = [
-    'image/jpeg', 'image/png', 'image/gif',      // Images
-    'video/mp4', 'video/mpeg', 'video/quicktime'   // Vidéos
-  ];
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true);
+  const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif']; // Seulement ces images
+
+  if (file.mimetype.startsWith("video/") || allowedImageTypes.includes(file.mimetype)) {
+    cb(null, true); // Accepter le fichier
   } else {
-    cb(new Error('Format de fichier non autorisé!'), false);
+    cb(new Error("Format de fichier non supporté"), false); // Rejeter le fichier
   }
 };
 
