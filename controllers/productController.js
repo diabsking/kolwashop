@@ -417,11 +417,6 @@ const getProductsByNameDescription = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
-module.exports = { 
-  getProductsByNameDescription // Ajout de la nouvelle fonction
-};
-
 module.exports = { 
   publishProduct, 
   getAllProducts, 
@@ -430,5 +425,6 @@ module.exports = {
   getPopularProducts, 
   getSimilarProducts, 
   updateProduct, 
-  deleteProduct 
+  deleteProduct,
+   getProductsByNameDescription 
 };
