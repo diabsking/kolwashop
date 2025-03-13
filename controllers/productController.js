@@ -46,8 +46,14 @@ async function processWavePayment(amount, phoneNumber) {
 // Fonction pour publier un produit
 const publishProduct = async (req, res) => {
   try {
-    console.log("Corps de la requête:", req.body);
-    console.log("Fichiers de la requête:", req.files);
+    console.log("req.body:", req.body);
+    console.log("req.files:", req.files);
+
+    // Vérifier que l'utilisateur est authentifié
+    if (!req.user || !req.user.email) {
+      console.error("Utilisateur non authentifié");
+      return res.status(401).json({ message: "Utilisateur non authentifié" });
+    }
 
     const { productName, description, price, deliveryTime, category } = req.body;
     // Champs optionnels
@@ -66,13 +72,21 @@ const publishProduct = async (req, res) => {
     const warranty = req.body.warranty || "";
 
     // Vérification des champs obligatoires
-    const imageFile = req.files && req.files.image ? req.files.image[0] : null;
-    if (!productName || !description || !price || !deliveryTime || !category || !imageFile) {
+    if (!productName || !description || !price || !deliveryTime || !category) {
+      console.error("Champs obligatoires manquants");
       return res.status(400).json({ message: "Tous les champs obligatoires sont requis !" });
     }
 
-    // Validation de l'image principale AVANT l'upload (optionnel, à adapter selon vos besoins)
+    // Vérifier la présence du fichier image principal
+    const imageFile = req.files && req.files.image ? req.files.image[0] : null;
+    if (!imageFile) {
+      console.error("Image principale manquante");
+      return res.status(400).json({ message: "L'image principale est requise." });
+    }
+
+    // Validation de l'image principale avant upload
     if (!validateProductImage(imageFile.path)) {
+      console.error("Image principale non conforme:", imageFile.path);
       return res.status(400).json({ message: "Image principale non conforme." });
     }
 
@@ -80,9 +94,13 @@ const publishProduct = async (req, res) => {
     const cloudinaryUpload = await cloudinary.uploader.upload(imageFile.path, {
       folder: "kolwaz_shop_products",
     });
+    if (!cloudinaryUpload || !cloudinaryUpload.secure_url) {
+      console.error("Erreur lors de l'upload de l'image principale");
+      return res.status(500).json({ message: "Erreur lors de l'upload de l'image principale" });
+    }
     const imageUrl = cloudinaryUpload.secure_url;
 
-    // Upload des photos complémentaires (max 4)
+    // Upload des photos complémentaires (max. 4)
     let photosUrls = [];
     if (req.files && req.files.photos) {
       for (let file of req.files.photos) {
@@ -90,11 +108,15 @@ const publishProduct = async (req, res) => {
         const uploadPhoto = await cloudinary.uploader.upload(file.path, {
           folder: "kolwaz_shop_products",
         });
-        photosUrls.push(uploadPhoto.secure_url);
+        if (uploadPhoto && uploadPhoto.secure_url) {
+          photosUrls.push(uploadPhoto.secure_url);
+        } else {
+          console.error("Erreur lors de l'upload d'une photo complémentaire");
+        }
       }
     }
 
-    // Upload de la vidéo (si fournie)
+    // Upload de la vidéo si elle est fournie
     let videoUrl = "";
     if (req.files && req.files.video && req.files.video[0]) {
       const videoFile = req.files.video[0];
@@ -102,12 +124,18 @@ const publishProduct = async (req, res) => {
         folder: "kolwaz_shop_products",
         resource_type: "video",
       });
-      videoUrl = uploadVideo.secure_url;
+      if (uploadVideo && uploadVideo.secure_url) {
+        videoUrl = uploadVideo.secure_url;
+      } else {
+        console.error("Erreur lors de l'upload de la vidéo");
+      }
     }
 
+    // Vérifier la validité du prix et du délai
     const priceNumber = parseFloat(price);
     const deliveryTimeNumber = parseInt(deliveryTime, 10);
     if (isNaN(priceNumber) || priceNumber <= 0 || isNaN(deliveryTimeNumber) || deliveryTimeNumber <= 0) {
+      console.error("Prix ou délai de livraison invalide");
       return res.status(400).json({ message: "Prix ou délai de livraison invalide." });
     }
 
@@ -116,11 +144,13 @@ const publishProduct = async (req, res) => {
       console.log("Traitement du paiement via Wave...");
       try {
         await processWavePayment(100, process.env.WAVE_PHONE_NUMBER || "789024121");
-      } catch {
+      } catch (paymentError) {
+        console.error("Paiement Wave échoué:", paymentError);
         return res.status(400).json({ message: "Échec du paiement, publication annulée." });
       }
     }
 
+    // Création du produit
     const newProduct = new Product({
       productName,
       description,
@@ -155,8 +185,7 @@ const publishProduct = async (req, res) => {
 
     // Envoi d'un email de notification
     const mailOptions = {
-      // Correction : utilisation de process.env.EMAIL_USER pour être cohérent
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_USER, // Assurez-vous que cette variable est bien définie
       to: SITE_OWNER_EMAIL,
       subject: "Nouvelle annonce publiée",
       text: `Produit : ${productName}\nDescription : ${description}\nCatégorie : ${category}\nPrix : ${priceNumber} FCFA\nDélai : ${deliveryTimeNumber} jours`,
@@ -164,9 +193,9 @@ const publishProduct = async (req, res) => {
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.log("Erreur d'envoi :", error);
+        console.error("Erreur d'envoi d'email:", error);
       } else {
-        console.log("E-mail envoyé avec succès :", info.response);
+        console.log("E-mail envoyé avec succès:", info.response);
       }
     });
 

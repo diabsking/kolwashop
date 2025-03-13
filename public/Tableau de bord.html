@@ -166,7 +166,7 @@
     }
     @media screen and (max-width: 768px) {
       #productList {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(1, 1fr);
       }
     }
     /* Styles de chaque produit */
@@ -474,37 +474,59 @@
       }
     }
   }
+// Publication du produit
+document.addEventListener("DOMContentLoaded", function() {
+  const productForm = document.getElementById("productForm");
+  const publishMessage = document.getElementById("publishMessage");
 
-  // Publication du produit
-  document.getElementById("productForm").addEventListener("submit", async function(event) {
+  if (!productForm) {
+    console.error("Le formulaire productForm n'a pas été trouvé.");
+    return;
+  }
+
+  productForm.addEventListener("submit", async function(event) {
     event.preventDefault();
-    const formData = new FormData(this);
-    const token = localStorage.getItem('token');
+    console.log("Début de la soumission du formulaire de publication.");
+    
+    const formData = new FormData(productForm);
+    const token = localStorage.getItem("token");
+
     if (!token) {
-      document.getElementById("publishMessage").innerText = "Vous devez être connecté.";
-      document.getElementById("publishMessage").style.color = "#dc3545";
+      publishMessage.innerText = "Vous devez être connecté.";
+      publishMessage.style.color = "#dc3545";
       return;
     }
+
     try {
-      const response = await fetch('/api/products/publish', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
+      const response = await fetch("/api/products/publish", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}` // Ne pas définir le Content-Type, FormData s'en charge
+        },
         body: formData
       });
+
+      console.log("Réponse reçue:", response);
       const result = await response.json();
-      document.getElementById("publishMessage").innerText = result.message;
-      document.getElementById("publishMessage").style.color = response.ok ? "green" : "#dc3545";
+      console.log("Résultat:", result);
+
       if (response.ok) {
-        document.getElementById("productForm").reset();
-        // Rafraîchir la liste des produits si nécessaire
+        publishMessage.innerText = result.message || "Produit publié avec succès !";
+        publishMessage.style.color = "green";
+        productForm.reset();
+        // Optionnel : rafraîchir la liste des produits si nécessaire
+        // fetchSellerProducts();
+      } else {
+        publishMessage.innerText = result.message || "Erreur lors de la publication.";
+        publishMessage.style.color = "#dc3545";
       }
     } catch (error) {
-      console.error('Erreur:', error);
-      document.getElementById("publishMessage").innerText = "Erreur lors de la publication.";
-      document.getElementById("publishMessage").style.color = "#dc3545";
+      console.error("Erreur lors de la publication :", error);
+      publishMessage.innerText = "Erreur lors de la publication.";
+      publishMessage.style.color = "#dc3545";
     }
   });
-
+});
   // Récupération des produits du vendeur
   async function fetchSellerProducts() {
     const token = localStorage.getItem('token');
