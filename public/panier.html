@@ -371,53 +371,55 @@
     }
 
     // Submit order
-    async function submitOrder() {
-      const email = document.getElementById('email').value;
-      const address = document.getElementById('address').value;
-      const phoneNumber = document.getElementById('phoneNumber').value;
-      const submitButton = document.querySelector('#orderForm button[type="submit"]');
+    // Submit order
+async function submitOrder() {
+  const email = document.getElementById('email').value;
+  const address = document.getElementById('address').value;
+  const phoneNumber = document.getElementById('phoneNumber').value;
+  const submitButton = document.querySelector('#orderForm button[type="submit"]');
 
-      if (!email || !address || !phoneNumber) {
-        alert("Please provide your email, address, and phone number.");
-        return;
-      }
+  // Désactiver le bouton pour éviter les doubles soumissions
+  submitButton.disabled = true;
 
-      if (cartItems.length === 0) {
-        alert("Your cart is empty.");
-        return;
-      }
+  // Récupérer les articles du panier depuis le localStorage (ou une autre source de stockage)
+  const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
 
-      submitButton.disabled = true;
-      submitButton.innerHTML = 'Placing order... <span class="spinner"></span>';
+  if (!email || !address || !phoneNumber || cartItems.length === 0) {
+    alert("Veuillez remplir tous les champs et ajouter des articles au panier.");
+    submitButton.disabled = false;
+    return;
+  }
 
-      try {
-        const response = await fetch('/api/orders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, address, phoneNumber, cartItems })
-        });
+  const orderData = {
+    email,
+    address,
+    phoneNumber,
+    cartItems
+  };
 
-        if (!response.ok) {
-          throw new Error('Error placing order.');
-        }
+  try {
+    const response = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData)
+    });
 
-        showNotification("Order placed successfully!");
-        cartItems = [];
-        await updateCartOnServer(cartItems);
-        loadCart();
+    const result = await response.json();
 
-        document.getElementById('email').value = '';
-        document.getElementById('address').value = '';
-        document.getElementById('phoneNumber').value = '';
-        document.getElementById("orderForm").style.display = "none";
-      } catch (error) {
-        console.error("Error placing order:", error);
-        alert("Error placing order.");
-      } finally {
-        submitButton.disabled = false;
-        submitButton.innerHTML = 'Submit Order';
-      }
+    if (response.ok) {
+      alert("Commande confirmée avec succès !");
+      localStorage.removeItem('cart'); // Vider le panier après confirmation
+      window.location.href = '/order-success'; // Redirection vers une page de succès
+    } else {
+      alert("Erreur lors de la confirmation de la commande : " + result.message);
     }
+  } catch (error) {
+    console.error("Erreur :", error);
+    alert("Une erreur s'est produite. Veuillez réessayer.");
+  } finally {
+    submitButton.disabled = false;
+  }
+}
 
     // Show temporary notification
     function showNotification(message) {

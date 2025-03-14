@@ -152,13 +152,15 @@ const transporter = nodemailer.createTransport({
 // Route POST pour valider une commande
 app.post('/api/orders', async (req, res) => {
   try {
-    const { email, address, phoneNumber } = req.body;
-    if (!email || !address || !phoneNumber || cart.length === 0) {
+    // Extraction des données du body, y compris le panier
+    const { email, address, phoneNumber, cart } = req.body;
+    if (!email || !address || !phoneNumber || !cart || cart.length === 0) {
       return res.status(400).json({ message: "Tous les champs sont requis et le panier ne peut pas être vide !" });
     }
 
     const sellerOrders = {};
 
+    // Création d'une commande pour chaque article du panier
     for (let item of cart) {
       if (!item.sellerEmail) {
         console.warn(`Produit "${item.name}" sans email vendeur.`);
@@ -188,7 +190,7 @@ app.post('/api/orders', async (req, res) => {
       sellerOrders[item.sellerEmail].push(newOrder);
     }
 
-    // Envoi des e-mails aux vendeurs
+    // Envoi des e-mails aux vendeurs regroupés par email
     for (let sellerEmail in sellerOrders) {
       const ordersBySeller = sellerOrders[sellerEmail];
       const productDetails = ordersBySeller.map(order =>
@@ -215,8 +217,9 @@ app.post('/api/orders', async (req, res) => {
       text: `Bonjour,\n\n✅ Votre commande a bien été enregistrée !\n\n🛒 Détails de votre commande :\n${clientProducts}\n\n🚚 Votre commande est en cours de préparation et sera livrée à :\n📍 ${address}\n📞 ${phoneNumber}\n\nMerci pour votre confiance !\n\n— Kolwaz Shop`
     });
 
-    cart = []; // Vider le panier après commande
-    res.status(200).json({ message: `Commande confirmée pour ${clientProducts.length} produit(s).` });
+    // Optionnel : Vider le panier (cette opération peut également être gérée côté client)
+    // cart = [];
+    res.status(200).json({ message: `Commande confirmée pour ${cart.length} produit(s).` });
   } catch (err) {
     console.error("Erreur lors de la validation de la commande :", err);
     res.status(500).json({ error: err.message });
