@@ -22,18 +22,18 @@ exports.addToCart = (req, res) => {
   res.status(200).json({ message: "Produit ajouté au panier" });
 };
 
-// Fonction pour confirmer une commande
 exports.confirmOrder = async (req, res) => {
   try {
     // Extraction et mapping des données envoyées depuis la page panier
     const { courriel, customerName, adresse, phoneNumber, panierObjets } = req.body;
     const email = courriel;
     const shippingAddress = adresse;
-    
+    // Utiliser "Client" par défaut si customerName n'est pas fourni
+    const finalCustomerName = (customerName && customerName.trim()) ? customerName.trim() : "Client";
+
     // Vérification des champs requis
     if (
       !email?.trim() ||
-      !(customerName && customerName.trim()) ||
       !shippingAddress?.trim() ||
       !phoneNumber?.trim() ||
       !Array.isArray(panierObjets) ||
@@ -41,7 +41,7 @@ exports.confirmOrder = async (req, res) => {
     ) {
       return res.status(400).json({ message: "Tous les champs sont requis et le panier ne peut pas être vide !" });
     }
-    
+
     // Transformation des objets du panier dans la structure attendue
     const cartItems = panierObjets.map(item => ({
       name: item.nom,
@@ -52,7 +52,7 @@ exports.confirmOrder = async (req, res) => {
       quantity: item.quantity || 1,
       addedAt: item.ajoutéÀ
     }));
-    
+
     const sellerOrders = {};
 
     // Enregistrer chaque commande et regrouper par vendeur
@@ -65,7 +65,7 @@ exports.confirmOrder = async (req, res) => {
       const quantity = item.quantity || 1;
 
       const newOrder = new Order({
-        customerName,
+        customerName: finalCustomerName,
         email,
         shippingAddress,
         phoneNumber,
@@ -99,7 +99,7 @@ exports.confirmOrder = async (req, res) => {
         from: "kolwazshopp@mailo.com",
         to: sellerEmail,
         subject: "Nouvelle commande reçue",
-        text: `Bonjour,\n\nVous avez reçu une nouvelle commande.\n\n🛒 Détails de la commande :\n${productDetails}\n\n📍 Informations de livraison :\n👤 Client : ${customerName}\n📍 Adresse : ${shippingAddress}\n📞 Téléphone : ${phoneNumber}\n\nMerci de traiter cette commande rapidement.\n\n— Kolwaz Shop`
+        text: `Bonjour,\n\nVous avez reçu une nouvelle commande.\n\n🛒 Détails de la commande :\n${productDetails}\n\n📍 Informations de livraison :\n👤 Client : ${finalCustomerName}\n📍 Adresse : ${shippingAddress}\n📞 Téléphone : ${phoneNumber}\n\nMerci de traiter cette commande rapidement.\n\n— Kolwaz Shop`
       });
     }
 
@@ -112,7 +112,7 @@ exports.confirmOrder = async (req, res) => {
       from: "kolwazshopp@mailo.com",
       to: email,
       subject: "Confirmation de votre commande",
-      text: `Bonjour ${customerName},\n\n✅ Votre commande a bien été enregistrée !\n\n🛒 Détails de votre commande :\n${clientProducts}\n\n🚚 Votre commande est en cours de préparation et sera livrée à :\n📍 ${shippingAddress}\n📞 ${phoneNumber}\n\nMerci pour votre confiance !\n\n— Kolwaz Shop`
+      text: `Bonjour ${finalCustomerName},\n\n✅ Votre commande a bien été enregistrée !\n\n🛒 Détails de votre commande :\n${clientProducts}\n\n🚚 Votre commande est en cours de préparation et sera livrée à :\n📍 ${shippingAddress}\n📞 ${phoneNumber}\n\nMerci pour votre confiance !\n\n— Kolwaz Shop`
     });
 
     res.status(200).json({ message: `Commande confirmée pour ${cartItems.length} produit(s).` });
@@ -120,9 +120,4 @@ exports.confirmOrder = async (req, res) => {
     console.error("Erreur lors de la validation de la commande :", err);
     res.status(500).json({ error: err.message });
   }
-};
-
-// Fonction pour confirmer la livraison
-exports.confirmDelivery = (req, res) => {
-  res.status(200).json({ message: "Livraison confirmée" });
 };
