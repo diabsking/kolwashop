@@ -242,12 +242,12 @@
     <button onclick="showOrderForm()">commander</button>
   </div>
 
-  <!-- Order Form -->
+  <!-- Formulaire de commande -->
   <form id="orderForm" onsubmit="event.preventDefault(); submitOrder();">
     <h3>commander</h3>
-    <input type="email" id="email" placeholder="Your email" required>
-    <input type="text" id="address" placeholder="Your address" required>
-    <input type="text" id="phoneNumber" placeholder="Your phone number" required>
+    <input type="email" id="email" placeholder="Votre email" required>
+    <input type="text" id="address" placeholder="Votre adresse" required>
+    <input type="text" id="phoneNumber" placeholder="Votre numéro de téléphone" required>
     <button type="submit">confirmer votre commande</button>
   </form>
 
@@ -267,30 +267,31 @@
             cartFromAPI = data.cart;
           }
         } catch(e) {
-          console.error("Error fetching cart from API:", e);
+          console.error("Erreur lors de la récupération du panier via l'API :", e);
         }
-        // Si aucun panier n'est récupéré via l'API, on charge depuis le localStorage
-        let localCart = JSON.parse(localStorage.getItem('cart')) || [];
+        // Si aucun panier n'est récupéré via l'API, charger depuis le localStorage
+        const localCart = JSON.parse(localStorage.getItem('cart')) || [];
         cartItems = cartFromAPI.length > 0 ? cartFromAPI : localCart;
 
         const cartGrid = document.getElementById('cartGrid');
         if (cartItems.length === 0) {
-          cartGrid.innerHTML = '<p>Your cart is empty.</p>';
+          cartGrid.innerHTML = '<p>Votre panier est vide.</p>';
           document.getElementById('total').textContent = '';
         } else {
-          let total = cartItems.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
+          let total = cartItems.reduce((sum, item) => 
+            sum + ((Number(item.price) || 0) * (item.quantity || 1)), 0);
           cartGrid.innerHTML = cartItems.map((item, index) => 
             `<div class="cart-item">
               <img src="${item.imageUrl}" alt="${item.name}" class="cart-image">
               <div>
                 <span>${item.name} - ${item.price} FCFA</span><br>
-                <span>Quantity: 
+                <span>Quantité : 
                   <button style="background-color: blue; color: white;" onclick="changeQuantity(${index}, -1)">-</button>
                   <span id="quantity-${index}">${item.quantity || 1}</span>
                   <button style="background-color: blue; color: white;" onclick="changeQuantity(${index}, 1)">+</button>
                 </span>
                 ${item.category === 'shoe' ? 
-                  `<br><label for="size-${index}">Size:</label>
+                  `<br><label for="size-${index}">Taille :</label>
                   <select id="size-${index}" onchange="updateSize(${index}, this.value)">
                     ${[38, 39, 40, 41, 42, 43, 44, 45].map(size => 
                       `<option value="${size}" ${item.size === size ? 'selected' : ''}>${size}</option>`
@@ -298,23 +299,24 @@
                   </select>` 
                 : ''}
               </div>
-              <button onclick="removeFromCart(${index})">Remove</button>
+              <button onclick="removeFromCart(${index})">Supprimer</button>
             </div>`
           ).join('');
-          document.getElementById('total').textContent = `Total: ${total} FCFA`;
+          document.getElementById('total').textContent = `Total : ${total} FCFA`;
         }
       } catch (error) {
-        console.error('Error loading cart:', error);
+        console.error('Erreur lors du chargement du panier :', error);
       }
     }
 
-    // Met à jour l'affichage du total du panier
+    // Mise à jour du total
     function updateTotal() {
-      let total = cartItems.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
-      document.getElementById('total').textContent = `Total: ${total} FCFA`;
+      let total = cartItems.reduce((sum, item) => 
+        sum + ((Number(item.price) || 0) * (item.quantity || 1)), 0);
+      document.getElementById('total').textContent = `Total : ${total} FCFA`;
     }
 
-    // Change la quantité d'un produit
+    // Modification de la quantité d'un produit
     async function changeQuantity(index, change) {
       if (!cartItems[index]) return;
       const newQuantity = (cartItems[index].quantity || 1) + change;
@@ -326,25 +328,25 @@
       }
     }
 
-    // Met à jour la taille (pour les chaussures par exemple)
+    // Mise à jour de la taille (pour les chaussures par exemple)
     async function updateSize(index, size) {
       cartItems[index].size = size;
       await updateCartOnServer(cartItems);
     }
 
-    // Supprime un produit du panier
+    // Suppression d'un produit du panier
     function removeFromCart(index) {
       if (index < 0 || index >= cartItems.length) {
-        console.error("Invalid removal index:", index);
+        console.error("Index invalide pour la suppression :", index);
         return;
       }
       const removedItem = cartItems.splice(index, 1)[0];
       localStorage.setItem('cart', JSON.stringify(cartItems));
       loadCart();
-      showNotification(`Product "${removedItem.name}" removed from cart.`);
+      showNotification(`Produit "${removedItem.name}" supprimé du panier.`);
     }
 
-    // Met à jour le panier sur le serveur
+    // Mise à jour du panier sur le serveur
     async function updateCartOnServer(cart) {
       try {
         const response = await fetch('/api/update-cart', {
@@ -353,56 +355,54 @@
           body: JSON.stringify({ cart })
         });
         if (!response.ok) {
-          throw new Error('Error updating cart on server.');
+          throw new Error('Erreur lors de la mise à jour du panier sur le serveur.');
         }
       } catch (error) {
-        console.error("Error updating cart on server:", error);
+        console.error("Erreur lors de la mise à jour du panier sur le serveur:", error);
       }
     }
 
-    // Redirige vers la page d'accueil
+    // Redirection vers l'accueil
     function redirectToIndex() {
       window.location.href = 'index.html';
     }
 
-    // Affiche le formulaire de commande
+    // Affichage du formulaire de commande
     function showOrderForm() {
       document.getElementById("orderForm").style.display = "block";
     }
 
-    // Soumet la commande en récupérant les données du formulaire et du panier
+    // Soumission de la commande
     async function submitOrder() {
       const email = document.getElementById('email').value;
       const address = document.getElementById('address').value;
       const phoneNumber = document.getElementById('phoneNumber').value;
       const submitButton = document.querySelector('#orderForm button[type="submit"]');
 
-      // Désactiver le bouton pour éviter les doubles soumissions
+      // Désactivation pour éviter les doubles soumissions
       submitButton.disabled = true;
 
-      // Récupérer les articles du panier depuis le localStorage
       const localCartItems = JSON.parse(localStorage.getItem('cart')) || [];
-
       if (!email || !address || !phoneNumber || localCartItems.length === 0) {
         alert("Veuillez remplir tous les champs et ajouter des articles au panier.");
         submitButton.disabled = false;
         return;
       }
 
-      // Filtrer les données du produit pour n'envoyer que le nom, l'URL image, le prix et l'email du vendeur
+      // Correction : on envoie les clés attendues par le serveur (nom & prix)
       const filteredCartItems = localCartItems.map(item => ({
-        name: item.name,
+        nom: item.name,
         imageUrl: item.imageUrl,
-        price: item.price,
+        prix: Number(item.price),
         sellerEmail: item.sellerEmail,
+        quantity: item.quantity || 1
       }));
 
-      // On envoie les données en français pour correspondre à l'API
       const orderData = {
         courriel: email,
         adresse: address,
         phoneNumber: phoneNumber,
-        panierObjets: filteredCartItems,
+        panierObjets: filteredCartItems
       };
 
       try {
@@ -416,8 +416,8 @@
 
         if (response.ok) {
           alert("Commande confirmée avec succès !");
-          localStorage.removeItem('cart'); // Vider le panier après confirmation
-          window.location.href = '/order-success'; // Redirection vers une page de succès
+          localStorage.removeItem('cart'); // Vider le panier après validation
+          window.location.href = '/order-success';
         } else {
           alert("Erreur lors de la confirmation de la commande : " + result.message);
         }
@@ -429,7 +429,7 @@
       }
     }
 
-    // Affiche une notification temporaire
+    // Affichage d'une notification temporaire
     function showNotification(message) {
       const notification = document.getElementById("notification");
       notification.textContent = message;
