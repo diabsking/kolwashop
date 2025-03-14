@@ -370,8 +370,6 @@
       document.getElementById("orderForm").style.display = "block";
     }
 
-    // Submit order
-    // Submit order
 async function submitOrder() {
   const email = document.getElementById('email').value;
   const address = document.getElementById('address').value;
@@ -381,22 +379,29 @@ async function submitOrder() {
   // Désactiver le bouton pour éviter les doubles soumissions
   submitButton.disabled = true;
 
-  // Récupérer les articles du panier depuis le localStorage (ou une autre source de stockage)
-  const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+  // Récupérer les articles du panier depuis le localStorage
+  const localCartItems = JSON.parse(localStorage.getItem('cart')) || [];
 
-  if (!email || !address || !phoneNumber || cartItems.length === 0) {
+  if (!email || !address || !phoneNumber || localCartItems.length === 0) {
     alert("Veuillez remplir tous les champs et ajouter des articles au panier.");
     submitButton.disabled = false;
     return;
   }
 
-  const orderData = {
-    email,
-    address,
-    phoneNumber,
-    cartItems
-  };
+ // Filtrer les données du produit pour n'envoyer que le nom, l'URL image, le prix et l'email du vendeur
+const filteredCartItems = localCartItems.map(item => ({
+  name: item.name,
+  imageUrl: item.imageUrl,
+  price: item.price,
+  sellerEmail: item.sellerEmail,
+}));
 
+const orderData = {
+  email,
+  address,
+  phoneNumber,
+  cartItems: filteredCartItems,
+};
   try {
     const response = await fetch('/api/orders', {
       method: 'POST',
@@ -420,8 +425,7 @@ async function submitOrder() {
     submitButton.disabled = false;
   }
 }
-
-    // Show temporary notification
+// Show temporary notification
     function showNotification(message) {
       const notification = document.getElementById("notification");
       notification.textContent = message;

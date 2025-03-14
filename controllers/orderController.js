@@ -28,8 +28,7 @@ exports.addToCart = (req, res) => {
 exports.confirmOrder = async (req, res) => {
   console.log("Requête de confirmation de commande reçue");
 
-  // Extraction des données envoyées depuis le front-end (champs en anglais)
-  // Ici, nous attendons la propriété "cart" qui contient les articles du panier.
+  // Extraction des données envoyées dans le body
   const { email, address, phoneNumber, cart } = req.body;
   console.log("Données reçues :", { email, address, phoneNumber, cart });
 
@@ -50,16 +49,17 @@ exports.confirmOrder = async (req, res) => {
   const shippingAddress = address;
   console.log("Nom du client déterminé :", clientName);
 
-  // Mapping des produits du panier pour s'assurer de la cohérence des clés
+  // Mapping des produits du panier pour assurer la cohérence des clés
   const mappedCartItems = cart.map(item => ({
     name: item.name,
     price: Number(item.price) || 0,
     description: item.description || "",
     imageUrl: item.imageUrl,
-    sellerEmail: item.sellerEmail,
+    sellerEmail: item.sellerEmail, // Seller email indispensable pour regrouper les commandes par vendeur
     quantity: item.quantity || 1,
     addedAt: item.addedAt ? new Date(item.addedAt) : new Date()
   }));
+
   mappedCartItems.forEach(item => console.log("Produit mappé :", item));
 
   // Regrouper les produits par vendeur (chaque vendeur recevra une commande distincte)
@@ -101,13 +101,14 @@ exports.confirmOrder = async (req, res) => {
       sellerOrders[sellerEmail] = order;
     }
 
-    // Envoi d'un email à chaque vendeur avec les détails de la commande,
-    // incluant l'URL de la photo de chaque produit.
+    // Envoi d'un email à chaque vendeur avec les détails de la commande
     for (const sellerEmail in sellerOrders) {
       const order = sellerOrders[sellerEmail];
-      const productDetails = order.products.map(prod =>
-        `- ${prod.name} (${prod.quantity} x ${prod.price} FCFA)\nURL de la photo: ${prod.imageUrl}`
-      ).join("\n\n");
+      const productDetails = order.products
+        .map(prod =>
+          `- ${prod.name} (${prod.quantity} x ${prod.price} FCFA)\nURL de la photo: ${prod.imageUrl}`
+        )
+        .join("\n\n");
 
       console.log(`Envoi de l'email au vendeur : ${sellerEmail}`);
       await transporter.sendMail({
@@ -120,9 +121,9 @@ exports.confirmOrder = async (req, res) => {
     }
 
     // Envoi de l'email de confirmation au client avec le récapitulatif de sa commande
-    const clientProducts = mappedCartItems.map(item =>
-      `- ${item.name} (${item.quantity} x ${item.price} FCFA)`
-    ).join("\n");
+    const clientProducts = mappedCartItems
+      .map(item => `- ${item.name} (${item.quantity} x ${item.price} FCFA)`)
+      .join("\n");
     console.log("Envoi de l'email de confirmation au client :", email);
     await transporter.sendMail({
       from: "kolwazshopp@mailo.com",
