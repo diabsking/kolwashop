@@ -534,30 +534,45 @@
       });
     }
     
-    function goBack() { window.history.back(); }
+    function goBack() { 
+      window.history.back(); 
+    }
     
-function addToCart(name, price, description, imageUrl, sellerEmail, button) {
-    // Désactiver le bouton et indiquer l'ajout
-    button.textContent = "Ajouté !";
-    button.disabled = true;
-    button.style.backgroundColor = "#28a745";
+    function updateCartCount() {
+      cartCount++;
+      localStorage.setItem('cartCount', cartCount);
+      document.getElementById("cartCount").textContent = cartCount;
+    }
+    
+    function showNotification(message) {
+      const notification = document.getElementById("notification");
+      notification.textContent = message;
+      notification.classList.add("show");
+      setTimeout(() => notification.classList.remove("show"), 3000);
+    }
+    
+    function addToCart(name, price, description, imageUrl, sellerEmail, button) {
+      // Désactiver le bouton et indiquer l'ajout
+      button.textContent = "Ajouté !";
+      button.disabled = true;
+      button.style.backgroundColor = "#28a745";
 
-    // Récupérer le panier depuis localStorage ou initialiser un tableau vide
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      // Récupérer le panier depuis localStorage ou initialiser un tableau vide
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-    // Création de l'objet produit incluant l'email du vendeur
-    const productToAdd = {
+      // Création de l'objet produit incluant l'email du vendeur
+      const productToAdd = {
         name,
         price,
         description,
         imageUrl,
         sellerEmail,
-    };
+      };
 
-    // Vérifier si le produit est déjà dans le panier (évite les doublons)
-    const exists = cart.some(product => product.name === name && product.sellerEmail === sellerEmail);
-    
-    if (!exists) {
+      // Vérifier si le produit est déjà dans le panier (évite les doublons)
+      const exists = cart.some(product => product.name === name && product.sellerEmail === sellerEmail);
+      
+      if (!exists) {
         cart.push(productToAdd);
         localStorage.setItem('cart', JSON.stringify(cart));
 
@@ -569,12 +584,12 @@ function addToCart(name, price, description, imageUrl, sellerEmail, button) {
         
         // Rediriger vers la page du panier après 1 seconde
         setTimeout(() => {
-            window.location.href = "panier.html";
+          window.location.href = "panier.html";
         }, 1000);
-    } else {
+      } else {
         showNotification("Ce produit est déjà dans votre panier.");
+      }
     }
-}
   </script>
 </body>
 </html>
