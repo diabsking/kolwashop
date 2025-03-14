@@ -9,6 +9,7 @@ const productSchema = new mongoose.Schema(
     imageUrl: { type: String, trim: true },
     sellerEmail: { type: String, required: true, lowercase: true, trim: true },
     quantity: { type: Number, required: true, min: 1, default: 1 },
+    size: { type: String, trim: true }, // Gestion de la taille, si applicable
     addedAt: { type: Date, default: Date.now }
   }
 );
@@ -20,7 +21,7 @@ const orderSchema = new mongoose.Schema(
     email: { type: String, required: true, lowercase: true, trim: true },
     phoneNumber: { type: String, required: true, trim: true },
     shippingAddress: { type: String, required: true, trim: true },
-    products: { type: [productSchema], required: true }, // Adapté pour plusieurs produits
+    products: { type: [productSchema], required: true }, // Liste des produits commandés
     orderStatus: {
       type: String,
       enum: ["Commande en préparation", "Expédiée", "Livrée", "Annulée"],
@@ -33,7 +34,8 @@ const orderSchema = new mongoose.Schema(
     },
     shippingCost: { type: Number, default: 0, min: 0 },
     trackingNumber: { type: String, trim: true },
-    notes: { type: String, trim: true }
+    notes: { type: String, trim: true }, // Notes supplémentaires pour la commande
+    confirmationCode: { type: String, trim: true }, // Pour la confirmation client ou vendeur
   },
   {
     timestamps: true // Ajoute automatiquement createdAt et updatedAt
@@ -51,5 +53,11 @@ orderSchema.post("save", function (doc, next) {
   console.log("Commande sauvegardée avec succès :", doc);
   next();
 });
+
+// Fonctionnalités supplémentaires intégrées au modèle
+orderSchema.methods.addTrackingNumber = function (trackingNumber) {
+  this.trackingNumber = trackingNumber;
+  console.log("Numéro de suivi ajouté :", trackingNumber);
+};
 
 module.exports = mongoose.model("Order", orderSchema);

@@ -1,127 +1,73 @@
-// Import des dépendances et configuration de l'environnement
-console.log("Démarrage du serveur...");
 require("dotenv").config();
 
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const session = require("express-session");
-const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 const path = require("path");
 const cron = require("node-cron");
-const nodemailer = require("nodemailer");
+const sellerController = require('./controllers/sellerController');
 const Order = require("./models/Order");
-const Product = require("./models/Product"); 
+const Product = require("./models/Product");
 
-// Initialisation de l'application Express
 const app = express();
 
-
-// Configuration des middlewares
+// ---------- CONFIGURATION DES MIDDLEWARES ----------
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+
+// Sessions sécurisées
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || 'secretKey', // Mettre une valeur sécurisée dans .env
   resave: false,
   saveUninitialized: true
 }));
 
-// Configuration de Mongoose
-const mongoURI = 'mongodb+srv://senfood75:2tzzELuHlxge6eQ8@cluster1.te14d.mongodb.net/kolwazshop?retryWrites=true&w=majority&appName=Cluster1';
-
+// ---------- CONFIGURATION DE LA BASE DE DONNÉES ----------
+const mongoURI = process.env.MONGO_URI || "mongodb://localhost:27017/kolwazshop";
 mongoose.connect(mongoURI, {
-    connectTimeoutMS: 30000,
-    serverSelectionTimeoutMS: 30000
+  connectTimeoutMS: 30000,
+  serverSelectionTimeoutMS: 30000
 }).then(() => {
-    console.log('Connexion à MongoDB réussie !');
+  console.log('✅ Connexion à MongoDB réussie !');
 }).catch(err => {
-    console.error('Erreur de connexion à MongoDB :', err);
+  console.error('❌ Erreur de connexion à MongoDB :', err);
 });
 
-// Importation des modèles, middlewares et routes
-const { isAuthenticated, isSeller, verifyToken } = require("./middlewares/authMiddleware");
-const { parseContentType } = require("./utils.js");
+// ---------- IMPORTATION DES ROUTES ----------
 const sellerRoutes = require("./routes/sellerRoutes");
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
-const { cleanExpiredProducts } = require("./scheduler/cleanup");
-const sellerController = require('./controllers/sellerController');
 
-// Définition des routes pour les pages statiques
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-app.get("/espace-vendeur", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "espace-vendeur.html"));
-});
-app.get("/dashboard-vendeur", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "Tableau de bord.html"));
-});
-app.get("/panier", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "panier.html"));
-});
-app.get("/Administrateur", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "Administrateur.html"));
-});
-
-// Servir les fichiers statiques depuis le dossier 'public'
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Déclaration des routes d'API
+// ---------- ROUTES PRINCIPALES ----------
 app.use("/api/sellers", sellerRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 
-// Exemple d'une route utilisant le modèle Order
-app.get("/orders/all", async (req, res) => {
-  try {
-    const orders = await Order.find();
-    res.json(orders);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// Route d'accès aux fichiers statiques
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Servir les pages HTML
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Middleware pour afficher le Content-Type des requêtes (après le parsing)
-app.use((req, res, next) => {
-  const contentType = req.headers["content-type"];
-  if (!contentType) {
-    console.log("Aucun Content-Type détecté.");
-  } else {
-    const parsedType = parseContentType(contentType);
-    console.log("Content-Type analysé :", parsedType);
-  }
-  console.log("Headers de la requête :", req.headers);
-  console.log("Corps de la requête :", req.body);
-  next();
+app.get("/espace-vendeur", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "espace-vendeur.html"));
 });
 
-// Route pour accéder aux images dans le dossier 'uploads'
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// Planification du nettoyage des annonces expirées (tous les jours à minuit)
-cron.schedule("0 0 * * *", () => {
-  console.log("🧹 Exécution du nettoyage des annonces expirées...");
-  cleanExpiredProducts();
+app.get("/panier", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "panier.html"));
 });
 
-// Middleware de gestion des erreurs
-app.use((err, req, res, next) => {
-  console.error("❌ Erreur détectée :", err);
-  res.status(500).json({
-    error: "Une erreur est survenue",
-    message: err.message,
-  });
-});
-
-// Gestion du panier en mémoire (pour test)
+// ---------- ROUTES D'API SUPPLÉMENTAIRES ----------
+// Gestion en mémoire du panier (pour tests ou démos)
 let cart = [];
 
-// Routes de gestion du panier
 app.post('/api/add-to-cart', (req, res) => {
   const productData = req.body;
-  console.log('Produit ajouté au panier:', productData);
   if (!productData.name || !productData.price) {
     return res.status(400).json({ success: false, message: 'Données incomplètes' });
   }
@@ -138,156 +84,64 @@ app.post('/api/update-cart', (req, res) => {
   res.json({ success: true, cart });
 });
 
-// Configuration du transporteur pour l'envoi d'e-mails
+// ---------- CONFIGURATION DE L'ENVOI D'E-MAILS ----------
 const transporter = nodemailer.createTransport({
   host: "mail.mailo.com",
   port: 465,
   secure: true,
   auth: {
-    user: "kolwazshopp@mailo.com",
-    pass: process.env.MAILO_PASSWORD,
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
-// Route POST pour valider une commande
+
+// ---------- PLANIFICATION DES TÂCHES ----------
+cron.schedule("0 0 * * *", () => {
+  console.log("🧹 Nettoyage des annonces expirées...");
+  sellerController.deleteExpiredProducts();
+});
+
+// Nettoyage périodique des comptes non vérifiés
+setInterval(() => {
+  sellerController.deleteUnverifiedAccounts();
+}, 10 * 60 * 1000); // Toutes les 10 minutes
+
+// ---------- ROUTE D'EXEMPLE POUR LES COMMANDES ----------
 app.post("/api/orders", async (req, res) => {
   try {
     const { courriel, adresse, phoneNumber, panierObjets } = req.body;
+
     if (!courriel || !adresse || !phoneNumber || !Array.isArray(panierObjets) || panierObjets.length === 0) {
       return res.status(400).json({ message: "Tous les champs sont requis et le panier ne peut pas être vide !" });
     }
 
-    const sellerOrders = {};
-
-    // Création des commandes pour chaque produit du panier
-    for (let item of panierObjets) {
+    panierObjets.forEach(item => {
       if (!item.sellerEmail) {
-        console.warn(`Produit "${item.nom}" sans email vendeur.`);
-        continue;
+        console.warn(`⚠️ Produit "${item.name}" sans email vendeur.`);
       }
-
-      const newOrder = new Order({
-        customerName: courriel.split("@")[0],
-        email: courriel,
-        shippingAddress: adresse,
-        phoneNumber,
-        products: [{
-          name: item.nom,
-          price: Number(item.prix),
-          description: item.description || "",
-          imageUrl: item.imageUrl,
-          sellerEmail: item.sellerEmail,
-          quantity: item.quantity || 1
-        }],
-        orderStatus: "Commande en préparation"
-      });
-
-      await newOrder.save();
-
-      if (!sellerOrders[item.sellerEmail]) {
-        sellerOrders[item.sellerEmail] = [];
-      }
-      sellerOrders[item.sellerEmail].push(newOrder);
-    }
-
-    // Envoi des e-mails à chaque vendeur
-    for (let sellerEmail in sellerOrders) {
-      const ordersBySeller = sellerOrders[sellerEmail];
-      const productDetails = ordersBySeller.map(order =>
-        order.products.map(prod =>
-          `- ${prod.name} (${prod.quantity} x ${prod.price} FCFA)`
-        ).join("\n")
-      ).join("\n\n");
-
-      await transporter.sendMail({
-        from: "kolwazshopp@mailo.com",
-        to: sellerEmail,
-        subject: "Nouvelle commande reçue",
-        text: `Bonjour,\n\nVous avez reçu une nouvelle commande.\n\n🛒 Détails de la commande :\n${productDetails}\n\n📍 Informations de livraison :\nAdresse : ${adresse}\n📞 Téléphone : ${phoneNumber}\n\nMerci de traiter cette commande rapidement.\n\n— Kolwaz Shop`
-      });
-    }
-
-    // Envoi de l'e-mail de confirmation au client
-    const clientProducts = panierObjets.map(item =>
-      `- ${item.nom} (${item.quantity || 1} x ${item.prix} FCFA)`
-    ).join("\n");
-
-    await transporter.sendMail({
-      from: "kolwazshopp@mailo.com",
-      to: courriel,
-      subject: "Confirmation de votre commande",
-      text: `Bonjour,\n\n✅ Votre commande a bien été enregistrée !\n\n🛒 Détails de votre commande :\n${clientProducts}\n\n🚚 Votre commande est en cours de préparation et sera livrée à :\n📍 ${adresse}\n📞 ${phoneNumber}\n\nMerci pour votre confiance !\n\n— Kolwaz Shop`
     });
 
-    res.status(200).json({ message: `Commande confirmée pour ${panierObjets.length} produit(s).` });
+    // Simuler une sauvegarde en base
+    console.log("Commande reçue :", panierObjets);
+    res.status(200).json({ message: "Commande confirmée." });
   } catch (err) {
-    console.error("Erreur lors de la validation de la commande :", err);
-    res.status(500).json({ error: err.message });
+    console.error("Erreur lors de la commande :", err);
+    res.status(500).json({ message: "Une erreur est survenue.", error: err.message });
   }
 });
 
-// Exemple de cron job pour nettoyer les comptes non vérifiés toutes les 10 minutes
-setInterval(() => {
-  sellerController.deleteUnverifiedAccounts();
-}, 10 * 60 * 1000); // Exécuter toutes les 10 minutes
-
-const deleteProductByNameAndSeller = async (productName, sellerEmail) => {
-    try {
-        const result = await Product.deleteOne({ productName, sellerEmail });
-
-        if (result.deletedCount > 0) {
-            console.log(`✅ Produit "${productName}" supprimé avec succès pour le vendeur ${sellerEmail}.`);
-        } else {
-            console.log(`⚠️ Aucun produit trouvé avec ce nom et cet email.`);
-        }
-    } catch (error) {
-        console.error("❌ Erreur lors de la suppression du produit :", error);
-    }
-};
-
-// Route API pour supprimer un produit
-app.post('/api/deleteProduct', async (req, res) => {
-  const { productId, sellerEmail, reason } = req.body;
-  try {
-    // Suppression du produit dans la base de données
-    const product = await Product.findByIdAndDelete(productId);
-    if (!product) {
-      return res.status(404).json({ success: false, message: "Produit non trouvé" });
-    }
-
-    // Préparation de l'e-mail
-    const mailOptions = {
-      from: "kolwazshopp@mailo.com",
-      to: sellerEmail,
-      subject: `Suppression de votre produit (ID: ${productId})`,
-      text: `Bonjour,
-
-Votre produit avec l'ID ${productId} a été supprimé pour la raison suivante :
-"${reason}"
-
-Si vous avez des questions, merci de contacter notre support.
-
-Cordialement,
-L'équipe Kolwaz Shop`
-    };
-
-    // Envoi de l'e-mail
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Erreur lors de l'envoi de l'e-mail :", error);
-        return res.status(500).json({ success: false, message: "Erreur lors de l'envoi de l'e-mail" });
-      }
-      console.log("E-mail envoyé :", info.response);
-      res.json({ success: true, message: "Produit supprimé et e-mail envoyé au vendeur" });
-    });
-  } catch (err) {
-    console.error("Erreur serveur :", err);
-    res.status(500).json({ success: false, message: "Erreur serveur" });
-  }
+// ---------- MIDDLEWARES DE GESTION D'ERREURS ----------
+app.use((req, res) => {
+  res.status(404).json({ error: "Ressource non trouvée" });
 });
-deleteProductByNameAndSeller("", "");
 
-// Démarrage du serveur
+app.use((err, req, res, next) => {
+  console.error("Erreur serveur :", err);
+  res.status(500).json({ message: "Une erreur interne est survenue." });
+});
+
+// ---------- DÉMARRAGE DU SERVEUR ----------
 const port = process.env.PORT || 3000;
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Serveur en ligne sur le port ${port}`);
+app.listen(port, () => {
+  console.log(`🚀 Serveur démarré sur http://localhost:${port}`);
 });

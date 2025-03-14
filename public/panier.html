@@ -233,22 +233,22 @@
   </style>
 </head>
 <body>
-  <h1>Votre panier</h1>
+  <h1>votre panier</h1>
   <div id="cartGrid"></div>
   <div id="total"></div>
 
   <div class="action-buttons">
     <button onclick="redirectToIndex()">Ajouter un produit</button>
-    <button onclick="showOrderForm()">Commander</button>
+    <button onclick="showOrderForm()">commander</button>
   </div>
 
   <!-- Order Form -->
   <form id="orderForm" onsubmit="event.preventDefault(); submitOrder();">
-    <h3>Commander</h3>
-    <input type="email" id="email" placeholder="Votre email" required>
-    <input type="text" id="address" placeholder="Votre adresse" required>
-    <input type="text" id="phoneNumber" placeholder="Votre numéro de téléphone" required>
-    <button type="submit">Confirmer votre commande</button>
+    <h3>commander</h3>
+    <input type="email" id="email" placeholder="Your email" required>
+    <input type="text" id="address" placeholder="Your address" required>
+    <input type="text" id="phoneNumber" placeholder="Your phone number" required>
+    <button type="submit">confirmer votre commande</button>
   </form>
 
   <div id="notification"></div>
@@ -256,9 +256,9 @@
   <script>
     let cartItems = [];
 
+    // Charge le panier depuis l'API ou le localStorage
     async function loadCart() {
       try {
-        // On essaye de récupérer le panier depuis l'API
         let cartFromAPI = [];
         try {
           const response = await fetch('/api/get-cart', { headers: { 'Content-Type': 'application/json' } });
@@ -269,7 +269,7 @@
         } catch(e) {
           console.error("Error fetching cart from API:", e);
         }
-        // Sinon, charger depuis localStorage
+        // Si aucun panier n'est récupéré via l'API, on charge depuis le localStorage
         let localCart = JSON.parse(localStorage.getItem('cart')) || [];
         cartItems = cartFromAPI.length > 0 ? cartFromAPI : localCart;
 
@@ -289,6 +289,14 @@
                   <span id="quantity-${index}">${item.quantity || 1}</span>
                   <button style="background-color: blue; color: white;" onclick="changeQuantity(${index}, 1)">+</button>
                 </span>
+                ${item.category === 'shoe' ? 
+                  `<br><label for="size-${index}">Size:</label>
+                  <select id="size-${index}" onchange="updateSize(${index}, this.value)">
+                    ${[38, 39, 40, 41, 42, 43, 44, 45].map(size => 
+                      `<option value="${size}" ${item.size === size ? 'selected' : ''}>${size}</option>`
+                    ).join('')}
+                  </select>` 
+                : ''}
               </div>
               <button onclick="removeFromCart(${index})">Remove</button>
             </div>`
@@ -300,11 +308,13 @@
       }
     }
 
+    // Met à jour l'affichage du total du panier
     function updateTotal() {
       let total = cartItems.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
       document.getElementById('total').textContent = `Total: ${total} FCFA`;
     }
 
+    // Change la quantité d'un produit
     async function changeQuantity(index, change) {
       if (!cartItems[index]) return;
       const newQuantity = (cartItems[index].quantity || 1) + change;
@@ -316,6 +326,13 @@
       }
     }
 
+    // Met à jour la taille (pour les chaussures par exemple)
+    async function updateSize(index, size) {
+      cartItems[index].size = size;
+      await updateCartOnServer(cartItems);
+    }
+
+    // Supprime un produit du panier
     function removeFromCart(index) {
       if (index < 0 || index >= cartItems.length) {
         console.error("Invalid removal index:", index);
@@ -327,6 +344,7 @@
       showNotification(`Product "${removedItem.name}" removed from cart.`);
     }
 
+    // Met à jour le panier sur le serveur
     async function updateCartOnServer(cart) {
       try {
         const response = await fetch('/api/update-cart', {
@@ -342,21 +360,27 @@
       }
     }
 
+    // Redirige vers la page d'accueil
     function redirectToIndex() {
       window.location.href = 'index.html';
     }
 
+    // Affiche le formulaire de commande
     function showOrderForm() {
       document.getElementById("orderForm").style.display = "block";
     }
 
+    // Soumet la commande en récupérant les données du formulaire et du panier
     async function submitOrder() {
       const email = document.getElementById('email').value;
       const address = document.getElementById('address').value;
       const phoneNumber = document.getElementById('phoneNumber').value;
       const submitButton = document.querySelector('#orderForm button[type="submit"]');
 
+      // Désactiver le bouton pour éviter les doubles soumissions
       submitButton.disabled = true;
+
+      // Récupérer les articles du panier depuis le localStorage
       const localCartItems = JSON.parse(localStorage.getItem('cart')) || [];
 
       if (!email || !address || !phoneNumber || localCartItems.length === 0) {
@@ -365,14 +389,15 @@
         return;
       }
 
-      // On filtre pour n'envoyer que les champs nécessaires
+      // Filtrer les données du produit pour n'envoyer que le nom, l'URL image, le prix et l'email du vendeur
       const filteredCartItems = localCartItems.map(item => ({
-        nom: item.name,
+        name: item.name,
         imageUrl: item.imageUrl,
-        prix: item.price,
-        sellerEmail: item.sellerEmail
+        price: item.price,
+        sellerEmail: item.sellerEmail,
       }));
 
+      // On envoie les données en français pour correspondre à l'API
       const orderData = {
         courriel: email,
         adresse: address,
@@ -391,8 +416,8 @@
 
         if (response.ok) {
           alert("Commande confirmée avec succès !");
-          localStorage.removeItem('cart'); 
-          window.location.href = '/order-success'; 
+          localStorage.removeItem('cart'); // Vider le panier après confirmation
+          window.location.href = '/order-success'; // Redirection vers une page de succès
         } else {
           alert("Erreur lors de la confirmation de la commande : " + result.message);
         }
@@ -404,6 +429,7 @@
       }
     }
 
+    // Affiche une notification temporaire
     function showNotification(message) {
       const notification = document.getElementById("notification");
       notification.textContent = message;
