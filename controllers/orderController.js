@@ -3,7 +3,7 @@ const nodemailer = require("nodemailer");
 
 // Configuration de Mailo
 const transporter = nodemailer.createTransport({
-  host: "smtp.mailo.com",
+  host: "mail.mailo.com",
   port: 465,
   secure: true,
   auth: {
@@ -11,119 +11,92 @@ const transporter = nodemailer.createTransport({
     pass: process.env.MAILO_PASSWORD || "1O0C4HbGFMSw" // Utilisez une variable d'environnement pour le mot de passe
   }
 });
-
 // Fonction pour afficher le panier
 exports.viewCart = (req, res) => {
+  // Implémentez ici la logique d'affichage du panier
   res.status(200).json({ message: "Affichage du panier" });
 };
 
 // Fonction pour ajouter un produit au panier
 exports.addToCart = (req, res) => {
+  // Implémentez ici la logique d'ajout au panier
   res.status(200).json({ message: "Produit ajouté au panier" });
 };
 
 // Fonction pour confirmer une commande
 exports.confirmOrder = async (req, res) => {
-  // Démarrage d'une session pour la transaction
-  const session = await Order.startSession();
   try {
-    session.startTransaction();
+    const { email, address, phoneNumber, cartItems } = req.body;
 
-    // Extraction des données envoyées depuis le front-end (clés en français)
-    const { courriel, adresse, phoneNumber, panierObjets, customerName } = req.body;
-    
-    // Vérification des champs requis
-    if (
-      !courriel?.trim() ||
-      !adresse?.trim() ||
-      !phoneNumber?.trim() ||
-      !Array.isArray(panierObjets) ||
-      panierObjets.length === 0
-    ) {
+    if (!email || !address || !phoneNumber || !cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
       return res.status(400).json({ message: "Tous les champs sont requis et le panier ne peut pas être vide !" });
     }
-    
-    // Définir le nom du client (si non fourni, on utilise la partie avant '@' du courriel)
-    const clientName = customerName && customerName.trim() ? customerName.trim() : courriel.split("@")[0];
-    const shippingAddress = adresse;
-    
-    // Mapping des objets du panier : transformation des clés françaises en clés internes
-    const mappedCartItems = panierObjets.map(item => ({
-      name: item.nom,
-      price: Number(item.prix) || 0, // Conversion explicite en nombre
-      description: item.description || "",
-      imageUrl: item.imageUrl,
-      sellerEmail: item["sellerE-mail"],
-      quantity: item.quantity || 1,
-      addedAt: item.ajoutéÀ ? new Date(item.ajoutéÀ) : new Date()
-    }));
-    
-    // Regrouper les produits par vendeur
-    const ordersBySeller = {};
-    mappedCartItems.forEach(item => {
-      if (!item.sellerEmail) {
-        throw new Error(`Produit "${item.name}" sans email vendeur.`);
-      }
-      if (!ordersBySeller[item.sellerEmail]) {
-        ordersBySeller[item.sellerEmail] = [];
-      }
-      ordersBySeller[item.sellerEmail].push(item);
-    });
-    
+
     const sellerOrders = {};
-    
-    // Pour chaque vendeur, créer une commande contenant tous ses produits et la sauvegarder dans la transaction
-    for (const sellerEmail in ordersBySeller) {
-      const order = new Order({
-        customerName: clientName,
-        email: courriel,
-        shippingAddress,
+
+    // Enregistrer chaque commande et regrouper par vendeur
+    for (let item of cartItems) {
+      if (!item.sellerEmail) {
+        console.warn(`Produit "${item.name}" sans email vendeur.`);
+        continue;
+        console.log("Nouvelle commande enregistrée :", savedOrder);
+      }
+
+      // Si la quantité n'est pas fournie, on la définit à 1 par défaut
+      const quantity = item.quantity || 1;
+
+      const newOrder = new Order({
+        email,
+        address,
         phoneNumber,
-        products: ordersBySeller[sellerEmail], // Les produits spécifiques à ce vendeur
-        orderStatus: "Commande en préparation"
+        product: {
+          name: item.name,
+          price: item.price,
+          description: item.description,
+          imageUrl: item.imageUrl,
+          sellerEmail: item.sellerEmail,
+          quantity: quantity
+        },
+        status: "Commande en préparation"
       });
-      
-      await order.save({ session });
-      sellerOrders[sellerEmail] = order;
+
+      await newOrder.save();
+
+      if (!sellerOrders[item.sellerEmail]) {
+        sellerOrders[item.sellerEmail] = [];
+      }
+      sellerOrders[item.sellerEmail].push(newOrder);
     }
-    
+
     // Envoi des emails aux vendeurs
-    for (const sellerEmail in sellerOrders) {
-      const order = sellerOrders[sellerEmail];
-      const productDetails = order.products.map(prod =>
-        `- ${prod.name} (${prod.quantity} x ${prod.price} FCFA)\n📷 Photo: ${prod.imageUrl}`
-      ).join("\n\n");
-      
-      // Envoi de l'email au vendeur. Si sendMail échoue, l'exception interrompt la transaction.
+    for (let sellerEmail in sellerOrders) {
+      const ordersBySeller = sellerOrders[sellerEmail];
+      const productDetails = ordersBySeller.map(order =>
+        `- ${order.product.name} (${order.product.quantity} x ${order.product.price} FCFA)`
+      ).join("\n");
+
       await transporter.sendMail({
         from: "kolwazshopp@mailo.com",
         to: sellerEmail,
         subject: "Nouvelle commande reçue",
-        text: `Bonjour,\n\nVous avez reçu une nouvelle commande.\n\n🛒 Détails de la commande :\n${productDetails}\n\n📍 Informations de livraison :\n👤 Client : ${clientName}\n📍 Adresse : ${shippingAddress}\n📞 Téléphone : ${phoneNumber}\n\nMerci de traiter cette commande rapidement.\n\n— Kolwaz Shop`
+        text: `Bonjour,\n\nVous avez reçu une nouvelle commande.\n\n🛒 Détails de la commande :\n${productDetails}\n\n📍 Informations de livraison :\nAdresse : ${address}\n📞 Téléphone : ${phoneNumber}\n\nMerci de traiter cette commande rapidement.\n\n— Kolwaz Shop`
       });
     }
-    
-    // Envoi de l'email de confirmation au client (regroupant tous les produits)
-    const clientProducts = mappedCartItems.map(item =>
-      `- ${item.name} (${item.quantity} x ${item.price} FCFA)`
+
+    // Envoi de l'email de confirmation au client
+    const clientProducts = cartItems.map(item =>
+      `- ${item.name} (${(item.quantity || 1)} x ${item.price} FCFA)`
     ).join("\n");
-    
+
     await transporter.sendMail({
       from: "kolwazshopp@mailo.com",
-      to: courriel,
+      to: email,
       subject: "Confirmation de votre commande",
-      text: `Bonjour ${clientName},\n\n✅ Votre commande a bien été enregistrée !\n\n🛒 Détails de votre commande :\n${clientProducts}\n\n🚚 Votre commande est en cours de préparation et sera livrée à :\n📍 ${shippingAddress}\n📞 ${phoneNumber}\n\nMerci pour votre confiance !\n\n— Kolwaz Shop`
+      text: `Bonjour,\n\n✅ Votre commande a bien été enregistrée !\n\n🛒 Détails de votre commande :\n${clientProducts}\n\n🚚 Votre commande est en cours de préparation et sera livrée à :\n📍 ${address}\n📞 ${phoneNumber}\n\nMerci pour votre confiance !\n\n— Kolwaz Shop`
     });
-    
-    // Validation de la transaction uniquement si tous les emails ont été envoyés avec succès
-    await session.commitTransaction();
-    session.endSession();
-    
-    res.status(200).json({ message: `Commande confirmée pour ${mappedCartItems.length} produit(s).` });
+
+    res.status(200).json({ message: `Commande confirmée pour ${cartItems.length} produit(s).` });
   } catch (err) {
-    // Annulation de la transaction en cas d'erreur (email non envoyé ou autre problème)
-    await session.abortTransaction();
-    session.endSession();
     console.error("Erreur lors de la validation de la commande :", err);
     res.status(500).json({ error: err.message });
   }
@@ -131,5 +104,6 @@ exports.confirmOrder = async (req, res) => {
 
 // Fonction pour confirmer la livraison
 exports.confirmDelivery = (req, res) => {
+  // Implémentez ici la logique de confirmation de livraison
   res.status(200).json({ message: "Livraison confirmée" });
 };
