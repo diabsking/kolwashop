@@ -1,71 +1,71 @@
 const Order = require("../models/Order");
 const nodemailer = require("nodemailer");
 
-// Configuration de Mailo
+// Mailo configuration
 const transporter = nodemailer.createTransport({
   host: "mail.mailo.com",
   port: 465,
   secure: true,
   auth: {
     user: "kolwazshopp@mailo.com",
-    pass: process.env.MAILO_PASSWORD || "1O0C4HbGFMSw" // Utilisez une variable d'environnement pour le mot de passe
+    pass: process.env.MAILO_PASSWORD || "1O0C4HbGFMSw" // Use environment variable for password
   }
 });
 
-// Fonction pour afficher le panier
+// Display cart
 exports.viewCart = (req, res) => {
-  res.status(200).json({ message: "Affichage du panier" });
+  res.status(200).json({ message: "Cart display" });
 };
 
-// Fonction pour ajouter un produit au panier
+// Add product to cart
 exports.addToCart = (req, res) => {
-  res.status(200).json({ message: "Produit ajouté au panier" });
+  res.status(200).json({ message: "Product added to cart" });
 };
 
-// Fonction pour confirmer une commande
+// Confirm order
 exports.confirmOrder = async (req, res) => {
   try {
-    // Extraction des données envoyées depuis le front-end (les clés sont en français)
-    const { courriel, adresse, phoneNumber, panierObjets, customerName } = req.body;
+    // Extract data from request body (keys in English)
+    const { email, address, phoneNumber, cartItems, customerName } = req.body;
     
-    // Vérification des champs requis
+    // Validate required fields
     if (
-      !courriel?.trim() ||
-      !adresse?.trim() ||
+      !email?.trim() ||
+      !address?.trim() ||
       !phoneNumber?.trim() ||
-      !Array.isArray(panierObjets) ||
-      panierObjets.length === 0
+      !Array.isArray(cartItems) ||
+      cartItems.length === 0
     ) {
-      return res.status(400).json({ message: "Tous les champs sont requis et le panier ne peut pas être vide !" });
+      return res.status(400).json({ message: "All fields are required and the cart cannot be empty!" });
     }
     
-    // Définir le nom du client (s'il n'est pas fourni, on utilise la partie avant '@' de l'email)
-    const clientName = customerName && customerName.trim() ? customerName.trim() : courriel.split("@")[0];
-    const shippingAddress = adresse;
+    // Determine customer name (use provided name or derive from email)
+    const clientName = customerName && customerName.trim() ? customerName.trim() : email.split("@")[0];
+    const shippingAddress = address;
     
-    // Mapping des objets du panier : transformation des clés françaises en clés internes
-    const mappedCartItems = panierObjets.map(item => ({
-      name: item.nom,
-      price: item.prix,
-      description: item.description || "", // Utilisation de "description" en minuscule
+    // Map cart items to internal structure
+    const mappedCartItems = cartItems.map(item => ({
+      name: item.name,
+      price: item.price,
+      description: item.description || "",
       imageUrl: item.imageUrl,
-      sellerEmail: item["sellerE-mail"],
+      sellerEmail: item.sellerEmail,
       quantity: item.quantity || 1,
-      addedAt: item.ajoutéÀ || new Date()
+      addedAt: item.addedAt || new Date()
     }));
     
     const sellerOrders = {};
     
-    // Enregistrer chaque commande et les regrouper par vendeur
+    // Save each order and group them by seller
     for (const item of mappedCartItems) {
       if (!item.sellerEmail) {
-        console.warn(`Produit "${item.name}" sans email vendeur.`);
+        console.warn(`Product "${item.name}" missing seller email.`);
         continue;
       }
       
       const newOrder = new Order({
         customerName: clientName,
-        email: courriel,
+        email,
         shippingAddress,
         phoneNumber,
         product: {
@@ -76,7 +76,7 @@ exports.confirmOrder = async (req, res) => {
           sellerEmail: item.sellerEmail,
           quantity: item.quantity
         },
-        orderStatus: "Commande en préparation"
+        orderStatus: "Order Processing"
       });
       
       await newOrder.save();
@@ -87,7 +87,7 @@ exports.confirmOrder = async (req, res) => {
       sellerOrders[item.sellerEmail].push(newOrder);
     }
     
-    // Envoi des emails aux vendeurs
+    // Send emails to sellers
     for (const sellerEmail in sellerOrders) {
       const ordersBySeller = sellerOrders[sellerEmail];
       const productDetails = ordersBySeller.map(order =>
@@ -97,31 +97,31 @@ exports.confirmOrder = async (req, res) => {
       await transporter.sendMail({
         from: "kolwazshopp@mailo.com",
         to: sellerEmail,
-        subject: "Nouvelle commande reçue",
-        text: `Bonjour,\n\nVous avez reçu une nouvelle commande.\n\n🛒 Détails de la commande :\n${productDetails}\n\n📍 Informations de livraison :\n👤 Client : ${clientName}\n📍 Adresse : ${shippingAddress}\n📞 Téléphone : ${phoneNumber}\n\nMerci de traiter cette commande rapidement.\n\n— Kolwaz Shop`
+        subject: "New Order Received",
+        text: `Hello,\n\nYou have received a new order.\n\n🛒 Order Details:\n${productDetails}\n\n📍 Shipping Information:\n👤 Customer: ${clientName}\n📍 Address: ${shippingAddress}\n📞 Phone: ${phoneNumber}\n\nPlease process this order promptly.\n\n— Kolwaz Shop`
       });
     }
     
-    // Envoi de l'email de confirmation au client
+    // Send confirmation email to customer
     const clientProducts = mappedCartItems.map(item =>
       `- ${item.name} (${item.quantity} x ${item.price} FCFA)`
     ).join("\n");
     
     await transporter.sendMail({
       from: "kolwazshopp@mailo.com",
-      to: courriel,
-      subject: "Confirmation de votre commande",
-      text: `Bonjour ${clientName},\n\n✅ Votre commande a bien été enregistrée !\n\n🛒 Détails de votre commande :\n${clientProducts}\n\n🚚 Votre commande est en cours de préparation et sera livrée à :\n📍 ${shippingAddress}\n📞 ${phoneNumber}\n\nMerci pour votre confiance !\n\n— Kolwaz Shop`
+      to: email,
+      subject: "Your Order Confirmation",
+      text: `Hello ${clientName},\n\n✅ Your order has been successfully placed!\n\n🛒 Order Details:\n${clientProducts}\n\n🚚 Your order is being processed and will be shipped to:\n📍 ${shippingAddress}\n📞 ${phoneNumber}\n\nThank you for your trust!\n\n— Kolwaz Shop`
     });
     
-    res.status(200).json({ message: `Commande confirmée pour ${mappedCartItems.length} produit(s).` });
+    res.status(200).json({ message: `Order confirmed for ${mappedCartItems.length} product(s).` });
   } catch (err) {
-    console.error("Erreur lors de la validation de la commande :", err);
+    console.error("Error confirming order:", err);
     res.status(500).json({ error: err.message });
   }
 };
 
-// Fonction pour confirmer la livraison
+// Confirm delivery
 exports.confirmDelivery = (req, res) => {
-  res.status(200).json({ message: "Livraison confirmée" });
+  res.status(200).json({ message: "Delivery confirmed" });
 };

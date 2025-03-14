@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Panier - Kolwaz Shop</title>
+  <title>Cart - Kolwaz Shop</title>
   <link href="https://fonts.googleapis.com/css?family=Poppins:400,600&display=swap" rel="stylesheet">
   <style>
-    /* Styles généraux */
+    /* Global styles */
     body {
       font-family: 'Poppins', sans-serif;
       background: #f7f7f7;
@@ -17,7 +17,7 @@
       text-align: center;
       margin-bottom: 20px;
     }
-    /* Conteneur du panier */
+    /* Cart container */
     #cartGrid {
       max-width: 800px;
       margin: 20px auto;
@@ -64,7 +64,7 @@
       margin-top: 20px;
       color: #333;
     }
-    /* Boutons d'action */
+    /* Action buttons */
     .action-buttons {
       text-align: center;
       margin: 20px 0;
@@ -83,7 +83,7 @@
     .action-buttons button:hover {
       background: #2980b9;
     }
-    /* Formulaire de commande */
+    /* Order form */
     #orderForm {
       max-width: 400px;
       margin: 20px auto;
@@ -145,7 +145,7 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    /* Styles Responsive */
+    /* Responsive styles */
     @media (max-width: 768px) {
       #cartGrid {
         padding: 10px;
@@ -233,22 +233,22 @@
   </style>
 </head>
 <body>
-  <h1>Votre Panier</h1>
+  <h1>votre panier</h1>
   <div id="cartGrid"></div>
   <div id="total"></div>
 
   <div class="action-buttons">
     <button onclick="redirectToIndex()">Ajouter un produit</button>
-    <button onclick="showOrderForm()">Commander</button>
+    <button onclick="showOrderForm()">commander</button>
   </div>
 
-  <!-- Formulaire de commande -->
+  <!-- Order Form -->
   <form id="orderForm" onsubmit="event.preventDefault(); submitOrder();">
-    <h3>Passer commande</h3>
-    <input type="email" id="email" placeholder="Votre e-mail" required>
-    <input type="text" id="address" placeholder="Votre adresse" required>
-    <input type="text" id="phoneNumber" placeholder="Votre numéro de téléphone" required>
-    <button type="submit">Valider la commande</button>
+    <h3>commander</h3>
+    <input type="email" id="email" placeholder="Your email" required>
+    <input type="text" id="address" placeholder="Your address" required>
+    <input type="text" id="phoneNumber" placeholder="Your phone number" required>
+    <button type="submit">confirmer votre commande</button>
   </form>
 
   <div id="notification"></div>
@@ -256,7 +256,7 @@
   <script>
     let cartItems = [];
 
-    // Charge le panier depuis l'API, sinon depuis le localStorage
+    // Load cart from API or localStorage
     async function loadCart() {
       try {
         let cartFromAPI = [];
@@ -267,15 +267,15 @@
             cartFromAPI = data.cart;
           }
         } catch(e) {
-          console.error("Erreur lors de la récupération du panier depuis l'API:", e);
+          console.error("Error fetching cart from API:", e);
         }
-        // Si aucun panier n'est récupéré via l'API, on charge depuis le localStorage
+        // If no cart from API, load from localStorage
         let localCart = JSON.parse(localStorage.getItem('cart')) || [];
         cartItems = cartFromAPI.length > 0 ? cartFromAPI : localCart;
 
         const cartGrid = document.getElementById('cartGrid');
         if (cartItems.length === 0) {
-          cartGrid.innerHTML = '<p>Votre panier est vide.</p>';
+          cartGrid.innerHTML = '<p>Your cart is empty.</p>';
           document.getElementById('total').textContent = '';
         } else {
           let total = cartItems.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
@@ -284,13 +284,13 @@
               <img src="${item.imageUrl}" alt="${item.name}" class="cart-image">
               <div>
                 <span>${item.name} - ${item.price} FCFA</span><br>
-                <span>Quantité: 
+                <span>Quantity: 
                   <button style="background-color: blue; color: white;" onclick="changeQuantity(${index}, -1)">-</button>
                   <span id="quantity-${index}">${item.quantity || 1}</span>
                   <button style="background-color: blue; color: white;" onclick="changeQuantity(${index}, 1)">+</button>
                 </span>
-                ${item.category === 'chaussure' ? 
-                  `<br><label for="size-${index}">Taille :</label>
+                ${item.category === 'shoe' ? 
+                  `<br><label for="size-${index}">Size:</label>
                   <select id="size-${index}" onchange="updateSize(${index}, this.value)">
                     ${[38, 39, 40, 41, 42, 43, 44, 45].map(size => 
                       `<option value="${size}" ${item.size === size ? 'selected' : ''}>${size}</option>`
@@ -298,23 +298,23 @@
                   </select>` 
                 : ''}
               </div>
-              <button onclick="removeFromCart(${index})">Supprimer</button>
+              <button onclick="removeFromCart(${index})">Remove</button>
             </div>`
           ).join('');
           document.getElementById('total').textContent = `Total: ${total} FCFA`;
         }
       } catch (error) {
-        console.error('Erreur chargement panier:', error);
+        console.error('Error loading cart:', error);
       }
     }
 
-    // Met à jour le total affiché dans le panier
+    // Update cart total display
     function updateTotal() {
       let total = cartItems.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
       document.getElementById('total').textContent = `Total: ${total} FCFA`;
     }
 
-    // Modifie la quantité d'un produit
+    // Change product quantity
     async function changeQuantity(index, change) {
       if (!cartItems[index]) return;
       const newQuantity = (cartItems[index].quantity || 1) + change;
@@ -326,33 +326,25 @@
       }
     }
 
-    // Met à jour la taille de la chaussure
+    // Update shoe size
     async function updateSize(index, size) {
       cartItems[index].size = size;
       await updateCartOnServer(cartItems);
     }
 
-    // Supprime un produit du panier
+    // Remove a product from the cart
     function removeFromCart(index) {
       if (index < 0 || index >= cartItems.length) {
-        console.error("Index de suppression invalide :", index);
+        console.error("Invalid removal index:", index);
         return;
       }
-      
-      // Supprime l'élément du tableau
       const removedItem = cartItems.splice(index, 1)[0];
-      
-      // Mise à jour du panier dans le localStorage
       localStorage.setItem('cart', JSON.stringify(cartItems));
-      
-      // Recharge le panier pour mettre à jour l'affichage
       loadCart();
-      
-      // Affiche la notification de suppression
-      showNotification(`Produit "${removedItem.name}" supprimé du panier.`);
+      showNotification(`Product "${removedItem.name}" removed from cart.`);
     }
 
-    // Met à jour le panier côté serveur
+    // Update cart on server
     async function updateCartOnServer(cart) {
       try {
         const response = await fetch('/api/update-cart', {
@@ -361,55 +353,55 @@
           body: JSON.stringify({ cart })
         });
         if (!response.ok) {
-          throw new Error('Erreur lors de la mise à jour du panier sur le serveur.');
+          throw new Error('Error updating cart on server.');
         }
       } catch (error) {
-        console.error("Erreur mise à jour panier côté serveur:", error);
+        console.error("Error updating cart on server:", error);
       }
     }
 
-    // Redirige vers index.html pour ajouter un produit
+    // Redirect to index page
     function redirectToIndex() {
       window.location.href = 'index.html';
     }
 
-    // Affiche le formulaire de commande
+    // Show order form
     function showOrderForm() {
       document.getElementById("orderForm").style.display = "block";
     }
 
-    // Soumet la commande en envoyant les données avec les clés attendues par le backend
+    // Submit order
     async function submitOrder() {
-      const courriel = document.getElementById('email').value;
-      const adresse = document.getElementById('address').value;
+      const email = document.getElementById('email').value;
+      const address = document.getElementById('address').value;
       const phoneNumber = document.getElementById('phoneNumber').value;
       const submitButton = document.querySelector('#orderForm button[type="submit"]');
 
-      if (!courriel || !adresse || !phoneNumber) {
-        alert("Veuillez fournir votre e-mail, adresse et numéro de téléphone.");
+      if (!email || !address || !phoneNumber) {
+        alert("Please provide your email, address, and phone number.");
         return;
       }
 
       if (cartItems.length === 0) {
-        alert("Votre panier est vide.");
+        alert("Your cart is empty.");
         return;
       }
 
       submitButton.disabled = true;
-      submitButton.innerHTML = 'Commande en cours... <span class="spinner"></span>';
+      submitButton.innerHTML = 'Placing order... <span class="spinner"></span>';
 
       try {
         const response = await fetch('/api/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ courriel, adresse, phoneNumber, panierObjets: cartItems })
+          body: JSON.stringify({ email, address, phoneNumber, cartItems })
         });
 
         if (!response.ok) {
-          throw new Error('Erreur lors de la validation de la commande.');
+          throw new Error('Error placing order.');
         }
 
-        showNotification("Commande validée !");
+        showNotification("Order placed successfully!");
         cartItems = [];
         await updateCartOnServer(cartItems);
         loadCart();
@@ -419,15 +411,15 @@
         document.getElementById('phoneNumber').value = '';
         document.getElementById("orderForm").style.display = "none";
       } catch (error) {
-        console.error("Erreur lors de la validation de la commande :", error);
-        alert("Erreur lors de la validation de la commande.");
+        console.error("Error placing order:", error);
+        alert("Error placing order.");
       } finally {
         submitButton.disabled = false;
-        submitButton.innerHTML = 'Valider la commande';
+        submitButton.innerHTML = 'Submit Order';
       }
     }
 
-    // Affiche une notification temporaire
+    // Show temporary notification
     function showNotification(message) {
       const notification = document.getElementById("notification");
       notification.textContent = message;
