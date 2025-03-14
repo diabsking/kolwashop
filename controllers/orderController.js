@@ -28,34 +28,35 @@ exports.addToCart = (req, res) => {
 exports.confirmOrder = async (req, res) => {
   console.log("Requête de confirmation de commande reçue");
 
-  // Extraction des données envoyées dans le body
-  const { email, address, phoneNumber, cart } = req.body;
-  console.log("Données reçues :", { email, address, phoneNumber, cart });
+  // Extraction des données envoyées dans le corps de la requête (en français)
+  const { courriel, adresse, phoneNumber, panierObjets } = req.body;
+  console.log("Données reçues :", { courriel, adresse, phoneNumber, panierObjets });
 
   // Vérification des champs requis
   if (
-    !email?.trim() ||
-    !address?.trim() ||
+    !courriel?.trim() ||
+    !adresse?.trim() ||
     !phoneNumber?.trim() ||
-    !Array.isArray(cart) ||
-    cart.length === 0
+    !Array.isArray(panierObjets) ||
+    panierObjets.length === 0
   ) {
     console.error("Validation échouée : Champs manquants ou panier vide");
     return res.status(400).json({ message: "Tous les champs sont requis et le panier ne peut pas être vide !" });
   }
 
-  // Déterminer le nom du client à partir de l'email
-  const clientName = email.split("@")[0];
-  const shippingAddress = address;
+  // Déterminer le nom du client à partir du courriel
+  const clientName = courriel.split("@")[0];
+  const shippingAddress = adresse;
   console.log("Nom du client déterminé :", clientName);
 
   // Mapping des produits du panier pour assurer la cohérence des clés
-  const mappedCartItems = cart.map(item => ({
-    name: item.name,
-    price: Number(item.price) || 0,
+  // On attend ici : nom, prix, imageUrl, et sellerE-mail
+  const mappedCartItems = panierObjets.map(item => ({
+    name: item.nom,
+    price: Number(item.prix) || 0,
     description: item.description || "",
     imageUrl: item.imageUrl,
-    sellerEmail: item.sellerEmail, // Seller email indispensable pour regrouper les commandes par vendeur
+    sellerEmail: item["sellerE-mail"] || item.sellerEmail, // récupération de l'email vendeur
     quantity: item.quantity || 1,
     addedAt: item.addedAt ? new Date(item.addedAt) : new Date()
   }));
@@ -90,7 +91,7 @@ exports.confirmOrder = async (req, res) => {
       console.log(`Création de la commande pour le vendeur : ${sellerEmail}`);
       const order = new Order({
         customerName: clientName,
-        email,
+        email: courriel,
         shippingAddress,
         phoneNumber,
         products: ordersBySeller[sellerEmail],
@@ -124,14 +125,14 @@ exports.confirmOrder = async (req, res) => {
     const clientProducts = mappedCartItems
       .map(item => `- ${item.name} (${item.quantity} x ${item.price} FCFA)`)
       .join("\n");
-    console.log("Envoi de l'email de confirmation au client :", email);
+    console.log("Envoi de l'email de confirmation au client :", courriel);
     await transporter.sendMail({
       from: "kolwazshopp@mailo.com",
-      to: email,
+      to: courriel,
       subject: "Confirmation de votre commande",
       text: `Bonjour ${clientName},\n\nVotre commande a bien été enregistrée !\n\nDétails de votre commande :\n${clientProducts}\n\nVotre commande est en cours de préparation et sera livrée à l'adresse suivante :\n${shippingAddress}\nTéléphone : ${phoneNumber}\n\nMerci pour votre confiance !\n\n— Kolwaz Shop`
     });
-    console.log("Email de confirmation envoyé au client :", email);
+    console.log("Email de confirmation envoyé au client :", courriel);
 
     // Valider la transaction
     await session.commitTransaction();
