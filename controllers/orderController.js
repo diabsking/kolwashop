@@ -11,13 +11,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.MAILO_PASSWORD || "1O0C4HbGFMSw" // Utilisez une variable d'environnement pour le mot de passe
   }
 });
-
-// Vérification de la présence du mot de passe dans les variables d'environnement
-if (!process.env.MAILO_PASSWORD) {
-  throw new Error("La variable d'environnement MAILO_PASSWORD n'est pas définie.");
-}
-
-
 // Fonction pour afficher le panier
 exports.viewCart = (req, res) => {
   res.status(200).json({ message: "Affichage du panier" });
