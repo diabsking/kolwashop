@@ -8,24 +8,14 @@ const transporter = nodemailer.createTransport({
   secure: true,
   auth: {
     user: "kolwazshopp@mailo.com",
-    pass: process.env.MAILO_PASSWORD || "1O0C4HbGFMSw" // Utilisez une variable d'environnement pour le mot de passe
+    pass: process.env.MAILO_PASSWORD || "1O0C4HbGFMSw" // Remplace par une variable d’environnement
   }
 });
-
-// Fonction pour afficher le panier
-exports.viewCart = (req, res) => {
-  res.status(200).json({ message: "Affichage du panier" });
-};
-
-// Fonction pour ajouter un produit au panier
-exports.addToCart = (req, res) => {
-  res.status(200).json({ message: "Produit ajouté au panier" });
-};
 
 // Fonction pour confirmer une commande
 exports.confirmOrder = async (req, res) => {
   try {
-    // Extraction des données envoyées depuis le front-end (clés en français)
+    // Extraction des données envoyées depuis le front-end
     const { courriel, adresse, phoneNumber, panierObjets, customerName } = req.body;
     
     // Vérification des champs requis
@@ -39,19 +29,19 @@ exports.confirmOrder = async (req, res) => {
       return res.status(400).json({ message: "Tous les champs sont requis et le panier ne peut pas être vide !" });
     }
     
-    // Définir le nom du client (si non fourni, on utilise la partie avant '@' du courriel)
-    const clientName = customerName && customerName.trim() ? customerName.trim() : courriel.split("@")[0];
+    // Définition du nom du client
+    const clientName = customerName?.trim() || courriel.split("@")[0];
     const shippingAddress = adresse;
     
-    // Mapping des objets du panier : transformation des clés françaises en clés internes
+    // Mapping des objets du panier
     const mappedCartItems = panierObjets.map(item => ({
       name: item.nom,
       price: item.prix,
       description: item.description || "",
       imageUrl: item.imageUrl,
-      sellerEmail: item["sellerE-mail"],
+      sellerEmail: item.sellerEmail, // Correction du champ
       quantity: item.quantity || 1,
-      addedAt: item.ajoutéÀ || new Date()
+      addedAt: item.ajouteA || new Date() // Correction de "ajoutéÀ"
     }));
     
     // Regrouper les produits par vendeur
@@ -69,14 +59,14 @@ exports.confirmOrder = async (req, res) => {
     
     const sellerOrders = {};
     
-    // Pour chaque vendeur, créer une commande contenant tous ses produits
+    // Création des commandes pour chaque vendeur
     for (const sellerEmail in ordersBySeller) {
       const order = new Order({
         customerName: clientName,
         email: courriel,
         shippingAddress,
         phoneNumber,
-        products: ordersBySeller[sellerEmail], // Le tableau des produits pour ce vendeur
+        products: ordersBySeller[sellerEmail],
         orderStatus: "Commande en préparation"
       });
       
@@ -99,7 +89,7 @@ exports.confirmOrder = async (req, res) => {
       });
     }
     
-    // Envoi de l'email de confirmation au client (regroupant tous les produits)
+    // Envoi de l'email de confirmation au client
     const clientProducts = mappedCartItems.map(item =>
       `- ${item.name} (${item.quantity} x ${item.price} FCFA)`
     ).join("\n");
@@ -116,9 +106,4 @@ exports.confirmOrder = async (req, res) => {
     console.error("Erreur lors de la validation de la commande :", err);
     res.status(500).json({ error: err.message });
   }
-};
-
-// Fonction pour confirmer la livraison
-exports.confirmDelivery = (req, res) => {
-  res.status(200).json({ message: "Livraison confirmée" });
 };
