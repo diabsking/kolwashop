@@ -29,16 +29,17 @@ exports.confirmOrder = async (req, res) => {
   console.log("Requête de confirmation de commande reçue");
 
   // Extraction des données envoyées depuis le front-end (champs en anglais)
-  const { email, address, phoneNumber, cartItems } = req.body;
-  console.log("Données reçues :", { email, address, phoneNumber, cartItems });
+  // Ici, nous attendons la propriété "cart" qui contient les articles du panier.
+  const { email, address, phoneNumber, cart } = req.body;
+  console.log("Données reçues :", { email, address, phoneNumber, cart });
 
   // Vérification des champs requis
   if (
     !email?.trim() ||
     !address?.trim() ||
     !phoneNumber?.trim() ||
-    !Array.isArray(cartItems) ||
-    cartItems.length === 0
+    !Array.isArray(cart) ||
+    cart.length === 0
   ) {
     console.error("Validation échouée : Champs manquants ou panier vide");
     return res.status(400).json({ message: "Tous les champs sont requis et le panier ne peut pas être vide !" });
@@ -50,7 +51,7 @@ exports.confirmOrder = async (req, res) => {
   console.log("Nom du client déterminé :", clientName);
 
   // Mapping des produits du panier pour s'assurer de la cohérence des clés
-  const mappedCartItems = cartItems.map(item => ({
+  const mappedCartItems = cart.map(item => ({
     name: item.name,
     price: Number(item.price) || 0,
     description: item.description || "",
@@ -100,11 +101,12 @@ exports.confirmOrder = async (req, res) => {
       sellerOrders[sellerEmail] = order;
     }
 
-    // Envoi d'un email à chaque vendeur avec les détails de la commande
+    // Envoi d'un email à chaque vendeur avec les détails de la commande,
+    // incluant l'URL de la photo de chaque produit.
     for (const sellerEmail in sellerOrders) {
       const order = sellerOrders[sellerEmail];
       const productDetails = order.products.map(prod =>
-        `- ${prod.name} (${prod.quantity} x ${prod.price} FCFA)\nPhoto: ${prod.imageUrl}`
+        `- ${prod.name} (${prod.quantity} x ${prod.price} FCFA)\nURL de la photo: ${prod.imageUrl}`
       ).join("\n\n");
 
       console.log(`Envoi de l'email au vendeur : ${sellerEmail}`);
