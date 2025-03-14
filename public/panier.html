@@ -371,8 +371,8 @@
     function showOrderForm() {
       document.getElementById("orderForm").style.display = "block";
     }
-
-// Soumission de la commande
+    
+// Soumission de la commande (version adaptée)
 async function submitOrder() {
   const email = document.getElementById('email').value;
   const address = document.getElementById('address').value;
@@ -389,29 +389,29 @@ async function submitOrder() {
     return;
   }
 
-  // Filtrage et vérification du panier :
-  // On envoie les clés attendues par le serveur (nom & prix)
+  // Mapping prenant en compte les différentes versions possibles des clés
   const filteredCartItems = localCartItems.map(item => {
-    // Assurer que le champ "name" existe
+    // Vérifier le nom du produit
     if (!item.name) {
       alert("Un produit dans le panier n'a pas de nom valide.");
       throw new Error("Champ 'name' manquant pour un produit dans le panier.");
     }
-    
+
     // Conversion du prix
     let convertedPrice = Number(item.price);
     if (isNaN(convertedPrice)) {
       alert(`Le prix pour le produit "${item.name}" n'est pas valide.`);
       throw new Error(`Conversion en nombre échouée pour le produit "${item.name}".`);
     }
-    
-    // On renvoie l'objet avec les clés attendues par le serveur
+
     return {
-      nom: item.name,              // clé attendue : "nom"
+      nom: item.name,
       imageUrl: item.imageUrl,
-      prix: convertedPrice,         // clé attendue : "prix"
-      sellerEmail: item.sellerEmail,
-      quantity: item.quantity || 1
+      prix: convertedPrice,
+      // Adapter le nom de la clé pour l'email du vendeur
+      sellerEmail: item.sellerEmail || item["sellerE-mail"],
+      // Adaptation de la quantité
+      quantity: item.quantity || item["Quantité"] || 1
     };
   });
 
