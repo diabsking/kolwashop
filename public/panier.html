@@ -372,64 +372,80 @@
       document.getElementById("orderForm").style.display = "block";
     }
 
-    // Soumission de la commande
-    async function submitOrder() {
-      const email = document.getElementById('email').value;
-      const address = document.getElementById('address').value;
-      const phoneNumber = document.getElementById('phoneNumber').value;
-      const submitButton = document.querySelector('#orderForm button[type="submit"]');
+// Soumission de la commande
+async function submitOrder() {
+  const email = document.getElementById('email').value;
+  const address = document.getElementById('address').value;
+  const phoneNumber = document.getElementById('phoneNumber').value;
+  const submitButton = document.querySelector('#orderForm button[type="submit"]');
 
-      // Désactivation pour éviter les doubles soumissions
-      submitButton.disabled = true;
+  // Désactivation pour éviter les doubles soumissions
+  submitButton.disabled = true;
 
-      const localCartItems = JSON.parse(localStorage.getItem('cart')) || [];
-      if (!email || !address || !phoneNumber || localCartItems.length === 0) {
-        alert("Veuillez remplir tous les champs et ajouter des articles au panier.");
-        submitButton.disabled = false;
-        return;
-      }
+  const localCartItems = JSON.parse(localStorage.getItem('cart')) || [];
+  if (!email || !address || !phoneNumber || localCartItems.length === 0) {
+    alert("Veuillez remplir tous les champs et ajouter des articles au panier.");
+    submitButton.disabled = false;
+    return;
+  }
 
-      // Correction : on envoie les clés attendues par le serveur (nom & prix)
-      const filteredCartItems = localCartItems.map(item => ({
-        nom: item.name,
-        imageUrl: item.imageUrl,
-        prix: Number(item.price),
-        sellerEmail: item.sellerEmail,
-        quantity: item.quantity || 1
-      }));
-
-      const orderData = {
-        courriel: email,
-        adresse: address,
-        phoneNumber: phoneNumber,
-        panierObjets: filteredCartItems
-      };
-
-      try {
-        const response = await fetch('/api/orders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(orderData)
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-          alert("Commande confirmée avec succès !");
-          localStorage.removeItem('cart'); // Vider le panier après validation
-          window.location.href = '/order-success';
-        } else {
-          alert("Erreur lors de la confirmation de la commande : " + result.message);
-        }
-      } catch (error) {
-        console.error("Erreur :", error);
-        alert("Une erreur s'est produite. Veuillez réessayer.");
-      } finally {
-        submitButton.disabled = false;
-      }
+  // Filtrage et vérification du panier :
+  // On envoie les clés attendues par le serveur (nom & prix)
+  const filteredCartItems = localCartItems.map(item => {
+    // Assurer que le champ "name" existe
+    if (!item.name) {
+      alert("Un produit dans le panier n'a pas de nom valide.");
+      throw new Error("Champ 'name' manquant pour un produit dans le panier.");
     }
+    
+    // Conversion du prix
+    let convertedPrice = Number(item.price);
+    if (isNaN(convertedPrice)) {
+      alert(`Le prix pour le produit "${item.name}" n'est pas valide.`);
+      throw new Error(`Conversion en nombre échouée pour le produit "${item.name}".`);
+    }
+    
+    // On renvoie l'objet avec les clés attendues par le serveur
+    return {
+      nom: item.name,              // clé attendue : "nom"
+      imageUrl: item.imageUrl,
+      prix: convertedPrice,         // clé attendue : "prix"
+      sellerEmail: item.sellerEmail,
+      quantity: item.quantity || 1
+    };
+  });
 
-    // Affichage d'une notification temporaire
+  const orderData = {
+    courriel: email,
+    adresse: address,
+    phoneNumber: phoneNumber,
+    panierObjets: filteredCartItems
+  };
+
+  try {
+    const response = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData)
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      alert("Commande confirmée avec succès !");
+      localStorage.removeItem('cart'); // Vider le panier après validation
+      window.location.href = '/order-success';
+    } else {
+      alert("Erreur lors de la confirmation de la commande : " + result.message);
+    }
+  } catch (error) {
+    console.error("Erreur :", error);
+    alert("Une erreur s'est produite. Veuillez réessayer.");
+  } finally {
+    submitButton.disabled = false;
+  }
+}
+ // Affichage d'une notification temporaire
     function showNotification(message) {
       const notification = document.getElementById("notification");
       notification.textContent = message;
