@@ -11,6 +11,7 @@ const transporter = nodemailer.createTransport({
     pass: process.env.MAILO_PASSWORD || "1O0C4HbGFMSw" // Utilisez une variable d'environnement pour le mot de passe
   }
 });
+
 // Fonction pour afficher le panier
 exports.viewCart = (req, res) => {
   res.status(200).json({ message: "Affichage du panier" });
@@ -24,20 +25,34 @@ exports.addToCart = (req, res) => {
 // Fonction pour confirmer une commande
 exports.confirmOrder = async (req, res) => {
   try {
-    const { email, customerName, shippingAddress, phoneNumber, cartItems } = req.body;
-
+    // Extraction et mapping des données envoyées depuis la page panier
+    const { courriel, customerName, adresse, phoneNumber, panierObjets } = req.body;
+    const email = courriel;
+    const shippingAddress = adresse;
+    
     // Vérification des champs requis
     if (
       !email?.trim() ||
-      !customerName?.trim() ||
+      !(customerName && customerName.trim()) ||
       !shippingAddress?.trim() ||
       !phoneNumber?.trim() ||
-      !Array.isArray(cartItems) ||
-      cartItems.length === 0
+      !Array.isArray(panierObjets) ||
+      panierObjets.length === 0
     ) {
       return res.status(400).json({ message: "Tous les champs sont requis et le panier ne peut pas être vide !" });
     }
-
+    
+    // Transformation des objets du panier dans la structure attendue
+    const cartItems = panierObjets.map(item => ({
+      name: item.nom,
+      price: item.prix,
+      description: item.Description,
+      imageUrl: item.imageUrl,
+      sellerEmail: item["sellerE-mail"],
+      quantity: item.quantity || 1,
+      addedAt: item.ajoutéÀ
+    }));
+    
     const sellerOrders = {};
 
     // Enregistrer chaque commande et regrouper par vendeur
