@@ -1,26 +1,43 @@
 const mongoose = require("mongoose");
 
-// Définition d'un sous-schema pour le produit
+// Sous-schema pour les produits commandés
 const productSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
-    price: { type: Number, required: true },
-    description: { type: String },
-    imageUrl: { type: String },
-    sellerEmail: { type: String, required: true },
-    quantity: { type: Number, required: true }
-  },
-  { _id: false } // Désactivation de _id pour ce sous-document
+    name: { type: String, required: true, trim: true },
+    price: { type: Number, required: true, min: 0 },
+    description: { type: String, trim: true },
+    imageUrl: { type: String, trim: true },
+    sellerEmail: { type: String, required: true, lowercase: true, trim: true },
+    quantity: { type: Number, required: true, min: 1, default: 1 },
+    addedAt: { type: Date, default: Date.now }
+  }
 );
 
-// Schema de la commande
-const orderSchema = new mongoose.Schema({
-  email: { type: String, required: true },         // Adresse e-mail du client
-  phoneNumber: { type: String, required: true },     // Numéro de téléphone du client
-  address: { type: String, required: true },         // Adresse de livraison
-  product: { type: productSchema, required: true },  // Détails du produit commandé
-  status: { type: String, default: "Commande en préparation" }, // Statut de la commande
-  orderDate: { type: Date, default: Date.now }       // Date de la commande
-});
+// Schema complet de la commande
+const orderSchema = new mongoose.Schema(
+  {
+    customerName: { type: String, required: true, trim: true },
+    email: { type: String, required: true, lowercase: true, trim: true },
+    phoneNumber: { type: String, required: true, trim: true },
+    shippingAddress: { type: String, required: true, trim: true },
+    products: { type: [productSchema], required: true }, // Adapté pour plusieurs produits
+    orderStatus: {
+      type: String,
+      enum: ["Commande en préparation", "Expédiée", "Livrée", "Annulée"],
+      default: "Commande en préparation"
+    },
+    paymentStatus: {
+      type: String,
+      enum: ["Non payé", "Payé", "Remboursé"],
+      default: "Non payé"
+    },
+    shippingCost: { type: Number, default: 0, min: 0 },
+    trackingNumber: { type: String, trim: true },
+    notes: { type: String, trim: true }
+  },
+  {
+    timestamps: true // Ajoute automatiquement createdAt et updatedAt
+  }
+);
 
 module.exports = mongoose.model("Order", orderSchema);
