@@ -43,7 +43,7 @@ exports.confirmOrder = async (req, res) => {
     const clientName = customerName && customerName.trim() ? customerName.trim() : courriel.split("@")[0];
     const shippingAddress = adresse;
     
-    // Mapping des objets du panier en transformant les clés françaises en clés utilisées en interne
+    // Mapping des objets du panier : transformation des clés françaises en clés internes
     const mappedCartItems = panierObjets.map(item => ({
       name: item.nom,
       price: item.prix,

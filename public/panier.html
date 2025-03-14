@@ -333,24 +333,25 @@
     }
 
     // Supprime un produit du panier
-function removeFromCart(index) {
-  if (index < 0 || index >= cartItems.length) {
-    console.error("Index de suppression invalide :", index);
-    return;
-  }
-  
-  // Supprime l'élément du tableau
-  const removedItem = cartItems.splice(index, 1)[0];
-  
-  // Mise à jour du panier dans le localStorage
-  localStorage.setItem('cart', JSON.stringify(cartItems));
-  
-  // Recharge le panier pour mettre à jour l'affichage
-  loadCart();
-  
-  // Affiche la notification de suppression
-  showNotification(`Produit "${removedItem.name}" supprimé du panier.`);
-}
+    function removeFromCart(index) {
+      if (index < 0 || index >= cartItems.length) {
+        console.error("Index de suppression invalide :", index);
+        return;
+      }
+      
+      // Supprime l'élément du tableau
+      const removedItem = cartItems.splice(index, 1)[0];
+      
+      // Mise à jour du panier dans le localStorage
+      localStorage.setItem('cart', JSON.stringify(cartItems));
+      
+      // Recharge le panier pour mettre à jour l'affichage
+      loadCart();
+      
+      // Affiche la notification de suppression
+      showNotification(`Produit "${removedItem.name}" supprimé du panier.`);
+    }
+
     // Met à jour le panier côté serveur
     async function updateCartOnServer(cart) {
       try {
@@ -377,14 +378,14 @@ function removeFromCart(index) {
       document.getElementById("orderForm").style.display = "block";
     }
 
-    // Soumet la commande
+    // Soumet la commande en envoyant les données avec les clés attendues par le backend
     async function submitOrder() {
-      const email = document.getElementById('email').value;
-      const address = document.getElementById('address').value;
+      const courriel = document.getElementById('email').value;
+      const adresse = document.getElementById('address').value;
       const phoneNumber = document.getElementById('phoneNumber').value;
       const submitButton = document.querySelector('#orderForm button[type="submit"]');
 
-      if (!email || !address || !phoneNumber) {
+      if (!courriel || !adresse || !phoneNumber) {
         alert("Veuillez fournir votre e-mail, adresse et numéro de téléphone.");
         return;
       }
@@ -401,7 +402,7 @@ function removeFromCart(index) {
         const response = await fetch('/api/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, address, phoneNumber, cartItems })
+          body: JSON.stringify({ courriel, adresse, phoneNumber, panierObjets: cartItems })
         });
 
         if (!response.ok) {
