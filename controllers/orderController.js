@@ -54,44 +54,41 @@ exports.confirmOrder = async (req, res) => {
       addedAt: item.ajoutéÀ || new Date()
     }));
     
-    const sellerOrders = {};
-    
-    // Enregistrer chaque commande et regrouper par vendeur
-    for (const item of mappedCartItems) {
+    // Regrouper les produits par vendeur
+    const ordersBySeller = {};
+    mappedCartItems.forEach(item => {
       if (!item.sellerEmail) {
         console.warn(`Produit "${item.name}" sans email vendeur.`);
-        continue;
+        return;
       }
-      
-      const newOrder = new Order({
+      if (!ordersBySeller[item.sellerEmail]) {
+        ordersBySeller[item.sellerEmail] = [];
+      }
+      ordersBySeller[item.sellerEmail].push(item);
+    });
+    
+    const sellerOrders = {};
+    
+    // Pour chaque vendeur, créer une commande contenant tous ses produits
+    for (const sellerEmail in ordersBySeller) {
+      const order = new Order({
         customerName: clientName,
         email: courriel,
         shippingAddress,
         phoneNumber,
-        product: {
-          name: item.name,
-          price: item.price,
-          description: item.description,
-          imageUrl: item.imageUrl,
-          sellerEmail: item.sellerEmail,
-          quantity: item.quantity
-        },
+        products: ordersBySeller[sellerEmail], // Le tableau des produits pour ce vendeur
         orderStatus: "Commande en préparation"
       });
       
-      await newOrder.save();
-      
-      if (!sellerOrders[item.sellerEmail]) {
-        sellerOrders[item.sellerEmail] = [];
-      }
-      sellerOrders[item.sellerEmail].push(newOrder);
+      await order.save();
+      sellerOrders[sellerEmail] = order;
     }
     
     // Envoi des emails aux vendeurs
     for (const sellerEmail in sellerOrders) {
-      const ordersBySeller = sellerOrders[sellerEmail];
-      const productDetails = ordersBySeller.map(order =>
-        `- ${order.product.name} (${order.product.quantity} x ${order.product.price} FCFA)\n📷 Photo: ${order.product.imageUrl}`
+      const order = sellerOrders[sellerEmail];
+      const productDetails = order.products.map(prod =>
+        `- ${prod.name} (${prod.quantity} x ${prod.price} FCFA)\n📷 Photo: ${prod.imageUrl}`
       ).join("\n\n");
       
       await transporter.sendMail({
@@ -102,7 +99,7 @@ exports.confirmOrder = async (req, res) => {
       });
     }
     
-    // Envoi de l'email de confirmation au client
+    // Envoi de l'email de confirmation au client (regroupant tous les produits)
     const clientProducts = mappedCartItems.map(item =>
       `- ${item.name} (${item.quantity} x ${item.price} FCFA)`
     ).join("\n");
