@@ -2,12 +2,12 @@ const express = require("express");
 const router = express.Router();
 const orderController = require("../controllers/orderController");
 
-// Vérifie que toutes les fonctions du contrôleur existent
+// Vérification que toutes les fonctions du contrôleur existent et sont des fonctions
 if (
-  !orderController.viewCart ||
-  !orderController.addToCart ||
-  !orderController.confirmOrder ||
-  !orderController.confirmDelivery
+  typeof orderController.viewCart !== "function" ||
+  typeof orderController.addToCart !== "function" ||
+  typeof orderController.confirmOrder !== "function" ||
+  typeof orderController.confirmDelivery !== "function"
 ) {
   throw new Error("Une ou plusieurs fonctions du contrôleur de commande sont introuvables !");
 }
