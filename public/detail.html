@@ -536,48 +536,66 @@
     
     function goBack() { window.history.back(); }
     
-    // Fonction d'ajout au panier modifiée : stocke l'objet produit dans le localStorage "cart"
-    // et redirige vers "panier.html" après notification.
-    function addToCart(name, price, description, imageUrl, sellerEmail, button) {
-      button.textContent = "Ajouté !";
-      button.disabled = true;
-      button.style.backgroundColor = "#28a745";
-      
-      // Récupérer le panier depuis localStorage ou initialiser un tableau vide
-      let cart = JSON.parse(localStorage.getItem('cart')) || [];
-      
-      // Création de l'objet produit
-      const productToAdd = {
-        name: name,
-        price: price,
-        description: description,
-        imageUrl: imageUrl,
-        sellerEmail: sellerEmail,
+function addToCart(name, price, description, imageUrl, sellerEmail, button) {
+    // Désactiver le bouton et indiquer l'ajout
+    button.textContent = "Ajouté !";
+    button.disabled = true;
+    button.style.backgroundColor = "#28a745";
+
+    // Récupérer le panier depuis localStorage ou initialiser un tableau vide
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    // Création de l'objet produit
+    const productToAdd = {
+        name,
+        price,
+        description,
+        imageUrl,
+        sellerEmail,
         addedAt: new Date().toISOString()
-      };
-      
-      // Ajouter le produit au panier
-      cart.push(productToAdd);
-      localStorage.setItem('cart', JSON.stringify(cart));
-      localStorage.setItem('cartCount', cart.length);
-      updateCartCount();
-      
-      showNotification(`${name} a été ajouté au panier !`);
-      setTimeout(() => {
-         window.location.href = "panier.html";
-      }, 1000);
-    }
+    };
+
+    // Vérifier si le produit est déjà dans le panier (évite les doublons)
+    const exists = cart.some(product => product.name === name && product.sellerEmail === sellerEmail);
     
-    function updateCartCount() {
-      document.getElementById("cartCount").textContent = JSON.parse(localStorage.getItem('cart'))?.length || 0;
+    if (!exists) {
+        cart.push(productToAdd);
+        localStorage.setItem('cart', JSON.stringify(cart));
+
+        // Mettre à jour le compteur de panier
+        updateCartCount();
+
+        // Afficher une notification à l'utilisateur
+        showNotification("Produit ajouté au panier !");
+        
+        // Rediriger vers la page du panier après 1 seconde
+        setTimeout(() => {
+            window.location.href = "panier.html";
+        }, 1000);
+    } else {
+        showNotification("Ce produit est déjà dans votre panier.");
     }
-    
-    function showNotification(message) {
-      const notification = document.getElementById("notification");
-      notification.textContent = message;
-      notification.classList.add("show");
-      setTimeout(() => notification.classList.remove("show"), 3000);
+}
+
+// Mettre à jour l'affichage du compteur de panier
+function updateCartCount() {
+    const cartCountElement = document.getElementById("cartCount");
+    if (cartCountElement) {
+        cartCountElement.textContent = JSON.parse(localStorage.getItem('cart'))?.length || 0;
     }
+}
+
+// Fonction pour afficher une notification
+function showNotification(message) {
+    const notification = document.getElementById("notification");
+    if (notification) {
+        notification.textContent = message;
+        notification.classList.add("show");
+        setTimeout(() => notification.classList.remove("show"), 3000);
+    } else {
+        alert(message); // Fallback si l'élément notification n'existe pas
+    }
+}
   </script>
 </body>
 </html>
