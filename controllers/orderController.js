@@ -3,7 +3,7 @@ const nodemailer = require("nodemailer");
 
 // Configuration de Mailo
 const transporter = nodemailer.createTransport({
-  host: "mail.mailo.com",
+  host: "smtp.mailo.com",
   port: 465,
   secure: true,
   auth: {
@@ -62,7 +62,6 @@ exports.confirmOrder = async (req, res) => {
     const ordersBySeller = {};
     mappedCartItems.forEach(item => {
       if (!item.sellerEmail) {
-        // Si un produit ne possède pas d'email vendeur, on considère cela comme une erreur bloquante
         throw new Error(`Produit "${item.name}" sans email vendeur.`);
       }
       if (!ordersBySeller[item.sellerEmail]) {
@@ -80,7 +79,7 @@ exports.confirmOrder = async (req, res) => {
         email: courriel,
         shippingAddress,
         phoneNumber,
-        products: ordersBySeller[sellerEmail], // Le tableau des produits pour ce vendeur
+        products: ordersBySeller[sellerEmail], // Les produits spécifiques à ce vendeur
         orderStatus: "Commande en préparation"
       });
       
@@ -95,7 +94,7 @@ exports.confirmOrder = async (req, res) => {
         `- ${prod.name} (${prod.quantity} x ${prod.price} FCFA)\n📷 Photo: ${prod.imageUrl}`
       ).join("\n\n");
       
-      // Si l'envoi d'un email échoue, l'exception sera capturée et la transaction annulée
+      // Envoi de l'email au vendeur. Si sendMail échoue, l'exception interrompt la transaction.
       await transporter.sendMail({
         from: "kolwazshopp@mailo.com",
         to: sellerEmail,
@@ -116,13 +115,13 @@ exports.confirmOrder = async (req, res) => {
       text: `Bonjour ${clientName},\n\n✅ Votre commande a bien été enregistrée !\n\n🛒 Détails de votre commande :\n${clientProducts}\n\n🚚 Votre commande est en cours de préparation et sera livrée à :\n📍 ${shippingAddress}\n📞 ${phoneNumber}\n\nMerci pour votre confiance !\n\n— Kolwaz Shop`
     });
     
-    // Validation de la transaction si tous les emails ont été envoyés avec succès
+    // Validation de la transaction uniquement si tous les emails ont été envoyés avec succès
     await session.commitTransaction();
     session.endSession();
     
     res.status(200).json({ message: `Commande confirmée pour ${mappedCartItems.length} produit(s).` });
   } catch (err) {
-    // Annulation de la transaction si une erreur survient (par exemple, envoi d'email échoué)
+    // Annulation de la transaction en cas d'erreur (email non envoyé ou autre problème)
     await session.abortTransaction();
     session.endSession();
     console.error("Erreur lors de la validation de la commande :", err);
