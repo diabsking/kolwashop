@@ -148,36 +148,37 @@ const transporter = nodemailer.createTransport({
     pass: process.env.MAILO_PASSWORD,
   }
 });
-
 // Route POST pour valider une commande
-app.post('/api/orders', async (req, res) => {
+app.post("/api/orders", async (req, res) => {
   try {
-    const { email, address, phoneNumber } = req.body;
-    if (!email || !address || !phoneNumber || cart.length === 0) {
+    const { courriel, adresse, phoneNumber, panierObjets } = req.body;
+    if (!courriel || !adresse || !phoneNumber || !Array.isArray(panierObjets) || panierObjets.length === 0) {
       return res.status(400).json({ message: "Tous les champs sont requis et le panier ne peut pas être vide !" });
     }
 
     const sellerOrders = {};
 
-    for (let item of cart) {
+    // Création des commandes pour chaque produit du panier
+    for (let item of panierObjets) {
       if (!item.sellerEmail) {
-        console.warn(`Produit "${item.name}" sans email vendeur.`);
+        console.warn(`Produit "${item.nom}" sans email vendeur.`);
         continue;
       }
 
       const newOrder = new Order({
-        email,
-        address,
+        customerName: courriel.split("@")[0],
+        email: courriel,
+        shippingAddress: adresse,
         phoneNumber,
-        product: {
-          name: item.name,
-          price: item.price,
-          description: item.description,
+        products: [{
+          name: item.nom,
+          price: Number(item.prix),
+          description: item.description || "",
           imageUrl: item.imageUrl,
           sellerEmail: item.sellerEmail,
           quantity: item.quantity || 1
-        },
-        status: "Commande en préparation"
+        }],
+        orderStatus: "Commande en préparation"
       });
 
       await newOrder.save();
@@ -188,35 +189,36 @@ app.post('/api/orders', async (req, res) => {
       sellerOrders[item.sellerEmail].push(newOrder);
     }
 
-    // Envoi des e-mails aux vendeurs
+    // Envoi des e-mails à chaque vendeur
     for (let sellerEmail in sellerOrders) {
       const ordersBySeller = sellerOrders[sellerEmail];
       const productDetails = ordersBySeller.map(order =>
-        `- ${order.product.name} (${order.product.quantity} x ${order.product.price} FCFA)`
-      ).join("\n");
+        order.products.map(prod =>
+          `- ${prod.name} (${prod.quantity} x ${prod.price} FCFA)`
+        ).join("\n")
+      ).join("\n\n");
 
       await transporter.sendMail({
         from: "kolwazshopp@mailo.com",
         to: sellerEmail,
         subject: "Nouvelle commande reçue",
-        text: `Bonjour,\n\nVous avez reçu une nouvelle commande.\n\n🛒 Détails de la commande :\n${productDetails}\n\n📍 Informations de livraison :\nAdresse : ${address}\n📞 Téléphone : ${phoneNumber}\n\nMerci de traiter cette commande rapidement.\n\n— Kolwaz Shop`
+        text: `Bonjour,\n\nVous avez reçu une nouvelle commande.\n\n🛒 Détails de la commande :\n${productDetails}\n\n📍 Informations de livraison :\nAdresse : ${adresse}\n📞 Téléphone : ${phoneNumber}\n\nMerci de traiter cette commande rapidement.\n\n— Kolwaz Shop`
       });
     }
 
     // Envoi de l'e-mail de confirmation au client
-    const clientProducts = cart.map(item =>
-      `- ${item.name} (${item.quantity || 1} x ${item.price} FCFA)`
+    const clientProducts = panierObjets.map(item =>
+      `- ${item.nom} (${item.quantity || 1} x ${item.prix} FCFA)`
     ).join("\n");
 
     await transporter.sendMail({
       from: "kolwazshopp@mailo.com",
-      to: email,
+      to: courriel,
       subject: "Confirmation de votre commande",
-      text: `Bonjour,\n\n✅ Votre commande a bien été enregistrée !\n\n🛒 Détails de votre commande :\n${clientProducts}\n\n🚚 Votre commande est en cours de préparation et sera livrée à :\n📍 ${address}\n📞 ${phoneNumber}\n\nMerci pour votre confiance !\n\n— Kolwaz Shop`
+      text: `Bonjour,\n\n✅ Votre commande a bien été enregistrée !\n\n🛒 Détails de votre commande :\n${clientProducts}\n\n🚚 Votre commande est en cours de préparation et sera livrée à :\n📍 ${adresse}\n📞 ${phoneNumber}\n\nMerci pour votre confiance !\n\n— Kolwaz Shop`
     });
 
-    cart = []; // Vider le panier après commande
-    res.status(200).json({ message: `Commande confirmée pour ${clientProducts.length} produit(s).` });
+    res.status(200).json({ message: `Commande confirmée pour ${panierObjets.length} produit(s).` });
   } catch (err) {
     console.error("Erreur lors de la validation de la commande :", err);
     res.status(500).json({ error: err.message });

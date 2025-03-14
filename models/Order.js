@@ -1,67 +1,55 @@
 const mongoose = require("mongoose");
 
-// Sous-schéma pour un article de commande
-const orderItemSchema = new mongoose.Schema(
+// Sous-schema pour les produits commandés
+const productSchema = new mongoose.Schema(
   {
-    productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
-    name: { type: String, required: true },
-    price: { type: Number, required: true },
-    imageUrl: { type: String },
-    quantity: { type: Number, required: true }
-  },
-  { _id: false } // Pas d'_id pour chaque article
+    name: { type: String, required: true, trim: true },
+    price: { type: Number, required: true, min: 0 },
+    description: { type: String, trim: true },
+    imageUrl: { type: String, trim: true },
+    sellerEmail: { type: String, required: true, lowercase: true, trim: true },
+    quantity: { type: Number, required: true, min: 1, default: 1 },
+    addedAt: { type: Date, default: Date.now }
+  }
 );
 
-// Sous-schéma pour l'adresse de livraison
-const shippingAddressSchema = new mongoose.Schema(
-  {
-    street: { type: String, required: true },
-    city: { type: String, required: true },
-    state: { type: String },
-    postalCode: { type: String, required: true },
-    country: { type: String, required: true }
-  },
-  { _id: false }
-);
-
-// Schéma complet de la commande
+// Schema complet de la commande
 const orderSchema = new mongoose.Schema(
   {
-    // Optionnel : référence à l'utilisateur si applicable
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-
-    // Coordonnées du client
-    email: { type: String, required: true },
-    phoneNumber: { type: String, required: true },
-
-    // Adresse de livraison détaillée
-    shippingAddress: { type: shippingAddressSchema, required: true },
-
-    // Liste des articles commandés
-    orderItems: { type: [orderItemSchema], required: true },
-
-    // Mode de paiement par défaut : Paiement à la livraison
-    paymentMethod: { type: String, default: "Paiement à la livraison" },
-
-    // Indicateur pour savoir si le paiement a été collecté lors de la livraison
-    paymentCollected: { type: Boolean, default: false },
-    collectedAt: { type: Date },
-
-    // Détails du coût de la commande
-    itemsPrice: { type: Number, required: true, default: 0.0 },
-    taxPrice: { type: Number, required: true, default: 0.0 },
-    shippingPrice: { type: Number, required: true, default: 0.0 },
-    totalPrice: { type: Number, required: true, default: 0.0 },
-
-    // Suivi du statut de la commande
+    customerName: { type: String, required: true, trim: true },
+    email: { type: String, required: true, lowercase: true, trim: true },
+    phoneNumber: { type: String, required: true, trim: true },
+    shippingAddress: { type: String, required: true, trim: true },
+    products: { type: [productSchema], required: true }, // Adapté pour plusieurs produits
     orderStatus: {
       type: String,
-      enum: ["Pending", "Processing", "Out for Delivery", "Delivered", "Cancelled"],
-      default: "Pending"
+      enum: ["Commande en préparation", "Expédiée", "Livrée", "Annulée"],
+      default: "Commande en préparation"
     },
-    deliveredAt: { type: Date }
+    paymentStatus: {
+      type: String,
+      enum: ["Non payé", "Payé", "Remboursé"],
+      default: "Non payé"
+    },
+    shippingCost: { type: Number, default: 0, min: 0 },
+    trackingNumber: { type: String, trim: true },
+    notes: { type: String, trim: true }
   },
-  { timestamps: true } // Ajoute automatiquement createdAt et updatedAt
+  {
+    timestamps: true // Ajoute automatiquement createdAt et updatedAt
+  }
 );
 
-module.exports = mongoose.models.Order || mongoose.model("Order", orderSchema);
+// Hook pre-save pour loguer avant la sauvegarde
+orderSchema.pre("save", function (next) {
+  console.log("Pré-sauvegarde de la commande :", this);
+  next();
+});
+
+// Hook post-save pour loguer après la sauvegarde
+orderSchema.post("save", function (doc, next) {
+  console.log("Commande sauvegardée avec succès :", doc);
+  next();
+});
+
+module.exports = mongoose.model("Order", orderSchema);
