@@ -378,7 +378,7 @@ async function submitOrder() {
   const phoneNumber = document.getElementById('phoneNumber').value;
   const submitButton = document.querySelector('#orderForm button[type="submit"]');
 
-  // Désactivation pour éviter les doubles soumissions
+  // Désactivation du bouton pour éviter les doubles soumissions
   submitButton.disabled = true;
 
   const localCartItems = JSON.parse(localStorage.getItem('cart')) || [];
@@ -388,17 +388,17 @@ async function submitOrder() {
     return;
   }
 
-  // Mapping en tenant compte des clés possibles différentes
-  const filteredCartItems = localCartItems.map(item => {
+  // Mapping en tenant compte des clés pouvant varier
+  const filteredCartItems = localCartItems.map((item, index) => {
     if (!item.name) {
-      alert("Un produit dans le panier n'a pas de nom valide.");
-      throw new Error("Champ 'name' manquant pour un produit dans le panier.");
+      alert(`Le produit à l'index ${index} n'a pas de nom valide.`);
+      throw new Error(`Champ 'name' manquant pour l'article à l'index ${index}.`);
     }
 
     let convertedPrice = Number(item.price);
     if (isNaN(convertedPrice)) {
       alert(`Le prix pour le produit "${item.name}" n'est pas valide.`);
-      throw new Error(`Conversion en nombre échouée pour le produit "${item.name}".`);
+      throw new Error(`Conversion en nombre échouée pour "${item.name}".`);
     }
 
     return {
@@ -410,12 +410,16 @@ async function submitOrder() {
     };
   });
 
+  // Préparation de l'objet de commande à envoyer
   const orderData = {
     courriel: email,
     adresse: address,
     phoneNumber: phoneNumber,
     panierObjets: filteredCartItems
   };
+
+  // Log pour vérifier les données avant l'envoi
+  console.log("Données de commande envoyées :", orderData);
 
   try {
     const response = await fetch('/api/orders', {
@@ -427,16 +431,17 @@ async function submitOrder() {
     const result = await response.json();
 
     if (response.ok) {
-      // Affichage d'une notification de succès sans redirection
+      console.log("Réponse du serveur :", result);
+      // Affichage d'une notification de succès
       alert("Commande confirmée avec succès !");
-      localStorage.removeItem('cart'); // Vider le panier après confirmation
-      // Vous pouvez également utiliser une fonction dédiée pour afficher une notification,
-      // par exemple : showNotification("Commande confirmée avec succès !");
+      // Suppression du panier du localStorage après confirmation
+      localStorage.removeItem('cart');
     } else {
-      alert("Erreur lors de la confirmation de la commande : " + result.message);
+      console.error("Erreur lors de la confirmation de la commande :", result);
+      alert("Erreur lors de la confirmation de la commande : " + (result.message || 'Erreur inconnue'));
     }
   } catch (error) {
-    console.error("Erreur :", error);
+    console.error("Erreur lors de l'envoi de la commande :", error);
     alert("Une erreur s'est produite. Veuillez réessayer.");
   } finally {
     submitButton.disabled = false;
