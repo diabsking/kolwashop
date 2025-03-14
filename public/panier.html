@@ -372,7 +372,6 @@
       document.getElementById("orderForm").style.display = "block";
     }
     
-// Soumission de la commande (version adaptée)
 async function submitOrder() {
   const email = document.getElementById('email').value;
   const address = document.getElementById('address').value;
@@ -389,15 +388,13 @@ async function submitOrder() {
     return;
   }
 
-  // Mapping prenant en compte les différentes versions possibles des clés
+  // Mapping en tenant compte des clés possibles différentes
   const filteredCartItems = localCartItems.map(item => {
-    // Vérifier le nom du produit
     if (!item.name) {
       alert("Un produit dans le panier n'a pas de nom valide.");
       throw new Error("Champ 'name' manquant pour un produit dans le panier.");
     }
 
-    // Conversion du prix
     let convertedPrice = Number(item.price);
     if (isNaN(convertedPrice)) {
       alert(`Le prix pour le produit "${item.name}" n'est pas valide.`);
@@ -408,9 +405,7 @@ async function submitOrder() {
       nom: item.name,
       imageUrl: item.imageUrl,
       prix: convertedPrice,
-      // Adapter le nom de la clé pour l'email du vendeur
       sellerEmail: item.sellerEmail || item["sellerE-mail"],
-      // Adaptation de la quantité
       quantity: item.quantity || item["Quantité"] || 1
     };
   });
@@ -432,9 +427,11 @@ async function submitOrder() {
     const result = await response.json();
 
     if (response.ok) {
+      // Affichage d'une notification de succès sans redirection
       alert("Commande confirmée avec succès !");
-      localStorage.removeItem('cart'); // Vider le panier après validation
-      window.location.href = '/order-success';
+      localStorage.removeItem('cart'); // Vider le panier après confirmation
+      // Vous pouvez également utiliser une fonction dédiée pour afficher une notification,
+      // par exemple : showNotification("Commande confirmée avec succès !");
     } else {
       alert("Erreur lors de la confirmation de la commande : " + result.message);
     }

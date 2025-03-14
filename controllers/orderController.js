@@ -41,14 +41,17 @@ exports.confirmOrder = async (req, res) => {
     panierObjets.length === 0
   ) {
     console.error("Validation échouée : Champs manquants ou panier vide.");
-    return res.status(400).json({ message: "Tous les champs sont requis et le panier ne peut pas être vide !" });
+    return res.status(400).json({
+      message: "Tous les champs sont requis et le panier ne peut pas être vide !"
+    });
   }
 
+  // Extraction d'un nom de client à partir de l'email
   const clientName = courriel.split("@")[0];
   const shippingAddress = adresse;
   console.log("Nom du client déterminé :", clientName);
 
-  // Mappage des produits : on utilise les clés 'nom' et 'prix' comme envoyé depuis le front-end
+  // Mappage des produits avec le format attendu
   const mappedCartItems = panierObjets.map(item => ({
     name: item.nom,
     price: Number(item.prix) || 0,
@@ -61,7 +64,7 @@ exports.confirmOrder = async (req, res) => {
 
   mappedCartItems.forEach(item => console.log("Produit mappé :", item));
 
-  // Regroupement des produits par vendeur
+  // Regrouper les produits par vendeur
   const ordersBySeller = {};
   for (const item of mappedCartItems) {
     if (!item.sellerEmail) {
@@ -76,15 +79,16 @@ exports.confirmOrder = async (req, res) => {
   }
   console.log("Produits regroupés par vendeur :", ordersBySeller);
 
-  // Démarrage d'une session Mongoose pour la transaction
-  const session = await Order.startSession();
+  // Démarrer une session Mongoose pour la transaction
+  let session;
   try {
+    session = await Order.startSession();
     session.startTransaction();
     console.log("Transaction démarrée");
 
     const sellerOrders = {};
 
-    // Création d'une commande pour chaque vendeur
+    // Création d'une commande par vendeur
     for (const sellerEmail in ordersBySeller) {
       console.log(`Création de la commande pour le vendeur : ${sellerEmail}`);
       const order = new Order({
@@ -132,15 +136,21 @@ exports.confirmOrder = async (req, res) => {
     });
     console.log("Email de confirmation envoyé au client :", courriel);
 
+    // Valider la transaction
     await session.commitTransaction();
     console.log("Transaction validée");
-    res.status(200).json({ message: `Commande confirmée pour ${mappedCartItems.length} produit(s).` });
-  } catch (err) {
-    await session.abortTransaction();
-    console.error("Erreur lors de la validation de la commande :", err);
-    res.status(500).json({ error: err.message });
-  } finally {
     session.endSession();
+
+    return res
+      .status(200)
+      .json({ message: `Commande confirmée pour ${mappedCartItems.length} produit(s).` });
+  } catch (err) {
+    console.error("Erreur lors de la validation de la commande :", err);
+    if (session && session.inTransaction()) {
+      await session.abortTransaction();
+      session.endSession();
+    }
+    return res.status(500).json({ error: err.message });
   }
 };
 
