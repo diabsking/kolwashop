@@ -44,20 +44,18 @@ exports.confirmOrder = async (req, res) => {
     return res.status(400).json({ message: "Tous les champs sont requis et le panier ne peut pas être vide !" });
   }
 
-  // Extraction du nom du client à partir de l'email
+  // Extraction du nom du client depuis l'email
   const clientName = courriel.split("@")[0];
   const shippingAddress = adresse;
   console.log("Nom du client déterminé :", clientName);
 
-  // Mappage des produits en tenant compte des clés possibles (sellerE-mail et Quantité)
+  // Mappage des produits en tenant compte des clés alternatives (sellerE-mail et Quantité)
   const mappedCartItems = panierObjets.map(item => ({
     name: item.nom,
     price: Number(item.prix) || 0,
     description: item.description || "",
     imageUrl: item.imageUrl,
-    // Prise en compte à la fois de sellerEmail et sellerE-mail
     sellerEmail: item.sellerEmail || item["sellerE-mail"],
-    // Prise en compte à la fois de quantity et Quantité
     quantity: item.quantity || item["Quantité"] || 1,
     addedAt: item.addedAt ? new Date(item.addedAt) : new Date()
   }));
@@ -104,7 +102,7 @@ exports.confirmOrder = async (req, res) => {
       sellerOrders[sellerEmail] = order;
     }
 
-    // Envoi d'un email à chaque vendeur avec le détail de sa commande
+    // Envoi d'un email à chaque vendeur avec le détail de la commande
     for (const sellerEmail in sellerOrders) {
       const order = sellerOrders[sellerEmail];
       const productDetails = order.products
@@ -112,7 +110,7 @@ exports.confirmOrder = async (req, res) => {
           `- ${prod.name} (${prod.quantity} x ${prod.price} FCFA)\nURL de la photo : ${prod.imageUrl}`
         )
         .join("\n\n");
-      
+
       console.log(`Tentative d'envoi de l'email au vendeur : ${sellerEmail}`);
       try {
         const mailResponseVendor = await transporter.sendMail({

@@ -388,29 +388,34 @@ async function submitOrder() {
     return;
   }
 
-  // Mapping en tenant compte des clés pouvant varier
+  // Mapping des articles en tenant compte des clés alternatives (name/nom, price/prix, quantity/Quantité)
   const filteredCartItems = localCartItems.map((item, index) => {
-    if (!item.name) {
+    // On tente de récupérer le nom du produit depuis 'name' ou 'nom'
+    const productName = item.name || item.nom;
+    if (!productName) {
       alert(`Le produit à l'index ${index} n'a pas de nom valide.`);
-      throw new Error(`Champ 'name' manquant pour l'article à l'index ${index}.`);
+      throw new Error(`Nom manquant pour le produit à l'index ${index}.`);
     }
 
-    let convertedPrice = Number(item.price);
-    if (isNaN(convertedPrice)) {
-      alert(`Le prix pour le produit "${item.name}" n'est pas valide.`);
-      throw new Error(`Conversion en nombre échouée pour "${item.name}".`);
+    // On tente de récupérer et convertir le prix depuis 'price' ou 'prix'
+    const productPrice = Number(item.price || item.prix);
+    if (isNaN(productPrice)) {
+      alert(`Le prix pour le produit "${productName}" n'est pas valide.`);
+      throw new Error(`Conversion du prix échouée pour "${productName}".`);
     }
 
     return {
-      nom: item.name,
+      nom: productName,
       imageUrl: item.imageUrl,
-      prix: convertedPrice,
+      prix: productPrice,
+      // On gère à la fois 'sellerEmail' et 'sellerE-mail'
       sellerEmail: item.sellerEmail || item["sellerE-mail"],
+      // On gère à la fois 'quantity' et 'Quantité'
       quantity: item.quantity || item["Quantité"] || 1
     };
   });
 
-  // Préparation de l'objet de commande à envoyer
+  // Construction de l'objet de commande à envoyer
   const orderData = {
     courriel: email,
     adresse: address,
@@ -418,8 +423,8 @@ async function submitOrder() {
     panierObjets: filteredCartItems
   };
 
-  // Log pour vérifier les données avant l'envoi
-  console.log("Données de commande envoyées :", orderData);
+  // Log pour vérifier que les données sont correctes avant envoi
+  console.log("Données de commande préparées :", orderData);
 
   try {
     const response = await fetch('/api/orders', {
@@ -432,13 +437,12 @@ async function submitOrder() {
 
     if (response.ok) {
       console.log("Réponse du serveur :", result);
-      // Affichage d'une notification de succès
       alert("Commande confirmée avec succès !");
-      // Suppression du panier du localStorage après confirmation
+      // Vider le panier après confirmation
       localStorage.removeItem('cart');
     } else {
-      console.error("Erreur lors de la confirmation de la commande :", result);
-      alert("Erreur lors de la confirmation de la commande : " + (result.message || 'Erreur inconnue'));
+      console.error("Erreur du serveur :", result);
+      alert("Erreur lors de la confirmation de la commande : " + (result.message || "Erreur inconnue"));
     }
   } catch (error) {
     console.error("Erreur lors de l'envoi de la commande :", error);
