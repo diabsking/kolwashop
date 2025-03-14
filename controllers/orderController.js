@@ -44,7 +44,7 @@ exports.confirmOrder = async (req, res) => {
     return res.status(400).json({ message: "Tous les champs sont requis et le panier ne peut pas être vide !" });
   }
 
-  // Extraction du nom du client depuis l'email
+  // Extraction du nom du client à partir de l'email
   const clientName = courriel.split("@")[0];
   const shippingAddress = adresse;
   console.log("Nom du client déterminé :", clientName);
@@ -121,7 +121,7 @@ exports.confirmOrder = async (req, res) => {
         });
         console.log(`Email envoyé au vendeur ${sellerEmail} avec réponse :`, mailResponseVendor);
       } catch (mailErr) {
-        console.error(`Erreur lors de l'envoi de l'email au vendeur ${sellerEmail}:`, mailErr);
+        console.error(`Erreur lors de l'envoi de l'email au vendeur ${sellerEmail} :`, mailErr);
         throw mailErr;
       }
     }
@@ -140,7 +140,7 @@ exports.confirmOrder = async (req, res) => {
       });
       console.log(`Email de confirmation envoyé au client ${courriel} avec réponse :`, mailResponseClient);
     } catch (mailErrClient) {
-      console.error(`Erreur lors de l'envoi de l'email de confirmation au client ${courriel}:`, mailErrClient);
+      console.error(`Erreur lors de l'envoi de l'email de confirmation au client ${courriel} :`, mailErrClient);
       throw mailErrClient;
     }
 

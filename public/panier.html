@@ -371,8 +371,7 @@
     function showOrderForm() {
       document.getElementById("orderForm").style.display = "block";
     }
-    
-async function submitOrder() {
+    async function submitOrder() {
   const email = document.getElementById('email').value;
   const address = document.getElementById('address').value;
   const phoneNumber = document.getElementById('phoneNumber').value;
@@ -383,7 +382,7 @@ async function submitOrder() {
 
   const localCartItems = JSON.parse(localStorage.getItem('cart')) || [];
   if (!email || !address || !phoneNumber || localCartItems.length === 0) {
-    alert("Veuillez remplir tous les champs et ajouter des articles au panier.");
+    showNotification("Veuillez remplir tous les champs et ajouter des articles au panier.");
     submitButton.disabled = false;
     return;
   }
@@ -393,14 +392,14 @@ async function submitOrder() {
     // On tente de récupérer le nom du produit depuis 'name' ou 'nom'
     const productName = item.name || item.nom;
     if (!productName) {
-      alert(`Le produit à l'index ${index} n'a pas de nom valide.`);
+      showNotification(`Le produit à l'index ${index} n'a pas de nom valide.`);
       throw new Error(`Nom manquant pour le produit à l'index ${index}.`);
     }
 
     // On tente de récupérer et convertir le prix depuis 'price' ou 'prix'
     const productPrice = Number(item.price || item.prix);
     if (isNaN(productPrice)) {
-      alert(`Le prix pour le produit "${productName}" n'est pas valide.`);
+      showNotification(`Le prix pour le produit "${productName}" n'est pas valide.`);
       throw new Error(`Conversion du prix échouée pour "${productName}".`);
     }
 
@@ -437,28 +436,30 @@ async function submitOrder() {
 
     if (response.ok) {
       console.log("Réponse du serveur :", result);
-      alert("Commande confirmée avec succès !");
+      showNotification("Commande confirmée avec succès !");
       // Vider le panier après confirmation
       localStorage.removeItem('cart');
     } else {
       console.error("Erreur du serveur :", result);
-      alert("Erreur lors de la confirmation de la commande : " + (result.message || "Erreur inconnue"));
+      showNotification("Erreur lors de la confirmation de la commande : " + (result.message || "Erreur inconnue"));
     }
   } catch (error) {
     console.error("Erreur lors de l'envoi de la commande :", error);
-    alert("Une erreur s'est produite. Veuillez réessayer.");
+    showNotification("Une erreur s'est produite. Veuillez réessayer.");
   } finally {
     submitButton.disabled = false;
   }
 }
- // Affichage d'une notification temporaire
-    function showNotification(message) {
-      const notification = document.getElementById("notification");
-      notification.textContent = message;
-      notification.style.display = "block";
-      setTimeout(() => notification.style.display = "none", 3000);
-    }
 
+// Fonction d'affichage d'une notification temporaire
+function showNotification(message) {
+  const notification = document.getElementById("notification");
+  notification.textContent = message;
+  notification.style.display = "block";
+  setTimeout(() => {
+    notification.style.display = "none";
+  }, 3000);
+}
     window.onload = loadCart;
   </script>
 </body>
