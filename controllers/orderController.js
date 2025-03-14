@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// Affichage du panier (exemple, non utilisé directement pour la commande)
+// Affichage du panier (exemple)
 exports.viewCart = (req, res) => {
   console.log("Affichage du panier demandé");
   res.status(200).json({ message: "Affichage du panier" });
@@ -55,9 +55,9 @@ exports.confirmOrder = async (req, res) => {
     price: Number(item.prix) || 0,
     description: item.description || "",
     imageUrl: item.imageUrl,
-    // Gère à la fois sellerEmail et sellerE-mail
+    // Prise en compte à la fois de sellerEmail et sellerE-mail
     sellerEmail: item.sellerEmail || item["sellerE-mail"],
-    // Gère à la fois quantity et Quantité
+    // Prise en compte à la fois de quantity et Quantité
     quantity: item.quantity || item["Quantité"] || 1,
     addedAt: item.addedAt ? new Date(item.addedAt) : new Date()
   }));
@@ -112,29 +112,39 @@ exports.confirmOrder = async (req, res) => {
           `- ${prod.name} (${prod.quantity} x ${prod.price} FCFA)\nURL de la photo : ${prod.imageUrl}`
         )
         .join("\n\n");
-
-      console.log(`Envoi de l'email au vendeur : ${sellerEmail}`);
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: sellerEmail,
-        subject: "Nouvelle commande reçue",
-        text: `Bonjour,\n\nVous avez reçu une nouvelle commande.\n\nDétails de la commande :\n${productDetails}\n\nInformations de livraison :\nClient : ${clientName}\nAdresse : ${shippingAddress}\nTéléphone : ${phoneNumber}\n\nMerci de traiter cette commande rapidement.\n\n— Kolwaz Shop`
-      });
-      console.log(`Email envoyé au vendeur : ${sellerEmail}`);
+      
+      console.log(`Tentative d'envoi de l'email au vendeur : ${sellerEmail}`);
+      try {
+        const mailResponseVendor = await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: sellerEmail,
+          subject: "Nouvelle commande reçue",
+          text: `Bonjour,\n\nVous avez reçu une nouvelle commande.\n\nDétails de la commande :\n${productDetails}\n\nInformations de livraison :\nClient : ${clientName}\nAdresse : ${shippingAddress}\nTéléphone : ${phoneNumber}\n\nMerci de traiter cette commande rapidement.\n\n— Kolwaz Shop`
+        });
+        console.log(`Email envoyé au vendeur ${sellerEmail} avec réponse :`, mailResponseVendor);
+      } catch (mailErr) {
+        console.error(`Erreur lors de l'envoi de l'email au vendeur ${sellerEmail}:`, mailErr);
+        throw mailErr;
+      }
     }
 
     // Envoi de l'email de confirmation au client
     const clientProducts = mappedCartItems
       .map(item => `- ${item.name} (${item.quantity} x ${item.price} FCFA)`)
       .join("\n");
-    console.log("Envoi de l'email de confirmation au client :", courriel);
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: courriel,
-      subject: "Confirmation de votre commande",
-      text: `Bonjour ${clientName},\n\nVotre commande a bien été enregistrée !\n\nDétails de votre commande :\n${clientProducts}\n\nVotre commande est en cours de préparation et sera livrée à l'adresse suivante :\n${shippingAddress}\nTéléphone : ${phoneNumber}\n\nMerci pour votre confiance !\n\n— Kolwaz Shop`
-    });
-    console.log("Email de confirmation envoyé au client :", courriel);
+    console.log("Tentative d'envoi de l'email de confirmation au client :", courriel);
+    try {
+      const mailResponseClient = await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: courriel,
+        subject: "Confirmation de votre commande",
+        text: `Bonjour ${clientName},\n\nVotre commande a bien été enregistrée !\n\nDétails de votre commande :\n${clientProducts}\n\nVotre commande est en cours de préparation et sera livrée à l'adresse suivante :\n${shippingAddress}\nTéléphone : ${phoneNumber}\n\nMerci pour votre confiance !\n\n— Kolwaz Shop`
+      });
+      console.log(`Email de confirmation envoyé au client ${courriel} avec réponse :`, mailResponseClient);
+    } catch (mailErrClient) {
+      console.error(`Erreur lors de l'envoi de l'email de confirmation au client ${courriel}:`, mailErrClient);
+      throw mailErrClient;
+    }
 
     // Validation de la transaction
     await session.commitTransaction();
@@ -151,6 +161,7 @@ exports.confirmOrder = async (req, res) => {
     return res.status(500).json({ error: err.message });
   }
 };
+
 // Confirmation de livraison (exemple)
 exports.confirmDelivery = (req, res) => {
   console.log("Confirmation de livraison reçue");
