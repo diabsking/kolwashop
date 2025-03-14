@@ -233,22 +233,22 @@
   </style>
 </head>
 <body>
-  <h1>Votre panier</h1>
+  <h1>votre panier</h1>
   <div id="cartGrid"></div>
   <div id="total"></div>
 
   <div class="action-buttons">
     <button onclick="redirectToIndex()">Ajouter un produit</button>
-    <button onclick="showOrderForm()">Commander</button>
+    <button onclick="showOrderForm()">commander</button>
   </div>
 
   <!-- Order Form -->
   <form id="orderForm" onsubmit="event.preventDefault(); submitOrder();">
-    <h3>Commander</h3>
-    <input type="email" id="email" placeholder="Votre e-mail" required>
-    <input type="text" id="address" placeholder="Votre adresse" required>
-    <input type="text" id="phoneNumber" placeholder="Votre numéro de téléphone" required>
-    <button type="submit">Confirmer votre commande</button>
+    <h3>commander</h3>
+    <input type="email" id="email" placeholder="Your email" required>
+    <input type="text" id="address" placeholder="Your address" required>
+    <input type="text" id="phoneNumber" placeholder="Your phone number" required>
+    <button type="submit">confirmer votre commande</button>
   </form>
 
   <div id="notification"></div>
@@ -370,7 +370,7 @@
       document.getElementById("orderForm").style.display = "block";
     }
 
-    // Submit order with corrected keys
+    // Submit order
     async function submitOrder() {
       const email = document.getElementById('email').value;
       const address = document.getElementById('address').value;
@@ -378,36 +378,30 @@
       const submitButton = document.querySelector('#orderForm button[type="submit"]');
 
       if (!email || !address || !phoneNumber) {
-        alert("Veuillez fournir votre e-mail, adresse et numéro de téléphone.");
+        alert("Please provide your email, address, and phone number.");
         return;
       }
 
       if (cartItems.length === 0) {
-        alert("Votre panier est vide.");
+        alert("Your cart is empty.");
         return;
       }
 
       submitButton.disabled = true;
-      submitButton.innerHTML = 'Envoi de la commande... <span class="spinner"></span>';
+      submitButton.innerHTML = 'Placing order... <span class="spinner"></span>';
 
       try {
         const response = await fetch('/api/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          // Envoi des clés attendues par le back-end
-          body: JSON.stringify({
-            courriel: email,
-            adresse: address,
-            phoneNumber: phoneNumber,
-            panierObjets: cartItems
-          })
+          body: JSON.stringify({ email, address, phoneNumber, cartItems })
         });
 
         if (!response.ok) {
-          throw new Error('Erreur lors de la validation de la commande.');
+          throw new Error('Error placing order.');
         }
 
-        showNotification("Commande passée avec succès !");
+        showNotification("Order placed successfully!");
         cartItems = [];
         await updateCartOnServer(cartItems);
         loadCart();
@@ -417,11 +411,11 @@
         document.getElementById('phoneNumber').value = '';
         document.getElementById("orderForm").style.display = "none";
       } catch (error) {
-        console.error("Erreur lors de la validation de la commande:", error);
-        alert("Erreur lors de la validation de la commande.");
+        console.error("Error placing order:", error);
+        alert("Error placing order.");
       } finally {
         submitButton.disabled = false;
-        submitButton.innerHTML = 'Confirmer votre commande';
+        submitButton.innerHTML = 'Submit Order';
       }
     }
 
