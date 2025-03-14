@@ -3,9 +3,8 @@ const jwt = require('jsonwebtoken');
 const Seller = require('../models/seller'); 
 const bcrypt = require('bcryptjs');
 
-/**
- * Fonction pour supprimer les comptes non vérifiés après expiration du token.
- */
+// Fonction pour supprimer les comptes non vérifiés après expiration du token
+// (Note : cette fonction n'est plus utilisée si tous les comptes sont créés comme vérifiés)
 exports.deleteUnverifiedAccounts = async () => {
   try {
     const expirationDate = new Date(Date.now() - 5 * 60 * 1000);  // 5 minutes
@@ -35,13 +34,13 @@ const transporter = nodemailer.createTransport({
 
 /**
  * Inscription d'un vendeur avec envoi d'email de confirmation.
- * Le compte est créé en tant que non vérifié et doit être activé via le lien envoyé par email.
+ * Le compte est créé et marqué comme vérifié immédiatement.
  */
 exports.signup = async (req, res) => {
-  const { name, email, password, storeName, phone, address, website, logoUrl, description, socialLinks } = req.body;
+  const { name, email, password, storeName } = req.body;
   
   if (!name || !email || !password || !storeName) {
-    return res.status(400).json({ message: "Tous les champs obligatoires sont requis." });
+    return res.status(400).json({ message: "Tous les champs sont requis." });
   }
   
   try {
@@ -54,52 +53,35 @@ exports.signup = async (req, res) => {
     // Hachage du mot de passe avant de créer le compte
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Création du compte vendeur dans la BDD en tant que non vérifié
+    // Création du compte vendeur dans la BDD et marquage immédiat comme vérifié
     const newSeller = new Seller({
       name,
       email,
       password: hashedPassword,
       storeName,
-      phone,
-      address,
-      website,
-      logoUrl,
-      description,
-      socialLinks,
-      verified: false
+      verified: true
     });
     await newSeller.save();
     
-    // Génération d'un token de vérification (valable 5 minutes)
-    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '5m' });
-    
-    // Construction du lien de vérification (adapter CLIENT_URL avec votre domaine)
-    const verificationLink = `${process.env.CLIENT_URL || 'http://localhost:3000'}/api/sellers/verify?token=${token}`;
-    
-    // Envoi de l'email de confirmation d'inscription avec le lien d'activation
+    // Envoi de l'email de confirmation d'inscription
     await transporter.sendMail({
       from: 'kolwazshopp@mailo.com',
       to: email,
-      subject: "Vérification de votre compte vendeur sur Kolwaz Shop",
+      subject: "Création de votre compte vendeur sur Kolwaz Shop",
       text: `Bonjour ${name},
 
-Votre compte vendeur sur Kolwaz Shop a été créé avec succès. Veuillez cliquer sur le lien ci-dessous pour activer votre compte :
-
-${verificationLink}
-
-Ce lien est valable pendant 5 minutes.
+Votre compte vendeur sur Kolwaz Shop a été créé avec succès.
+Vous pouvez désormais vous connecter et commencer à utiliser la plateforme.
 
 Cordialement,
 L'équipe Kolwaz Shop`,
       html: `<p>Bonjour ${name},</p>
              <p>Votre compte vendeur sur Kolwaz Shop a été créé avec succès.</p>
-             <p>Veuillez cliquer sur le lien ci-dessous pour activer votre compte :</p>
-             <p><a href="${verificationLink}">Activer mon compte</a></p>
-             <p>Ce lien est valable pendant 5 minutes.</p>
+             <p>Vous pouvez désormais vous connecter et commencer à utiliser la plateforme.</p>
              <p>Cordialement,<br>L'équipe Kolwaz Shop</p>`
     });
     
-    return res.status(200).json({ message: "Inscription réussie. Un email de confirmation vous a été envoyé pour activer votre compte." });
+    return res.status(200).json({ message: "Inscription réussie. Un email de confirmation vous a été envoyé." });
   } catch (error) {
     console.error("Erreur lors de l'inscription :", error);
     return res.status(500).json({ message: "Erreur lors de l'inscription. Veuillez réessayer." });
@@ -108,6 +90,7 @@ L'équipe Kolwaz Shop`,
 
 /**
  * Validation du compte via le token envoyé par email.
+ * (Cette fonction reste disponible au cas où vous souhaiteriez revenir à une vérification par email ultérieurement)
  */
 exports.verify = async (req, res) => {
   let { token } = req.query;
