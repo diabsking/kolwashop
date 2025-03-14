@@ -25,7 +25,7 @@ exports.addToCart = (req, res) => {
 // Fonction pour confirmer une commande
 exports.confirmOrder = async (req, res) => {
   try {
-    // Extraction des données envoyées depuis le front-end
+    // Extraction des données envoyées depuis le front-end (les clés sont en français)
     const { courriel, adresse, phoneNumber, panierObjets, customerName } = req.body;
     
     // Vérification des champs requis
@@ -47,7 +47,7 @@ exports.confirmOrder = async (req, res) => {
     const mappedCartItems = panierObjets.map(item => ({
       name: item.nom,
       price: item.prix,
-      description: item.Description || "",
+      description: item.description || "", // Utilisation de "description" en minuscule
       imageUrl: item.imageUrl,
       sellerEmail: item["sellerE-mail"],
       quantity: item.quantity || 1,
