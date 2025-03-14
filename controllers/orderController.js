@@ -8,43 +8,32 @@ const transporter = nodemailer.createTransport({
   secure: true,
   auth: {
     user: "kolwazshopp@mailo.com",
-    pass: process.env.MAILO_PASSWORD || "1O0C4HbGFMSw" // Remplace par une variable d’environnement
+    pass: process.env.MAILO_PASSWORD // Assurez-vous d'utiliser une variable d'environnement
   }
 });
 
 // Fonction pour confirmer une commande
 exports.confirmOrder = async (req, res) => {
   try {
-    // Extraction des données envoyées depuis le front-end
     const { courriel, adresse, phoneNumber, panierObjets, customerName } = req.body;
     
-    // Vérification des champs requis
-    if (
-      !courriel?.trim() ||
-      !adresse?.trim() ||
-      !phoneNumber?.trim() ||
-      !Array.isArray(panierObjets) ||
-      panierObjets.length === 0
-    ) {
+    if (!courriel?.trim() || !adresse?.trim() || !phoneNumber?.trim() || !Array.isArray(panierObjets) || panierObjets.length === 0) {
       return res.status(400).json({ message: "Tous les champs sont requis et le panier ne peut pas être vide !" });
     }
     
-    // Définition du nom du client
     const clientName = customerName?.trim() || courriel.split("@")[0];
     const shippingAddress = adresse;
     
-    // Mapping des objets du panier
     const mappedCartItems = panierObjets.map(item => ({
       name: item.nom,
       price: item.prix,
       description: item.description || "",
       imageUrl: item.imageUrl,
-      sellerEmail: item.sellerEmail, // Correction du champ
+      sellerEmail: item.sellerEmail,
       quantity: item.quantity || 1,
-      addedAt: item.ajouteA || new Date() // Correction de "ajoutéÀ"
+      addedAt: item.ajouteA || new Date()
     }));
     
-    // Regrouper les produits par vendeur
     const ordersBySeller = {};
     mappedCartItems.forEach(item => {
       if (!item.sellerEmail) {
@@ -58,8 +47,6 @@ exports.confirmOrder = async (req, res) => {
     });
     
     const sellerOrders = {};
-    
-    // Création des commandes pour chaque vendeur
     for (const sellerEmail in ordersBySeller) {
       const order = new Order({
         customerName: clientName,
@@ -74,7 +61,6 @@ exports.confirmOrder = async (req, res) => {
       sellerOrders[sellerEmail] = order;
     }
     
-    // Envoi des emails aux vendeurs
     for (const sellerEmail in sellerOrders) {
       const order = sellerOrders[sellerEmail];
       const productDetails = order.products.map(prod =>
@@ -89,7 +75,6 @@ exports.confirmOrder = async (req, res) => {
       });
     }
     
-    // Envoi de l'email de confirmation au client
     const clientProducts = mappedCartItems.map(item =>
       `- ${item.name} (${item.quantity} x ${item.price} FCFA)`
     ).join("\n");
