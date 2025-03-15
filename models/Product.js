@@ -2,22 +2,31 @@
 const mongoose = require("mongoose");
 
 // Sous-schéma pour les avis clients
-const reviewSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  comment: { type: String },
-  rating: { type: Number, min: 1, max: 5, required: true },
-  createdAt: { type: Date, default: Date.now }
-});
+const reviewSchema = new mongoose.Schema(
+  {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    comment: { type: String },
+    rating: { type: Number, min: 1, max: 5, required: true }
+  },
+  {
+    timestamps: true // Ajoute automatiquement createdAt et updatedAt pour chaque avis
+  }
+);
 
 // Sous-schéma pour les variantes (taille, couleur, etc.)
-const variantSchema = new mongoose.Schema({
-  variantName: { type: String, required: true },
-  sku: { type: String },
-  price: { type: Number, required: true },
-  stock: { type: Number, default: 0 },
-  // Attributs personnalisés (par exemple : { color: "red", size: "M" })
-  attributes: { type: Map, of: String }
-});
+const variantSchema = new mongoose.Schema(
+  {
+    variantName: { type: String, required: true },
+    sku: { type: String },
+    price: { type: Number, required: true },
+    stock: { type: Number, default: 0 },
+    // Attributs personnalisés (exemple : { color: "red", size: "M" })
+    attributes: { type: Map, of: String }
+  },
+  {
+    timestamps: true // Optionnel, si vous souhaitez suivre la date de création et de mise à jour des variantes
+  }
+);
 
 // Schéma complet du produit
 const productSchema = new mongoose.Schema(
@@ -82,12 +91,13 @@ const productSchema = new mongoose.Schema(
     views: { type: Number, default: 0 },
     addToCart: { type: Number, default: 0 },
     orders: { type: Number, default: 0 },
-    publicationDate: { type: Date, default: Date.now },
 
-    // Champ créé automatiquement : createdAt (géré par timestamps)
+    // Si vous souhaitez conserver un champ spécifique pour la date de publication,
+    // vous pouvez le garder, sinon il est redondant avec createdAt
+    publicationDate: { type: Date, default: Date.now }
   },
   {
-    timestamps: true // Ajoute automatiquement createdAt et updatedAt
+    timestamps: true // Ajoute automatiquement createdAt et updatedAt au document produit
   }
 );
 

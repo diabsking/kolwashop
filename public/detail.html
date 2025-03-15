@@ -435,104 +435,105 @@
     }
     
     // Affichage des détails du produit, de la vidéo et de la galerie
-    async function showProductDetailView(product) {
-      document.getElementById("detailImage").src = product.imageUrl || "https://via.placeholder.com/500x400";
-      document.getElementById("detailName").innerText = product.productName || "Nom inconnu";
-      document.getElementById("detailDescription").innerText = product.description || "";
-      document.getElementById("detailPrice").innerText = product.price ? `${product.price} FCFA` : "";
-      document.getElementById("detailSeller").innerText = product.sellerEmail || "Vendeur inconnu";
-    
-      if (document.getElementById("detailStock"))
-        document.getElementById("detailStock").innerText = product.stock !== undefined ? product.stock : "Non précisé";
-      if (document.getElementById("detailCreatedAt"))
-        document.getElementById("detailCreatedAt").innerText = product.createdAt ? new Date(product.createdAt).toLocaleDateString() : "Non précisé";
-      if (document.getElementById("detailOrders"))
-        document.getElementById("detailOrders").innerText = product.orders !== undefined ? product.orders : "0";
-      if (document.getElementById("detailViews"))
-        document.getElementById("detailViews").innerText = product.views !== undefined ? product.views : "0";
-      if (document.getElementById("detailDiscount"))
-        document.getElementById("detailDiscount").innerText = product.discount !== undefined ? product.discount : "Aucune";
-      if (document.getElementById("detailDiscountType"))
-        document.getElementById("detailDiscountType").innerText = product.discountType || "";
-      if (document.getElementById("detailBrand"))
-        document.getElementById("detailBrand").innerText = product.brand || "Non précisée";
-      if (document.getElementById("detailSKU"))
-        document.getElementById("detailSKU").innerText = product.sku || "Non précisé";
-      if (document.getElementById("detailWeight"))
-        document.getElementById("detailWeight").innerText = product.weight !== undefined ? product.weight + " kg" : "Non précisé";
-      if (document.getElementById("detailDimensions"))
-        document.getElementById("detailDimensions").innerText = product.dimensions ? `${product.dimensions.length} x ${product.dimensions.width} x ${product.dimensions.height} cm` : "Non précisées";
-      if (document.getElementById("detailShippingCost"))
-        document.getElementById("detailShippingCost").innerText = product.shippingCost !== undefined ? product.shippingCost + " FCFA" : "Non précisé";
-      if (document.getElementById("detailEstimatedDelivery"))
-        document.getElementById("detailEstimatedDelivery").innerText = product.estimatedDelivery !== undefined ? product.estimatedDelivery + " jours" : "Non précisé";
-      if (document.getElementById("detailReturnPolicy"))
-        document.getElementById("detailReturnPolicy").innerText = product.returnPolicy || "Non précisée";
-      if (document.getElementById("detailWarranty"))
-        document.getElementById("detailWarranty").innerText = product.warranty || "Non précisée";
-    
-      // Gestion de la vidéo
-      const videoElement = document.getElementById("detailVideo");
-      const videoPlaceholder = document.getElementById("videoPlaceholder");
-      if (product.videoUrl) {
-        videoElement.src = product.videoUrl;
-        videoElement.style.display = "block";
-        videoPlaceholder.style.display = "none";
-      } else {
-        videoElement.src = "";
-        videoElement.style.display = "block";
-        videoPlaceholder.style.display = "block";
-      }
-    
-      // Génération de la galerie d'images complémentaires
-      const imageCarousel = document.getElementById("imageCarousel");
-      imageCarousel.innerHTML = "";
-      if (product.photos && product.photos.length > 0) {
-        product.photos.forEach(url => {
-          const img = document.createElement("img");
-          img.src = url;
-          img.alt = product.productName;
-          img.addEventListener("click", () => {
-            document.getElementById("detailImage").src = url;
-          });
-          imageCarousel.appendChild(img);
-        });
-      } else {
-        const msg = document.createElement("p");
-        msg.textContent = "Aucune photo supplémentaire.";
-        msg.style.color = "#555";
-        imageCarousel.appendChild(msg);
-      }
-    
-      // Récupération et affichage des produits similaires
-      const similarProducts = await fetchSimilarProducts(product);
-      displaySimilarProducts(similarProducts);
-    }
-    
-    function displaySimilarProducts(products) {
-      const similarGrid = document.getElementById("similarGrid");
-      similarGrid.innerHTML = "";
-      if (!products.length) {
-        similarGrid.innerHTML = "<p>Aucun produit similaire trouvé.</p>";
-        return;
-      }
-      products.forEach(prod => {
-        const div = document.createElement("div");
-        div.className = "similar-item";
-        div.innerHTML = `
-          <img src="${prod.imageUrl}" alt="${prod.productName}">
-          <div class="product-name">${prod.productName}</div>
-          <div class="product-price">${prod.price} FCFA</div>
-          <button class="add-to-cart" onclick="addToCart('${prod.productName}', ${prod.price}, '${prod.description}', '${prod.imageUrl}', '${prod.sellerEmail}', this)">Ajouter au panier</button>
-        `;
-        div.addEventListener("click", (e) => {
-          if(e.target.tagName.toLowerCase() !== "button") {
-            showProductDetailView(prod);
-          }
-        });
-        similarGrid.appendChild(div);
+  async function showProductDetailView(product) {
+  // Affichage des détails du produit
+  document.getElementById("detailImage").src = product.imageUrl || "https://via.placeholder.com/500x400";
+  document.getElementById("detailName").innerText = product.productName || "Nom inconnu";
+  document.getElementById("detailDescription").innerText = product.description || "";
+  document.getElementById("detailPrice").innerText = product.price ? `${product.price} FCFA` : "";
+  document.getElementById("detailSeller").innerText = product.sellerEmail || "Vendeur inconnu";
+  
+  if (document.getElementById("detailStock"))
+    document.getElementById("detailStock").innerText = product.stock !== undefined ? product.stock : "Non précisé";
+  if (document.getElementById("detailCreatedAt"))
+    document.getElementById("detailCreatedAt").innerText = product.createdAt ? new Date(product.createdAt).toLocaleDateString() : "Non précisé";
+  if (document.getElementById("detailOrders"))
+    document.getElementById("detailOrders").innerText = product.orders !== undefined ? product.orders : "0";
+  if (document.getElementById("detailViews"))
+    document.getElementById("detailViews").innerText = product.views !== undefined ? product.views : "0";
+  if (document.getElementById("detailDiscount"))
+    document.getElementById("detailDiscount").innerText = product.discount !== undefined ? product.discount : "Aucune";
+  if (document.getElementById("detailDiscountType"))
+    document.getElementById("detailDiscountType").innerText = product.discountType || "";
+  if (document.getElementById("detailBrand"))
+    document.getElementById("detailBrand").innerText = product.brand || "Non précisée";
+  if (document.getElementById("detailSKU"))
+    document.getElementById("detailSKU").innerText = product.sku || "Non précisé";
+  if (document.getElementById("detailWeight"))
+    document.getElementById("detailWeight").innerText = product.weight !== undefined ? product.weight + " kg" : "Non précisé";
+  if (document.getElementById("detailDimensions"))
+    document.getElementById("detailDimensions").innerText = product.dimensions ? `${product.dimensions.length} x ${product.dimensions.width} x ${product.dimensions.height} cm` : "Non précisées";
+  if (document.getElementById("detailShippingCost"))
+    document.getElementById("detailShippingCost").innerText = product.shippingCost !== undefined ? product.shippingCost + " FCFA" : "Non précisé";
+  if (document.getElementById("detailEstimatedDelivery"))
+    document.getElementById("detailEstimatedDelivery").innerText = product.estimatedDelivery !== undefined ? product.estimatedDelivery + " jours" : "Non précisé";
+  if (document.getElementById("detailReturnPolicy"))
+    document.getElementById("detailReturnPolicy").innerText = product.returnPolicy || "Non précisée";
+  if (document.getElementById("detailWarranty"))
+    document.getElementById("detailWarranty").innerText = product.warranty || "Non précisée";
+
+  // Gestion de la vidéo
+  const videoElement = document.getElementById("detailVideo");
+  const videoPlaceholder = document.getElementById("videoPlaceholder");
+  if (product.videoUrl) {
+    videoElement.src = product.videoUrl;
+    videoElement.style.display = "block";
+    videoPlaceholder.style.display = "none";
+  } else {
+    videoElement.src = "";
+    videoElement.style.display = "none";
+    videoPlaceholder.style.display = "block";
+  }
+
+  // Génération de la galerie d'images supplémentaires
+  const imageCarousel = document.getElementById("imageCarousel");
+  imageCarousel.innerHTML = "";
+  if (product.photos && product.photos.length > 0) {
+    product.photos.forEach(url => {
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = product.productName;
+      img.classList.add("carousel-image");
+      img.addEventListener("click", () => {
+        document.getElementById("detailImage").src = url;
       });
-    }
+      imageCarousel.appendChild(img);
+    });
+  } else {
+    const msg = document.createElement("p");
+    msg.textContent = "Aucune photo supplémentaire.";
+    msg.style.color = "#555";
+    imageCarousel.appendChild(msg);
+  }
+
+  // Récupération et affichage des produits similaires
+  const similarProducts = await fetchSimilarProducts(product);
+  displaySimilarProducts(similarProducts);
+}
+
+function displaySimilarProducts(products) {
+  const similarGrid = document.getElementById("similarGrid");
+  similarGrid.innerHTML = "";
+  if (!products.length) {
+    similarGrid.innerHTML = "<p>Aucun produit similaire trouvé.</p>";
+    return;
+  }
+  products.forEach(prod => {
+    const div = document.createElement("div");
+    div.className = "similar-item";
+    div.innerHTML = `
+      <img src="${prod.imageUrl}" alt="${prod.productName}">
+      <div class="product-name">${prod.productName}</div>
+      <div class="product-price">${prod.price} FCFA</div>
+    `;
+    div.addEventListener("click", (e) => {
+      if(e.target.tagName.toLowerCase() !== "button") {
+        showProductDetailView(prod);
+      }
+    });
+    similarGrid.appendChild(div);
+  });
+}
     
     function goBack() { 
       window.history.back(); 

@@ -20,7 +20,7 @@ const transporter = nodemailer.createTransport({
   secure: true,
   auth: {
     user: "kolwazshopp@mailo.com",
-    pass: process.env.MAILO_PASSWORD, // Assurez-vous que cette variable d'environnement est définie
+    pass: process.env.EMAIL_PASS, // Assurez-vous que cette variable d'environnement est définie
   }
 });
 console.log("WAVE_PAYMENT_ENABLED:", process.env.WAVE_PAYMENT_ENABLED);
@@ -90,7 +90,7 @@ const publishProduct = async (req, res) => {
     const width = req.body.width ? parseFloat(req.body.width) : 0;
     const height = req.body.height ? parseFloat(req.body.height) : 0;
     const shippingCost = req.body.shippingCost ? parseFloat(req.body.shippingCost) : 0;
-    const estimatedDelivery = req.body.estimatedDelivery ? parseInt(req.body.estimatedDelivery, 10) : 0;
+    const estimatedDelivery = req.body.estimatedDelivery ? parseInt(req.body.estimatedDelivery, 30) : 0;
     const returnPolicy = req.body.returnPolicy || "";
     const warranty = req.body.warranty || "";
 
@@ -142,18 +142,22 @@ const publishProduct = async (req, res) => {
 
     // Upload de la vidéo si elle est fournie
     let videoUrl = "";
-    if (req.files && req.files.video && Array.isArray(req.files.video) && req.files.video[0]) {
-      const videoFile = req.files.video[0];
-      const uploadVideo = await cloudinary.uploader.upload(videoFile.path, {
-        folder: "kolwaz_shop_products",
-        resource_type: "video",
-      });
-      if (uploadVideo && uploadVideo.secure_url) {
-        videoUrl = uploadVideo.secure_url;
-      } else {
-        console.error("Erreur lors de l'upload de la vidéo");
-      }
+if (req.files && req.files.video && Array.isArray(req.files.video) && req.files.video[0]) {
+  try {
+    const videoFile = req.files.video[0];
+    const uploadVideo = await cloudinary.uploader.upload(videoFile.path, {
+      folder: "kolwaz_shop_products",
+      resource_type: "video",
+    });
+    if (uploadVideo && uploadVideo.secure_url) {
+      videoUrl = uploadVideo.secure_url;
+    } else {
+      console.error("Erreur lors de l'upload de la vidéo : aucune URL sécurisée renvoyée.");
     }
+  } catch (error) {
+    console.error("Erreur lors de l'upload de la vidéo :", error);
+  }
+}
 
     // Vérifier la validité du prix et du délai
     const priceNumber = parseFloat(price);
@@ -174,33 +178,44 @@ const publishProduct = async (req, res) => {
       }
     }
 
-    // Création du produit
-    const newProduct = new Product({
-      productName,
-      description,
-      category,
-      price: priceNumber,
-      deliveryTime: deliveryTimeNumber,
-      sellerEmail: req.user.email,
-      imageUrl,
-      photos: photosUrls,
-      videoUrl,
-      discount,
-      discountType,
-      brand,
-      stock,
-      sku,
-      weight,
-      dimensions: { length, width, height },
-      shippingCost,
-      estimatedDelivery,
-      returnPolicy,
-      warranty,
-      createdAt: new Date(),
-    });
+const slugify = require('slugify');
 
-    await newProduct.save();
-    console.log("Produit enregistré:", productName);
+// Création du produit
+const newProduct = new Product({
+  productName,
+  description,
+  category,
+  price: priceNumber,
+  deliveryTime: deliveryTimeNumber,
+  sellerEmail: req.user.email,
+  imageUrl,
+  images: photosUrls, // Correspond à votre schéma
+  videoUrl,
+  discount,
+  discountType,
+  brand,
+  stock,
+  sku,
+  weight,
+  dimensions: { length, width, height },
+  shippingDetails: { shippingCost, estimatedDelivery },
+  returnPolicy,
+  warranty,
+});
+
+// Génère un slug à partir du nom du produit si non fourni
+if (!newProduct.slug) {
+  newProduct.slug = slugify(productName, { lower: true, strict: true });
+}
+
+// Enregistrer le produit
+newProduct.save()
+  .then(result => {
+    // Succès
+  })
+  .catch(err => {
+    console.error("Erreur lors de la publication du produit:", err);
+  });;
 
     // Optionnel : partage sur Twitter si la fonction shareOnTwitter existe
     if (typeof shareOnTwitter === "function") {

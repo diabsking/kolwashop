@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Cart - Kolwaz Shop</title>
+  <title>Panier - Kolwaz Shop</title>
   <link href="https://fonts.googleapis.com/css?family=Poppins:400,600&display=swap" rel="stylesheet">
   <style>
-    /* Global styles */
+    /* Styles généraux */
     body {
       font-family: 'Poppins', sans-serif;
       background: #f7f7f7;
@@ -17,7 +17,7 @@
       text-align: center;
       margin-bottom: 20px;
     }
-    /* Cart container */
+    /* Conteneur du panier */
     #cartGrid {
       max-width: 800px;
       margin: 20px auto;
@@ -64,7 +64,7 @@
       margin-top: 20px;
       color: #333;
     }
-    /* Action buttons */
+    /* Boutons d'action */
     .action-buttons {
       text-align: center;
       margin: 20px 0;
@@ -83,7 +83,7 @@
     .action-buttons button:hover {
       background: #2980b9;
     }
-    /* Order form */
+    /* Formulaire de commande */
     #orderForm {
       max-width: 400px;
       margin: 20px auto;
@@ -145,11 +145,11 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    /* Responsive styles */
+    /* Styles Responsive */
     @media (max-width: 768px) {
       #cartGrid {
         padding: 10px;
-        width: 100%; 
+        width: 100%;
         box-sizing: border-box;
       }
       .cart-item {
@@ -233,22 +233,23 @@
   </style>
 </head>
 <body>
-  <h1>Votre panier</h1>
+  <h1>Votre Panier</h1>
   <div id="cartGrid"></div>
   <div id="total"></div>
 
   <div class="action-buttons">
-    <button onclick="redirectToIndex()">Ajouter un produit</button>
+    <!-- Le bouton "Ajouter un produit" redirige vers la page détail -->
+    <button onclick="redirectToDetail()">Ajouter un produit</button>
     <button onclick="showOrderForm()">Commander</button>
   </div>
 
   <!-- Formulaire de commande -->
   <form id="orderForm" onsubmit="event.preventDefault(); submitOrder();">
-    <h3>Commander</h3>
-    <input type="email" id="email" placeholder="Votre email" required>
+    <h3>Passer commande</h3>
+    <input type="email" id="email" placeholder="Votre e-mail" required>
     <input type="text" id="address" placeholder="Votre adresse" required>
     <input type="text" id="phoneNumber" placeholder="Votre numéro de téléphone" required>
-    <button type="submit">Confirmer votre commande</button>
+    <button type="submit">Valider la commande</button>
   </form>
 
   <div id="notification"></div>
@@ -256,218 +257,149 @@
   <script>
     let cartItems = [];
 
-    // Charge le panier depuis l'API ou le localStorage
-    async function loadCart() {
-      try {
-        let cartFromAPI = [];
-        try {
-          const response = await fetch('/api/get-cart', { headers: { 'Content-Type': 'application/json' } });
-          if (response.ok) {
-            const data = await response.json();
-            cartFromAPI = data.cart;
-          }
-        } catch(e) {
-          console.error("Erreur lors de la récupération du panier via l'API :", e);
-        }
-        // Si aucun panier n'est récupéré via l'API, charger depuis le localStorage
-        const localCart = JSON.parse(localStorage.getItem('cart')) || [];
-        cartItems = cartFromAPI.length > 0 ? cartFromAPI : localCart;
+    // Charge le panier depuis le localStorage (données envoyées depuis la page détail)
+    function loadCart() {
+      // On récupère les données stockées sous la clé "cart"
+      const localCart = JSON.parse(localStorage.getItem('cart')) || [];
+      cartItems = localCart;
 
-        // Mise à jour du serveur avec le panier récupéré (si non vide)
-        if(cartItems.length > 0){
-          updateCartOnServer(cartItems);
-        }
-
-        const cartGrid = document.getElementById('cartGrid');
-        if (cartItems.length === 0) {
-          cartGrid.innerHTML = '<p>Votre panier est vide.</p>';
-          document.getElementById('total').textContent = '';
-        } else {
-          let total = cartItems.reduce((sum, item) => 
-            sum + ((Number(item.price) || 0) * (item.quantity || 1)), 0);
-          cartGrid.innerHTML = cartItems.map((item, index) => 
-            `<div class="cart-item">
-              <img src="${item.imageUrl}" alt="${item.name}" class="cart-image">
-              <div>
-                <span>${item.name} - ${item.price} FCFA</span><br>
-                <span>Quantité : 
-                  <button style="background-color: blue; color: white;" onclick="changeQuantity(${index}, -1)">-</button>
-                  <span id="quantity-${index}">${item.quantity || 1}</span>
-                  <button style="background-color: blue; color: white;" onclick="changeQuantity(${index}, 1)">+</button>
-                </span>
-                ${item.category === 'shoe' ? 
-                  `<br><label for="size-${index}">Taille :</label>
-                  <select id="size-${index}" onchange="updateSize(${index}, this.value)">
-                    ${[38, 39, 40, 41, 42, 43, 44, 45].map(size => 
-                      `<option value="${size}" ${item.size == size ? 'selected' : ''}>${size}</option>`
-                    ).join('')}
-                  </select>` 
-                : ''}
-              </div>
-              <button onclick="removeFromCart(${index})">Supprimer</button>
-            </div>`
-          ).join('');
-          document.getElementById('total').textContent = `Total : ${total} FCFA`;
-        }
-      } catch (error) {
-        console.error('Erreur lors du chargement du panier :', error);
+      const cartGrid = document.getElementById('cartGrid');
+      if (cartItems.length === 0) {
+        cartGrid.innerHTML = '<p>Votre panier est vide.</p>';
+        document.getElementById('total').textContent = '';
+      } else {
+        let total = cartItems.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
+        cartGrid.innerHTML = cartItems.map((item, index) =>
+          `<div class="cart-item">
+            <img src="${item.imageUrl}" alt="${item.name}" class="cart-image">
+            <div>
+              <span>${item.name} - ${item.price} FCFA</span><br>
+              <span>Quantité:
+                <button style="background-color: blue; color: white;" onclick="changeQuantity(${index}, -1)">-</button>
+                <span id="quantity-${index}">${item.quantity || 1}</span>
+                <button style="background-color: blue; color: white;" onclick="changeQuantity(${index}, 1)">+</button>
+              </span>
+              ${item.category === 'chaussure' ?
+                `<br><label for="size-${index}">Taille :</label>
+                <select id="size-${index}" onchange="updateSize(${index}, this.value)">
+                  ${[38, 39, 40, 41, 42, 43, 44, 45].map(size =>
+                    `<option value="${size}" ${item.size === size ? 'selected' : ''}>${size}</option>`
+                  ).join('')}
+                </select>` : ''
+              }
+            </div>
+            <button onclick="removeFromCart(${index})">Supprimer</button>
+          </div>`
+        ).join('');
+        document.getElementById('total').textContent = `Total: ${total} FCFA`;
       }
     }
 
-    // Mise à jour du total
+    // Met à jour le total affiché dans le panier
     function updateTotal() {
-      let total = cartItems.reduce((sum, item) => 
-        sum + ((Number(item.price) || 0) * (item.quantity || 1)), 0);
-      document.getElementById('total').textContent = `Total : ${total} FCFA`;
+      let total = cartItems.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
+      document.getElementById('total').textContent = `Total: ${total} FCFA`;
     }
 
-    // Modification de la quantité d'un produit
-    async function changeQuantity(index, change) {
-      if (!cartItems[index]) return;
+    // Modifie la quantité d'un produit
+    function changeQuantity(index, change) {
+      if (!cartItems[index]) {
+        console.error("Erreur: L'index du produit n'existe pas.");
+        return;
+      }
       const newQuantity = (cartItems[index].quantity || 1) + change;
       if (newQuantity > 0) {
         cartItems[index].quantity = newQuantity;
         document.getElementById(`quantity-${index}`).textContent = newQuantity;
         updateTotal();
-        await updateCartOnServer(cartItems);
+        // Met à jour les données dans le localStorage
         localStorage.setItem('cart', JSON.stringify(cartItems));
       }
     }
 
-    // Mise à jour de la taille (pour les chaussures par exemple)
-    async function updateSize(index, size) {
+    // Met à jour la taille de la chaussure
+    function updateSize(index, size) {
       cartItems[index].size = size;
-      await updateCartOnServer(cartItems);
       localStorage.setItem('cart', JSON.stringify(cartItems));
     }
 
-    // Suppression d'un produit du panier
-    async function removeFromCart(index) {
-      if (index < 0 || index >= cartItems.length) {
-        console.error("Index invalide pour la suppression :", index);
-        return;
-      }
-      const removedItem = cartItems.splice(index, 1)[0];
+    // Supprime un produit du panier
+    function removeFromCart(index) {
+      cartItems.splice(index, 1);
+      // Mise à jour du localStorage après suppression
       localStorage.setItem('cart', JSON.stringify(cartItems));
-      await updateCartOnServer(cartItems);
       loadCart();
-      showNotification(`Produit "${removedItem.name}" supprimé du panier.`);
+      showNotification("Produit supprimé du panier.");
     }
 
-    // Mise à jour du panier sur le serveur
-    async function updateCartOnServer(cart) {
-      try {
-        const response = await fetch('/api/update-cart', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ cart })
-        });
-        if (!response.ok) {
-          throw new Error('Erreur lors de la mise à jour du panier sur le serveur.');
-        }
-      } catch (error) {
-        console.error("Erreur lors de la mise à jour du panier sur le serveur:", error);
-      }
+    // Redirige l'utilisateur vers la page détail pour ajouter un produit
+    function redirectToDetail() {
+      window.location.href = 'detail.html';
     }
 
-    // Redirection vers l'accueil
-    function redirectToIndex() {
-      window.location.href = 'index.html';
-    }
-
-    // Affichage du formulaire de commande
+    // Affiche le formulaire de commande
     function showOrderForm() {
       document.getElementById("orderForm").style.display = "block";
     }
 
+    // Soumet la commande en envoyant les données récupérées depuis la page détail
     async function submitOrder() {
       const email = document.getElementById('email').value;
       const address = document.getElementById('address').value;
       const phoneNumber = document.getElementById('phoneNumber').value;
       const submitButton = document.querySelector('#orderForm button[type="submit"]');
 
-      // Désactivation du bouton pour éviter les doubles soumissions
-      submitButton.disabled = true;
-
-      const localCartItems = JSON.parse(localStorage.getItem('cart')) || [];
-      if (!email || !address || !phoneNumber || localCartItems.length === 0) {
-        showNotification("Veuillez remplir tous les champs et ajouter des articles au panier.");
-        submitButton.disabled = false;
+      if (!email || !address || !phoneNumber) {
+        alert("Veuillez fournir votre e-mail, votre adresse et votre numéro de téléphone.");
         return;
       }
 
-      // Mapping des articles en tenant compte des clés alternatives (name/nom, price/prix, quantity/Quantité)
-      const filteredCartItems = localCartItems.map((item, index) => {
-        const productName = item.name || item.nom;
-        if (!productName) {
-          showNotification(`Le produit à l'index ${index} n'a pas de nom valide.`);
-          throw new Error(`Nom manquant pour le produit à l'index ${index}.`);
-        }
-        const productPrice = Number(item.price || item.prix);
-        if (isNaN(productPrice)) {
-          showNotification(`Le prix pour le produit "${productName}" n'est pas valide.`);
-          throw new Error(`Conversion du prix échouée pour "${productName}".`);
-        }
-        let filteredItem = {
-          nom: productName,
-          imageUrl: item.imageUrl,
-          prix: productPrice,
-          sellerEmail: item.sellerEmail || item["sellerE-mail"],
-          quantity: item.quantity || item["Quantité"] || 1
-        };
-        // Ajout de la taille si présente
-        if(item.size) {
-          filteredItem.size = item.size;
-        }
-        return filteredItem;
-      });
+      if (cartItems.length === 0) {
+        alert("Votre panier est vide.");
+        return;
+      }
 
-      // Construction de l'objet de commande à envoyer
-      const orderData = {
-        courriel: email,
-        adresse: address,
-        phoneNumber: phoneNumber,
-        panierObjets: filteredCartItems
-      };
-
-      console.log("Données de commande préparées :", orderData);
+      // Désactiver le bouton et afficher le chargement
+      submitButton.disabled = true;
+      submitButton.innerHTML = 'Commande en cours... <span class="spinner"></span>';
 
       try {
         const response = await fetch('/api/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(orderData)
+          // Envoi des données du panier et des informations client
+          body: JSON.stringify({ email, address, phoneNumber, cartItems })
         });
 
-        const result = await response.json();
-
-        if (response.ok) {
-          console.log("Réponse du serveur :", result);
-          showNotification("Commande confirmée avec succès !");
-          // Vider le panier après confirmation
-          localStorage.removeItem('cart');
-          cartItems = [];
-          loadCart();
-        } else {
-          console.error("Erreur du serveur :", result);
-          showNotification("Erreur lors de la confirmation de la commande : " + (result.message || "Erreur inconnue"));
+        if (!response.ok) {
+          throw new Error('Erreur lors de la validation de la commande.');
         }
+
+        showNotification("Commande validée !");
+        // Réinitialisation du panier
+        cartItems = [];
+        localStorage.setItem('cart', JSON.stringify(cartItems));
+        loadCart();
+        // Réinitialisation des champs du formulaire
+        document.getElementById('email').value = '';
+        document.getElementById('address').value = '';
+        document.getElementById('phoneNumber').value = '';
+        document.getElementById("orderForm").style.display = "none";
       } catch (error) {
-        console.error("Erreur lors de l'envoi de la commande :", error);
-        showNotification("Une erreur s'est produite. Veuillez réessayer.");
+        console.error("Erreur lors de la validation de la commande :", error);
+        alert("Erreur lors de la validation de la commande.");
       } finally {
         submitButton.disabled = false;
+        submitButton.innerHTML = 'Valider la commande';
       }
     }
 
-    // Fonction d'affichage d'une notification temporaire
+    // Affiche une notification temporaire
     function showNotification(message) {
       const notification = document.getElementById("notification");
       notification.textContent = message;
       notification.style.display = "block";
-      setTimeout(() => {
-        notification.style.display = "none";
-      }, 3000);
+      setTimeout(() => notification.style.display = "none", 3000);
     }
 
     window.onload = loadCart;

@@ -363,7 +363,10 @@
 
         <!-- Photos complémentaires -->
         <label for="photos">Photos Complémentaires (max. 4) :</label>
-        <input type="file" id="photos" name="photos" accept="image/*" multiple onchange="checkPhotoCount(this)">
+<input type="file" id="photos" name="photos" accept="image/*" multiple onchange="previewPhotos(event)" />
+
+<!-- Zone d'aperçu des images -->
+<div id="photoPreview" style="display: flex; gap: 10px; margin-top: 10px;"></div>
 
         <!-- Vidéo du produit -->
         <label for="video">Vidéo du Produit :</label>
@@ -482,19 +485,42 @@
         setTimeout(() => { container.removeChild(notification); }, 300);
       }, 5000);
     }
+ function previewPhotos(event) {
+        const previewContainer = document.getElementById("photoPreviewContainer");
+        previewContainer.innerHTML = ""; // Efface les anciennes images
+        const files = event.target.files;
 
+        // Vérifie si l'utilisateur a sélectionné plus de 4 images
+        if (files.length > 4) {
+            alert("Vous pouvez sélectionner seulement 4 images !");
+            event.target.value = ""; // Réinitialise la sélection
+            return;
+        }
+
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement("img");
+                img.src = e.target.result;
+                img.style.width = "100px"; // Limite la taille de l'aperçu
+                img.style.margin = "5px";
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
     // Initialisation : récupération des produits du vendeur
     window.addEventListener('load', function() {
       fetchSellerProducts();
     });
 
-    // Limite de 4 photos pour les photos complémentaires
-    function checkPhotoCount(input) {
-      if (input.files.length > 4) {
-        alert("Vous ne pouvez sélectionner que 4 photos au maximum.");
-        input.value = ""; // Réinitialise la sélection
-      }
-    }
+  function checkPhotoCount(input) {
+  console.log("Nombre de fichiers sélectionnés :", input.files.length);
+  if (input.files.length > 4) {
+    alert("Vous ne pouvez sélectionner que 4 photos au maximum.");
+    input.value = ""; // Réinitialise la sélection
+  }
+}
 
     // Vérification de la vidéo : type et taille (50 Mo maximum)
     function checkVideo(input) {

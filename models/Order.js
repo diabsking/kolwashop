@@ -1,51 +1,19 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-// Sous-schema pour les produits commandés
-const productSchema = new mongoose.Schema({
-  name: { type: String, required: true, trim: true },
-  price: { type: Number, required: true, min: 0 },
-  description: { type: String, trim: true },
-  imageUrl: { type: String, trim: true },
-  sellerEmail: { type: String, required: true, lowercase: true, trim: true },
-  quantity: { type: Number, required: true, min: 1, default: 1 },
-  size: { type: String, trim: true }, // Ajouté pour la gestion des tailles (exemple chaussures)
-  addedAt: { type: Date, default: Date.now }
-});
-
-// Schema complet de la commande
 const orderSchema = new mongoose.Schema({
-  customerName: { type: String, required: true, trim: true },
-  email: { type: String, required: true, lowercase: true, trim: true },
-  phoneNumber: { type: String, required: true, trim: true },
-  shippingAddress: { type: String, required: true, trim: true },
-  products: { type: [productSchema], required: true },
-  orderStatus: {
-    type: String,
-    enum: ["Commande en préparation", "Expédiée", "Livrée", "Annulée"],
-    default: "Commande en préparation"
-  },
-  paymentStatus: {
-    type: String,
-    enum: ["Non payé", "Payé", "Remboursé"],
-    default: "Non payé"
-  },
-  shippingCost: { type: Number, default: 0, min: 0 },
-  trackingNumber: { type: String, trim: true },
-  notes: { type: String, trim: true }
-}, {
-  timestamps: true // Ajoute createdAt et updatedAt
+  courriel: { type: String, required: true }, // Correspond à "email" dans la requête
+  adresse: { type: String, required: true }, // Correspond à "address" dans la requête
+  phoneNumber: { type: String, required: true },
+  panierObjets: [{  // Correspond à "cartItems" dans la requête
+      nom: { type: String, required: true }, // Correspond à "name"
+      description: { type: String, default: "Aucune description" }, // Ajout d’une valeur par défaut
+      imageUrl: String,
+      prix: { type: Number, required: true }, // Correspond à "price"
+      sellerEmail: String,
+      quantity: { type: Number, required: true, default: 1 }, // Valeur par défaut
+      size: { type: Number, default: null } // Facultatif
+  }],
+  createdAt: { type: Date, default: Date.now }
 });
 
-// Hook pre-save pour loguer avant la sauvegarde
-orderSchema.pre("save", function (next) {
-  console.log("Pré-sauvegarde de la commande :", this);
-  next();
-});
-
-// Hook post-save pour loguer après la sauvegarde
-orderSchema.post("save", function (doc, next) {
-  console.log("Commande sauvegardée avec succès :", doc);
-  next();
-});
-
-module.exports = mongoose.model("Order", orderSchema);
+module.exports = mongoose.model('Order', orderSchema);
