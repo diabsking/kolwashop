@@ -233,22 +233,22 @@
   </style>
 </head>
 <body>
-  <h1>votre panier</h1>
+  <h1>Votre panier</h1>
   <div id="cartGrid"></div>
   <div id="total"></div>
 
   <div class="action-buttons">
     <button onclick="redirectToIndex()">Ajouter un produit</button>
-    <button onclick="showOrderForm()">commander</button>
+    <button onclick="showOrderForm()">Commander</button>
   </div>
 
   <!-- Formulaire de commande -->
   <form id="orderForm" onsubmit="event.preventDefault(); submitOrder();">
-    <h3>commander</h3>
+    <h3>Commander</h3>
     <input type="email" id="email" placeholder="Votre email" required>
     <input type="text" id="address" placeholder="Votre adresse" required>
     <input type="text" id="phoneNumber" placeholder="Votre numéro de téléphone" required>
-    <button type="submit">confirmer votre commande</button>
+    <button type="submit">Confirmer votre commande</button>
   </form>
 
   <div id="notification"></div>
@@ -273,6 +273,11 @@
         const localCart = JSON.parse(localStorage.getItem('cart')) || [];
         cartItems = cartFromAPI.length > 0 ? cartFromAPI : localCart;
 
+        // Mise à jour du serveur avec le panier récupéré (si non vide)
+        if(cartItems.length > 0){
+          updateCartOnServer(cartItems);
+        }
+
         const cartGrid = document.getElementById('cartGrid');
         if (cartItems.length === 0) {
           cartGrid.innerHTML = '<p>Votre panier est vide.</p>';
@@ -294,7 +299,7 @@
                   `<br><label for="size-${index}">Taille :</label>
                   <select id="size-${index}" onchange="updateSize(${index}, this.value)">
                     ${[38, 39, 40, 41, 42, 43, 44, 45].map(size => 
-                      `<option value="${size}" ${item.size === size ? 'selected' : ''}>${size}</option>`
+                      `<option value="${size}" ${item.size == size ? 'selected' : ''}>${size}</option>`
                     ).join('')}
                   </select>` 
                 : ''}
@@ -325,6 +330,7 @@
         document.getElementById(`quantity-${index}`).textContent = newQuantity;
         updateTotal();
         await updateCartOnServer(cartItems);
+        localStorage.setItem('cart', JSON.stringify(cartItems));
       }
     }
 
@@ -332,16 +338,18 @@
     async function updateSize(index, size) {
       cartItems[index].size = size;
       await updateCartOnServer(cartItems);
+      localStorage.setItem('cart', JSON.stringify(cartItems));
     }
 
     // Suppression d'un produit du panier
-    function removeFromCart(index) {
+    async function removeFromCart(index) {
       if (index < 0 || index >= cartItems.length) {
         console.error("Index invalide pour la suppression :", index);
         return;
       }
       const removedItem = cartItems.splice(index, 1)[0];
       localStorage.setItem('cart', JSON.stringify(cartItems));
+      await updateCartOnServer(cartItems);
       loadCart();
       showNotification(`Produit "${removedItem.name}" supprimé du panier.`);
     }
@@ -371,95 +379,97 @@
     function showOrderForm() {
       document.getElementById("orderForm").style.display = "block";
     }
+
     async function submitOrder() {
-  const email = document.getElementById('email').value;
-  const address = document.getElementById('address').value;
-  const phoneNumber = document.getElementById('phoneNumber').value;
-  const submitButton = document.querySelector('#orderForm button[type="submit"]');
+      const email = document.getElementById('email').value;
+      const address = document.getElementById('address').value;
+      const phoneNumber = document.getElementById('phoneNumber').value;
+      const submitButton = document.querySelector('#orderForm button[type="submit"]');
 
-  // Désactivation du bouton pour éviter les doubles soumissions
-  submitButton.disabled = true;
+      // Désactivation du bouton pour éviter les doubles soumissions
+      submitButton.disabled = true;
 
-  const localCartItems = JSON.parse(localStorage.getItem('cart')) || [];
-  if (!email || !address || !phoneNumber || localCartItems.length === 0) {
-    showNotification("Veuillez remplir tous les champs et ajouter des articles au panier.");
-    submitButton.disabled = false;
-    return;
-  }
+      const localCartItems = JSON.parse(localStorage.getItem('cart')) || [];
+      if (!email || !address || !phoneNumber || localCartItems.length === 0) {
+        showNotification("Veuillez remplir tous les champs et ajouter des articles au panier.");
+        submitButton.disabled = false;
+        return;
+      }
 
-  // Mapping des articles en tenant compte des clés alternatives (name/nom, price/prix, quantity/Quantité)
-  const filteredCartItems = localCartItems.map((item, index) => {
-    // On tente de récupérer le nom du produit depuis 'name' ou 'nom'
-    const productName = item.name || item.nom;
-    if (!productName) {
-      showNotification(`Le produit à l'index ${index} n'a pas de nom valide.`);
-      throw new Error(`Nom manquant pour le produit à l'index ${index}.`);
+      // Mapping des articles en tenant compte des clés alternatives (name/nom, price/prix, quantity/Quantité)
+      const filteredCartItems = localCartItems.map((item, index) => {
+        const productName = item.name || item.nom;
+        if (!productName) {
+          showNotification(`Le produit à l'index ${index} n'a pas de nom valide.`);
+          throw new Error(`Nom manquant pour le produit à l'index ${index}.`);
+        }
+        const productPrice = Number(item.price || item.prix);
+        if (isNaN(productPrice)) {
+          showNotification(`Le prix pour le produit "${productName}" n'est pas valide.`);
+          throw new Error(`Conversion du prix échouée pour "${productName}".`);
+        }
+        let filteredItem = {
+          nom: productName,
+          imageUrl: item.imageUrl,
+          prix: productPrice,
+          sellerEmail: item.sellerEmail || item["sellerE-mail"],
+          quantity: item.quantity || item["Quantité"] || 1
+        };
+        // Ajout de la taille si présente
+        if(item.size) {
+          filteredItem.size = item.size;
+        }
+        return filteredItem;
+      });
+
+      // Construction de l'objet de commande à envoyer
+      const orderData = {
+        courriel: email,
+        adresse: address,
+        phoneNumber: phoneNumber,
+        panierObjets: filteredCartItems
+      };
+
+      console.log("Données de commande préparées :", orderData);
+
+      try {
+        const response = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          console.log("Réponse du serveur :", result);
+          showNotification("Commande confirmée avec succès !");
+          // Vider le panier après confirmation
+          localStorage.removeItem('cart');
+          cartItems = [];
+          loadCart();
+        } else {
+          console.error("Erreur du serveur :", result);
+          showNotification("Erreur lors de la confirmation de la commande : " + (result.message || "Erreur inconnue"));
+        }
+      } catch (error) {
+        console.error("Erreur lors de l'envoi de la commande :", error);
+        showNotification("Une erreur s'est produite. Veuillez réessayer.");
+      } finally {
+        submitButton.disabled = false;
+      }
     }
 
-    // On tente de récupérer et convertir le prix depuis 'price' ou 'prix'
-    const productPrice = Number(item.price || item.prix);
-    if (isNaN(productPrice)) {
-      showNotification(`Le prix pour le produit "${productName}" n'est pas valide.`);
-      throw new Error(`Conversion du prix échouée pour "${productName}".`);
+    // Fonction d'affichage d'une notification temporaire
+    function showNotification(message) {
+      const notification = document.getElementById("notification");
+      notification.textContent = message;
+      notification.style.display = "block";
+      setTimeout(() => {
+        notification.style.display = "none";
+      }, 3000);
     }
 
-    return {
-      nom: productName,
-      imageUrl: item.imageUrl,
-      prix: productPrice,
-      // On gère à la fois 'sellerEmail' et 'sellerE-mail'
-      sellerEmail: item.sellerEmail || item["sellerE-mail"],
-      // On gère à la fois 'quantity' et 'Quantité'
-      quantity: item.quantity || item["Quantité"] || 1
-    };
-  });
-
-  // Construction de l'objet de commande à envoyer
-  const orderData = {
-    courriel: email,
-    adresse: address,
-    phoneNumber: phoneNumber,
-    panierObjets: filteredCartItems
-  };
-
-  // Log pour vérifier que les données sont correctes avant envoi
-  console.log("Données de commande préparées :", orderData);
-
-  try {
-    const response = await fetch('/api/orders', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(orderData)
-    });
-
-    const result = await response.json();
-
-    if (response.ok) {
-      console.log("Réponse du serveur :", result);
-      showNotification("Commande confirmée avec succès !");
-      // Vider le panier après confirmation
-      localStorage.removeItem('cart');
-    } else {
-      console.error("Erreur du serveur :", result);
-      showNotification("Erreur lors de la confirmation de la commande : " + (result.message || "Erreur inconnue"));
-    }
-  } catch (error) {
-    console.error("Erreur lors de l'envoi de la commande :", error);
-    showNotification("Une erreur s'est produite. Veuillez réessayer.");
-  } finally {
-    submitButton.disabled = false;
-  }
-}
-
-// Fonction d'affichage d'une notification temporaire
-function showNotification(message) {
-  const notification = document.getElementById("notification");
-  notification.textContent = message;
-  notification.style.display = "block";
-  setTimeout(() => {
-    notification.style.display = "none";
-  }, 3000);
-}
     window.onload = loadCart;
   </script>
 </body>
