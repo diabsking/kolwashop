@@ -1259,35 +1259,31 @@ function displayProducts(products) {
 }
 // Fonction de partage générique
 function shareProduct(platform, product) {
-  // Génère l'URL de la page produit (modifiez selon votre logique de routage)
+  // Génère l'URL de la page produit
   const productUrl = window.location.origin + "/detail.html?id=" + product._id;
   const productName = product.productName;
-  const productDescription = product.description;
-  const productImage = product.imageUrl;
-  const productVideo = product.videoUrl || "";
+  const productImage = product.imageUrl; // Photo du produit
   const siteName = "Kolwaz Shop"; // Nom du site
 
   let shareLink = "";
   if (platform === "facebook") {
-    shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productUrl)}&quote=${encodeURIComponent(productName + " - " + productDescription)}`;
+    // Partage sur Facebook : uniquement le nom en quote
+    shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productUrl)}&quote=${encodeURIComponent(productName)}`;
   } else if (platform === "twitter") {
-    const tweetText = `${productName} - ${productDescription}`;
-    shareLink = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(productUrl)}`;
+    // Partage sur Twitter : tweet contenant le nom et l'URL
+    shareLink = `https://twitter.com/intent/tweet?text=${encodeURIComponent(productName)}&url=${encodeURIComponent(productUrl)}`;
   } else if (platform === "whatsapp") {
-    let message = `Découvrez ${productName} sur ${siteName}.\n\n${productDescription}\n\nPlus d'infos ici: ${productUrl}`;
-    if (productVideo) {
-      message += `\nVidéo: ${productVideo}`;
-    }
+    // Partage sur WhatsApp : message avec nom du produit et URL
+    let message = `Découvrez ${productName} sur ${siteName}.\n\nPlus d'infos ici: ${productUrl}`;
     shareLink = `https://wa.me/?text=${encodeURIComponent(message)}`;
   } else if (platform === "instagram") {
-    // Instagram ne permet pas de partager directement un lien
-    alert("Instagram ne permet pas de partager directement. Veuillez télécharger l'image et la partager via l'application.");
+    // Instagram ne permet pas le partage direct via lien, on propose d'ouvrir l'image
+    alert("Instagram ne permet pas de partager directement un lien. Veuillez télécharger l'image et la partager via l'application.");
     shareLink = productImage;
   }
   window.open(shareLink, "_blank");
 }
-
-    // Recherche sur tous les produits
+// Recherche sur tous les produits
     function setupSearch() {
       const searchBtn = document.getElementById("searchBtn");
       const searchBox = document.getElementById("searchBox");
