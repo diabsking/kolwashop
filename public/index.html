@@ -1149,48 +1149,143 @@ footer {
         productGrid.style.display = 'grid';
       }
     }
+// Affichage des produits dans la grille principale
+function displayProducts(products) {
+  const productGrid = document.getElementById("productGrid");
+  productGrid.innerHTML = products.length
+    ? ""
+    : "<p style='text-align:center;'>Aucun produit publié pour le moment.</p>";
 
-    // Affichage des produits dans la grille principale
-    function displayProducts(products) {
-      const productGrid = document.getElementById("productGrid");
-      productGrid.innerHTML = products.length
-        ? ""
-        : "<p style='text-align:center;'>Aucun produit publié pour le moment.</p>";
+  products.forEach(product => {
+    const productItem = document.createElement("div");
+    productItem.className = 'grid-item';
 
-      products.forEach(product => {
-        const productItem = document.createElement("div");
-        productItem.className = 'grid-item';
-
-        // Badge "Nouveau" si le produit est récent
-        let badgeHTML = '';
-        if (product.publishedAt) {
-          const publishedDate = new Date(product.publishedAt);
-          const now = new Date();
-          const diffDays = (now - publishedDate) / (1000 * 60 * 60 * 24);
-          if (diffDays < 7) {
-            badgeHTML = '<span class="new-badge">Nouveau</span>';
-          }
-        }
-
-        productItem.innerHTML =
-          `<div class="product-image-wrapper" style="position: relative;">
-             <img src="${product.imageUrl}" alt="${product.productName}" class="product-image">
-             ${badgeHTML}
-           </div>
-           <div class="product-name">${product.productName}</div>
-           <div class="product-description" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-             ${product.description}
-           </div>
-           <div class="product-price">${product.price} FCFA</div>`;
-
-        // Redirection vers la page de détail lors du clic sur le conteneur
-        productItem.addEventListener("click", () => {
-          window.location.href = `detail.html?id=${product._id}`;
-        });
-
-        productGrid.appendChild(productItem);
-      });
+    // Badge "Nouveau" si le produit est récent
+    let badgeHTML = '';
+    if (product.publishedAt) {
+      const publishedDate = new Date(product.publishedAt);
+      const now = new Date();
+      const diffDays = (now - publishedDate) / (1000 * 60 * 60 * 24);
+      if (diffDays < 7) {
+        badgeHTML = '<span class="new-badge">Nouveau</span>';
+      }
     }
+
+    productItem.innerHTML =
+      `<div class="product-image-wrapper" style="position: relative;">
+         <img src="${product.imageUrl}" alt="${product.productName}" class="product-image">
+         ${badgeHTML}
+       </div>
+       <div class="product-name">${product.productName}</div>
+       <div class="product-description" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+         ${product.description}
+       </div>
+       <div class="product-price">${product.price} FCFA</div>`;
+
+    // Ajout d'un bouton "trois points" pour le partage (menu déroulant)
+    const shareContainer = document.createElement("div");
+    shareContainer.className = "share-menu-container";
+    // Positionnement en haut à droite du produit
+    shareContainer.style.position = "absolute";
+    shareContainer.style.top = "5px";
+    shareContainer.style.right = "5px";
+
+    // Bouton pour afficher/masquer le menu
+    const shareButton = document.createElement("button");
+    shareButton.className = "share-menu-button";
+    shareButton.innerText = "⋮"; // Trois points verticaux
+    shareButton.style.background = "transparent";
+    shareButton.style.border = "none";
+    shareButton.style.cursor = "pointer";
+    shareButton.style.fontSize = "18px";
+
+    // Menu déroulant contenant les options de partage
+    const shareMenu = document.createElement("div");
+    shareMenu.className = "share-menu";
+    shareMenu.style.display = "none";
+    shareMenu.style.position = "absolute";
+    shareMenu.style.top = "25px";
+    shareMenu.style.right = "0";
+    shareMenu.style.background = "#fff";
+    shareMenu.style.border = "1px solid #ccc";
+    shareMenu.style.borderRadius = "5px";
+    shareMenu.style.boxShadow = "0 2px 5px rgba(0,0,0,0.2)";
+    shareMenu.style.zIndex = "10";
+
+    // Création des boutons pour chaque plateforme
+    const platforms = ["facebook", "twitter", "instagram", "whatsapp"];
+    platforms.forEach(platform => {
+      const btn = document.createElement("button");
+      btn.innerText = platform.charAt(0).toUpperCase() + platform.slice(1);
+      btn.style.display = "block";
+      btn.style.width = "100%";
+      btn.style.border = "none";
+      btn.style.background = "none";
+      btn.style.padding = "5px 10px";
+      btn.style.cursor = "pointer";
+      btn.style.textAlign = "left";
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        shareProduct(platform, product);
+        shareMenu.style.display = "none";
+      });
+      shareMenu.appendChild(btn);
+    });
+
+    shareButton.addEventListener("click", (e) => {
+      e.stopPropagation();
+      // Toggle du menu déroulant
+      shareMenu.style.display = shareMenu.style.display === "none" ? "block" : "none";
+    });
+
+    // Fermer le menu si on clique ailleurs
+    document.addEventListener("click", () => {
+      shareMenu.style.display = "none";
+    });
+
+    shareContainer.appendChild(shareButton);
+    shareContainer.appendChild(shareMenu);
+    productItem.appendChild(shareContainer);
+
+    // Redirection vers la page de détail lors du clic sur le conteneur
+    productItem.addEventListener("click", (e) => {
+      // Éviter la redirection si le clic provient du menu de partage
+      if (e.target.closest(".share-menu-container")) return;
+      window.location.href = `detail.html?id=${product._id}`;
+    });
+
+    productGrid.appendChild(productItem);
+  });
+}
+// Fonction de partage générique
+function shareProduct(platform, product) {
+  // Génère l'URL de la page produit (modifiez selon votre logique de routage)
+  const productUrl = window.location.origin + "/detail.html?id=" + product._id;
+  const productName = product.productName;
+  const productDescription = product.description;
+  const productImage = product.imageUrl;
+  const productVideo = product.videoUrl || "";
+  const siteName = "Kolwaz Shop"; // Nom du site
+
+  let shareLink = "";
+  if (platform === "facebook") {
+    shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productUrl)}&quote=${encodeURIComponent(productName + " - " + productDescription)}`;
+  } else if (platform === "twitter") {
+    const tweetText = `${productName} - ${productDescription}`;
+    shareLink = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(productUrl)}`;
+  } else if (platform === "whatsapp") {
+    let message = `Découvrez ${productName} sur ${siteName}.\n\n${productDescription}\n\nPlus d'infos ici: ${productUrl}`;
+    if (productVideo) {
+      message += `\nVidéo: ${productVideo}`;
+    }
+    shareLink = `https://wa.me/?text=${encodeURIComponent(message)}`;
+  } else if (platform === "instagram") {
+    // Instagram ne permet pas de partager directement un lien
+    alert("Instagram ne permet pas de partager directement. Veuillez télécharger l'image et la partager via l'application.");
+    shareLink = productImage;
+  }
+  window.open(shareLink, "_blank");
+}
 
     // Recherche sur tous les produits
     function setupSearch() {
