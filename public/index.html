@@ -1345,6 +1345,13 @@ function playVideoInline(event, videoUrl) {
     imageWrapper.appendChild(closeBtn);
   }
 }
+// Si le produit possède une vidéo, ajouter une superposition "play"
+let videoOverlayHTML = '';
+if (product.videoUrl) {
+  videoOverlayHTML = `<div class="video-play-overlay" style="position: absolute; bottom: 5px; right: 5px; width: 30px; height: 30px; background-color: rgba(0,0,0,0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1000;" onclick="playVideoInline(event, '${product.videoUrl}')">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+  </div>`;
+}
 // Recherche sur tous les produits
     function setupSearch() {
       const searchBtn = document.getElementById("searchBtn");
