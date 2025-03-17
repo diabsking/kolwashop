@@ -83,7 +83,7 @@ app.get("/Administrateur", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "Administrateur.html"));
 });
 app.get("/Accueil", (req, res) => {
-  res.sendFile(__dirname + "/Accueil.html");
+  res.sendFile(path.join(__dirname, "public", "Accueil.html"));
 });
 
 // Servir les fichiers statiques depuis le dossier 'public'
