@@ -312,9 +312,6 @@
       <a href="index.html" title="Accueil"><i class="fa fa-home"></i></a>
       <a href="index.html" title="Produits"><i class="fa fa-th-large"></i></a>
       <a href="contact.html" title="Contact"><i class="fa fa-envelope"></i></a>
-      <div class="cart-icon">
-        <a href="panier.html" title="Panier"><i class="fa fa-shopping-cart"></i></a>
-        <span id="cartCount">0</span>
       </div>
     </nav>
   </header>
@@ -365,6 +362,8 @@
       <button id="addToCartButton" class="btn btn-primary" onclick="addToCart(currentProduct.productName, currentProduct.price, currentProduct.description, currentProduct.imageUrl, currentProduct.sellerEmail, this)">Ajouter au panier</button>
       <button id="contactSellerButton" class="btn btn-secondary" style="display: none;">Contacter le vendeur</button>
     </section>
+    <!-- Section Avis -->
+<div id="reviewsSection" style="margin-top: 30px;"></div>
         
     <!-- Section : Produits similaires -->
     <section id="similarGrid">
@@ -434,8 +433,7 @@
       }
     }
     
-    // Affichage des détails du produit, de la vidéo et de la galerie
-  async function showProductDetailView(product) {
+   async function showProductDetailView(product) {
   // Affichage des détails du produit
   document.getElementById("detailImage").src = product.imageUrl || "https://via.placeholder.com/500x400";
   document.getElementById("detailName").innerText = product.productName || "Nom inconnu";
@@ -485,7 +483,7 @@
     videoPlaceholder.style.display = "block";
   }
 
-  // Génération de la galerie d'images supplémentaires
+  // Génération de la galerie d'images complémentaires
   const imageCarousel = document.getElementById("imageCarousel");
   imageCarousel.innerHTML = "";
   if (product.photos && product.photos.length > 0) {
@@ -504,6 +502,58 @@
     msg.textContent = "Aucune photo supplémentaire.";
     msg.style.color = "#555";
     imageCarousel.appendChild(msg);
+  }
+  
+  // Affichage de la section des avis avec annotation par étoiles
+  const reviewsSection = document.getElementById("reviewsSection");
+  if (reviewsSection) {
+    reviewsSection.innerHTML = ""; // Réinitialiser le contenu
+    const reviewsTitle = document.createElement("h3");
+    reviewsTitle.textContent = "Avis des utilisateurs";
+    reviewsSection.appendChild(reviewsTitle);
+    
+    if (product.reviews && product.reviews.length > 0) {
+      product.reviews.forEach(review => {
+        const reviewDiv = document.createElement("div");
+        reviewDiv.className = "review";
+        reviewDiv.style.marginBottom = "15px";
+        reviewDiv.style.borderBottom = "1px solid #ddd";
+        reviewDiv.style.paddingBottom = "10px";
+        
+        // Création de l'annotation par étoiles
+        const starsContainer = document.createElement("div");
+        starsContainer.className = "star-rating";
+        for (let i = 1; i <= 5; i++) {
+          const star = document.createElement("i");
+          // Utilisation de Font Awesome pour les étoiles
+          if (i <= review.rating) {
+            star.className = "fas fa-star";
+          } else {
+            star.className = "far fa-star";
+          }
+          star.style.color = "#f39c12";
+          star.style.marginRight = "2px";
+          starsContainer.appendChild(star);
+        }
+        reviewDiv.appendChild(starsContainer);
+        
+        // Affichage du commentaire (si présent)
+        if (review.comment) {
+          const commentP = document.createElement("p");
+          commentP.textContent = review.comment;
+          commentP.style.fontSize = "14px";
+          commentP.style.color = "#555";
+          commentP.style.marginTop = "5px";
+          reviewDiv.appendChild(commentP);
+        }
+        reviewsSection.appendChild(reviewDiv);
+      });
+    } else {
+      const noReviewsP = document.createElement("p");
+      noReviewsP.textContent = "Aucun avis pour le moment.";
+      noReviewsP.style.color = "#777";
+      reviewsSection.appendChild(noReviewsP);
+    }
   }
 
   // Récupération et affichage des produits similaires
