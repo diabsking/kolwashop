@@ -1100,8 +1100,7 @@ footer {
       if (!currentProduct) return;
       addToCart(currentProduct.productName, currentProduct.price, currentProduct.description, currentProduct.imageUrl, currentProduct.sellerEmail, button);
     }
-
-    // Initialisation lors du chargement de la page
+// Initialisation lors du chargement de la page
     window.addEventListener('load', function() {
       loadProducts();
       setupCategoryFilters();
@@ -1115,8 +1114,7 @@ footer {
         }
       });
     });
-
-    // Chargement des produits depuis l'API et affichage
+// Chargement des produits depuis l'API et affichage
     async function loadProducts() {
       const loadingIndicator = document.getElementById('loadingIndicator');
       const productGrid = document.getElementById('productGrid');
@@ -1171,10 +1169,19 @@ function displayProducts(products) {
       }
     }
 
+    // Si le produit possède une vidéo, ajouter une superposition "play"
+    let videoOverlayHTML = '';
+    if (product.videoUrl) {
+      videoOverlayHTML = `<div class="video-play-overlay" style="position: absolute; bottom: 5px; right: 5px; width: 30px; height: 30px; background-color: rgba(0,0,0,0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="playVideoInline(event, '${product.videoUrl}')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+      </div>`;
+    }
+
     productItem.innerHTML =
       `<div class="product-image-wrapper" style="position: relative;">
          <img src="${product.imageUrl}" alt="${product.productName}" class="product-image">
          ${badgeHTML}
+         ${videoOverlayHTML}
        </div>
        <div class="product-name">${product.productName}</div>
        <div class="product-description" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
@@ -1185,21 +1192,18 @@ function displayProducts(products) {
     // Ajout d'un bouton "trois points" pour le partage (menu déroulant)
     const shareContainer = document.createElement("div");
     shareContainer.className = "share-menu-container";
-    // Positionnement en haut à droite du produit
     shareContainer.style.position = "absolute";
     shareContainer.style.top = "5px";
     shareContainer.style.right = "5px";
 
-    // Bouton pour afficher/masquer le menu
     const shareButton = document.createElement("button");
     shareButton.className = "share-menu-button";
-    shareButton.innerText = "⋮"; // Trois points verticaux
+    shareButton.innerText = "⋮";
     shareButton.style.background = "transparent";
     shareButton.style.border = "none";
     shareButton.style.cursor = "pointer";
     shareButton.style.fontSize = "18px";
 
-    // Menu déroulant contenant les options de partage
     const shareMenu = document.createElement("div");
     shareMenu.className = "share-menu";
     shareMenu.style.display = "none";
@@ -1212,8 +1216,7 @@ function displayProducts(products) {
     shareMenu.style.boxShadow = "0 2px 5px rgba(0,0,0,0.2)";
     shareMenu.style.zIndex = "10";
 
-    // Création des boutons pour chaque plateforme
-    const platforms = ["facebook", "twitter", "instagram", "whatsapp"];
+    const platforms = ["facebook", "twitter", "instagram", "whatsapp", "tiktok"];
     platforms.forEach(platform => {
       const btn = document.createElement("button");
       btn.innerText = platform.charAt(0).toUpperCase() + platform.slice(1);
@@ -1234,11 +1237,9 @@ function displayProducts(products) {
 
     shareButton.addEventListener("click", (e) => {
       e.stopPropagation();
-      // Toggle du menu déroulant
       shareMenu.style.display = shareMenu.style.display === "none" ? "block" : "none";
     });
 
-    // Fermer le menu si on clique ailleurs
     document.addEventListener("click", () => {
       shareMenu.style.display = "none";
     });
@@ -1247,9 +1248,8 @@ function displayProducts(products) {
     shareContainer.appendChild(shareMenu);
     productItem.appendChild(shareContainer);
 
-    // Redirection vers la page de détail lors du clic sur le conteneur
+    // Redirection vers la page de détail lors du clic sur le conteneur, sauf si le clic provient du menu de partage
     productItem.addEventListener("click", (e) => {
-      // Éviter la redirection si le clic provient du menu de partage
       if (e.target.closest(".share-menu-container")) return;
       window.location.href = `detail.html?id=${product._id}`;
     });
@@ -1267,21 +1267,83 @@ function shareProduct(platform, product) {
 
   let shareLink = "";
   if (platform === "facebook") {
-    // Partage sur Facebook : uniquement le nom en quote
-    shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productUrl)}&quote=${encodeURIComponent(productName)}`;
+    // Pour Facebook, on tente d'ajouter le paramètre "picture"
+    shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productUrl)}&quote=${encodeURIComponent(productName)}&picture=${encodeURIComponent(productImage)}`;
   } else if (platform === "twitter") {
-    // Partage sur Twitter : tweet contenant le nom et l'URL
-    shareLink = `https://twitter.com/intent/tweet?text=${encodeURIComponent(productName)}&url=${encodeURIComponent(productUrl)}`;
+    // Pour Twitter, on inclut l'URL de l'image dans le texte afin de favoriser l'affichage de la prévisualisation
+    const tweetText = `${productName}\n${productImage}\n${productUrl}`;
+    shareLink = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
   } else if (platform === "whatsapp") {
-    // Partage sur WhatsApp : message avec nom du produit et URL
-    let message = `Découvrez ${productName} sur ${siteName}.\n\nPlus d'infos ici: ${productUrl}`;
+    // Pour WhatsApp, on inclut l'image dans le message
+    let message = `Découvrez ${productName} sur ${siteName}.\n\nImage: ${productImage}\nPlus d'infos ici: ${productUrl}`;
     shareLink = `https://wa.me/?text=${encodeURIComponent(message)}`;
   } else if (platform === "instagram") {
-    // Instagram ne permet pas le partage direct via lien, on propose d'ouvrir l'image
-    alert("Instagram ne permet pas de partager directement un lien. Veuillez télécharger l'image et la partager via l'application.");
+    // Instagram ne permet pas de partager directement un lien ou une image via web
+    alert("Instagram ne permet pas de partager directement un lien ou une image. Veuillez télécharger l'image et la partager via l'application.");
     shareLink = productImage;
+  } else if (platform === "tiktok") {
+    // TikTok ne propose pas de partage web direct. On copie le lien dans le presse-papiers et on alerte l'utilisateur.
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(productUrl)
+        .then(() => {
+          alert("Lien copié dans le presse-papiers. Ouvrez TikTok et partagez-le dans votre description.");
+        })
+        .catch(err => {
+          alert("Impossible de copier le lien. Veuillez copier manuellement : " + productUrl);
+        });
+    } else {
+      alert("Votre navigateur ne supporte pas la copie automatique. Copiez manuellement ce lien : " + productUrl);
+    }
+    return; // On ne fait pas window.open pour TikTok
   }
   window.open(shareLink, "_blank");
+}
+function playVideoInline(event, videoUrl) {
+  event.stopPropagation();
+  const imageWrapper = event.currentTarget.closest(".product-image-wrapper");
+  if (!imageWrapper) return;
+  
+  // Masquer l'image du produit
+  const img = imageWrapper.querySelector("img.product-image");
+  if (img) {
+    img.style.display = "none";
+  }
+  // Si la vidéo n'est pas déjà présente, la créer
+  let video = imageWrapper.querySelector("video.product-video");
+  if (!video) {
+    video = document.createElement("video");
+    video.className = "product-video";
+    video.src = videoUrl;
+    video.setAttribute("controls", "true");
+    video.setAttribute("autoplay", "true");
+    video.style.width = "100%";
+    video.style.height = "100%";
+    imageWrapper.appendChild(video);
+    
+    // Création d'un bouton pour fermer la vidéo et revenir à l'image
+    const closeBtn = document.createElement("button");
+    closeBtn.innerText = "✕";
+    closeBtn.style.position = "absolute";
+    closeBtn.style.top = "5px";
+    closeBtn.style.left = "5px";
+    closeBtn.style.background = "rgba(0,0,0,0.6)";
+    closeBtn.style.color = "#fff";
+    closeBtn.style.border = "none";
+    closeBtn.style.borderRadius = "50%";
+    closeBtn.style.width = "25px";
+    closeBtn.style.height = "25px";
+    closeBtn.style.cursor = "pointer";
+    closeBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      video.pause();
+      video.remove();
+      closeBtn.remove();
+      if (img) {
+        img.style.display = "block";
+      }
+    });
+    imageWrapper.appendChild(closeBtn);
+  }
 }
 // Recherche sur tous les produits
     function setupSearch() {
