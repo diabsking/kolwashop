@@ -82,6 +82,9 @@ app.get("/panier", (req, res) => {
 app.get("/Administrateur", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "Administrateur.html"));
 });
+app.get("/Acceil", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "Acceil.html"));
+});
 
 // Servir les fichiers statiques depuis le dossier 'public'
 app.use(express.static(path.join(__dirname, 'public')));
