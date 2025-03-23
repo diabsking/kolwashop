@@ -22,14 +22,14 @@ exports.deleteUnverifiedAccounts = async () => {
   }
 };
 
-// Configuration du transporteur SMTP pour Mailo
+// Configuration du transporteur pour l'envoi d'e-mails
 const transporter = nodemailer.createTransport({
-  host: 'mail.mailo.com',
+  host: "mail.mailo.com",
   port: 465,
   secure: true,
   auth: {
-    user: 'kolwazshopp@mailo.com',   // Remplacez par votre identifiant Mailo
-    pass: process.env.MAILO_PASSWORD || "1O0C4HbGFMSw"
+    user: "kolwazshopp@mailo.com",
+    pass: process.env.EMAIL_PASS, // Assurez-vous que cette variable d'environnement est définie
   }
 });
 
@@ -76,13 +76,12 @@ exports.signup = async (req, res) => {
       verificationExpires    // Stockage de la date d'expiration
     });
     await newSeller.save();
-    
-    // Envoi de l'email de confirmation avec le code de validation
-    await transporter.sendMail({
-      from: 'kolwazshopp@mailo.com',
-      to: email,
-      subject: "Validation de votre compte vendeur sur Kolwaz Shop",
-      text: `Bonjour ${name},
+// Envoi d'un email de notification
+const mailOptions = {
+  from: process.env.EMAIL_USER,
+  to: email,
+  subject: "Validation de votre compte vendeur sur Kolwaz Shop",
+  text: `Bonjour ${name},
 
 Votre compte vendeur sur Kolwaz Shop a été créé avec succès.
 Voici votre code de validation : ${verificationCode}
@@ -91,19 +90,16 @@ Ce code est valable pendant 5 minutes.
 
 Cordialement,
 L'équipe Kolwaz Shop`,
-      html: `<p>Bonjour ${name},</p>
-             <p>Votre compte vendeur sur Kolwaz Shop a été créé avec succès.</p>
-             <p>Voici votre code de validation : <strong>${verificationCode}</strong></p>
-             <p>Ce code est valable pendant 5 minutes.</p>
-             <p>Cordialement,<br>L'équipe Kolwaz Shop</p>`
-    });
-    
-    return res.status(200).json({ message: "Inscription réussie. Un email de confirmation vous a été envoyé avec un code de validation pour activer votre compte." });
-  } catch (error) {
-    console.error("Erreur lors de l'inscription :", error);
-    return res.status(500).json({ message: "Erreur lors de l'inscription. Veuillez réessayer." });
-  }
+  html: `<p>Bonjour ${name},</p>
+         <p>Votre compte vendeur sur Kolwaz Shop a été créé avec succès.</p>
+         <p>Voici votre code de validation : <strong>${verificationCode}</strong></p>
+         <p>Ce code est valable pendant 5 minutes.</p>
+         <p>Cordialement,<br>L'équipe Kolwaz Shop</p>`
 };
+
+await transporter.sendMail(mailOptions);
+
+return res.status(200).json({ message: "Inscription réussie. Un email de confirmation vous a été envoyé avec un code de validation pour activer votre compte." });
 
 /**
  * Validation du compte via le code envoyé par email.
