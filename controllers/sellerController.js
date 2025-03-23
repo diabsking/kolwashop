@@ -100,7 +100,8 @@ L'équipe Kolwaz Shop`,
 await transporter.sendMail(mailOptions);
 
 return res.status(200).json({ message: "Inscription réussie. Un email de confirmation vous a été envoyé avec un code de validation pour activer votre compte." });
-
+  }
+}; 
 /**
  * Validation du compte via le code envoyé par email.
  * Le client doit fournir son email et le code reçu.
