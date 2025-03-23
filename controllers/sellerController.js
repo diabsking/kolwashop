@@ -75,13 +75,15 @@ exports.signup = async (req, res) => {
       verificationCode,      // Stockage du code
       verificationExpires    // Stockage de la date d'expiration
     });
+    
     await newSeller.save();
-// Envoi d'un email de notification
-const mailOptions = {
-  from: process.env.EMAIL_USER,
-  to: email,
-  subject: "Validation de votre compte vendeur sur Kolwaz Shop",
-  text: `Bonjour ${name},
+
+    // Envoi d'un email de notification
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Validation de votre compte vendeur sur Kolwaz Shop",
+      text: `Bonjour ${name},
 
 Votre compte vendeur sur Kolwaz Shop a été créé avec succès.
 Voici votre code de validation : ${verificationCode}
@@ -90,18 +92,24 @@ Ce code est valable pendant 5 minutes.
 
 Cordialement,
 L'équipe Kolwaz Shop`,
-  html: `<p>Bonjour ${name},</p>
-         <p>Votre compte vendeur sur Kolwaz Shop a été créé avec succès.</p>
-         <p>Voici votre code de validation : <strong>${verificationCode}</strong></p>
-         <p>Ce code est valable pendant 5 minutes.</p>
-         <p>Cordialement,<br>L'équipe Kolwaz Shop</p>`
-};
+      html: `<p>Bonjour ${name},</p>
+             <p>Votre compte vendeur sur Kolwaz Shop a été créé avec succès.</p>
+             <p>Voici votre code de validation : <strong>${verificationCode}</strong></p>
+             <p>Ce code est valable pendant 5 minutes.</p>
+             <p>Cordialement,<br>L'équipe Kolwaz Shop</p>`
+    };
 
-await transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions);
 
-return res.status(200).json({ message: "Inscription réussie. Un email de confirmation vous a été envoyé avec un code de validation pour activer votre compte." });
+    return res.status(200).json({ 
+      message: "Inscription réussie. Un email de confirmation vous a été envoyé avec un code de validation pour activer votre compte." 
+    });
+
+  } catch (error) {  // 🔹 Ajout du bloc catch pour éviter l'erreur de syntaxe
+    console.error("Erreur lors de l'inscription :", error);
+    return res.status(500).json({ message: "Erreur lors de l'inscription. Veuillez réessayer." });
   }
-}; 
+};
 /**
  * Validation du compte via le code envoyé par email.
  * Le client doit fournir son email et le code reçu.
