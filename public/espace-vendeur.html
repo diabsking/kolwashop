@@ -46,6 +46,7 @@
       border-radius: 8px;
       transition: border-color 0.3s ease;
       width: 100%;
+      margin-bottom: 12px;
     }
     input:focus, textarea:focus {
       border-color: #007BFF;
@@ -117,40 +118,30 @@
       <div id="registerFormContainer">
         <h2>Inscription Vendeur</h2>
         <form id="registerForm">
-          <!-- Champs obligatoires en pleine largeur -->
           <input type="text" id="registerName" placeholder="Nom complet" required>
           <input type="email" id="registerEmail" placeholder="Email" required>
           <input type="password" id="registerPassword" placeholder="Mot de passe" required>
           <input type="text" id="storeName" placeholder="Nom de la boutique" required>
           <input type="text" id="phone" placeholder="Téléphone (optionnel)">
-          
-          <!-- Groupe d'adresse en disposition horizontale -->
           <div class="grid-group">
             <input type="text" id="street" placeholder="Rue (optionnel)">
             <input type="text" id="city" placeholder="Ville (optionnel)">
             <input type="text" id="postalCode" placeholder="Code Postal (optionnel)">
             <input type="text" id="country" placeholder="Pays (optionnel)">
           </div>
-          
-          <!-- Autres champs en pleine largeur -->
           <input type="url" id="website" placeholder="Site web (optionnel)">
           <input type="url" id="logoUrl" placeholder="URL du logo (optionnel)">
           <textarea id="description" placeholder="Description de votre boutique (optionnel)" rows="3"></textarea>
-          
-          <!-- Groupe de liens sociaux en disposition horizontale -->
           <div class="grid-group">
             <input type="url" id="facebook" placeholder="Facebook (optionnel)">
             <input type="url" id="twitter" placeholder="Twitter (optionnel)">
             <input type="url" id="instagram" placeholder="Instagram (optionnel)">
             <input type="url" id="linkedin" placeholder="LinkedIn (optionnel)">
           </div>
-          
-          <!-- Instructions pour l'authentification par email -->
           <p class="auth-instructions">
-            Après avoir cliqué sur "S'inscrire", un lien d’authentification vous sera envoyé par email.<br>
-            Veuillez cliquer sur ce lien pour activer votre compte avant de vous connecter.
+            Après avoir cliqué sur "S'inscrire", un code de validation à 6 chiffres vous sera envoyé par email.<br>
+            Veuillez saisir ce code pour activer votre compte.
           </p>
-          
           <button type="submit">S'inscrire</button>
         </form>
         <div class="button-container">
@@ -158,6 +149,19 @@
           <a href="#" id="showLogin">Se connecter</a>
         </div>
       </div>
+      
+      <!-- Formulaire de validation du code -->
+      <div id="emailValidationContainer" style="display: none;">
+        <h2>Validation de l'Email</h2>
+        <form id="validationForm">
+          <input type="text" id="validationCode" placeholder="Entrez le code à 6 chiffres" required>
+          <button type="submit">Valider le code</button>
+        </form>
+        <div class="button-container">
+          <a href="/" id="goHomeValidation">Retour à l'accueil</a>
+        </div>
+      </div>
+      
       <!-- Formulaire de connexion -->
       <div id="loginFormContainer" style="display: none;">
         <h2>Connexion Vendeur</h2>
@@ -171,8 +175,10 @@
           <a href="#" id="showRegister">Créer un compte</a>
         </div>
       </div>
+      
       <div id="registerMessage" class="message"></div>
       <div id="loginMessage" class="message"></div>
+      <div id="validationMessage" class="message"></div>
     </div>
   </main>
   <script>
@@ -238,19 +244,60 @@
         const data = await response.json();
         
         if (response.ok) {
-          messageElement.innerText = data.message || "Inscription réussie. Vérifiez votre email pour activer votre compte.";
+          // Supposons que le serveur envoie le code de validation par email via Mailo
+          messageElement.innerText = data.message || "Inscription réussie. Un code de validation a été envoyé par email.";
           messageElement.style.color = "green";
           document.getElementById('registerForm').reset();
+          // Afficher le formulaire de validation du code
           setTimeout(() => {
-            document.getElementById('loginFormContainer').style.display = 'block';
             document.getElementById('registerFormContainer').style.display = 'none';
+            document.getElementById('emailValidationContainer').style.display = 'block';
           }, 3000);
         } else {
-          messageElement.innerText = data.message || "Une erreur est survenue.";
+          messageElement.innerText = data.message || "Une erreur est survenue lors de l'inscription.";
           messageElement.style.color = "red";
         }
       } catch (error) {
         messageElement.innerText = "Erreur lors de l'inscription.";
+        messageElement.style.color = "red";
+      }
+    });
+    
+    // Gestion de la validation du code
+    document.getElementById('validationForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+      const code = document.getElementById('validationCode').value.trim();
+      const email = document.getElementById('registerEmail').value.trim(); // On peut conserver l'email utilisé à l'inscription
+      const messageElement = document.getElementById('validationMessage');
+      messageElement.style.color = "black";
+      messageElement.innerText = "Validation en cours...";
+      
+      if (!code || code.length !== 6) {
+        messageElement.innerText = "Veuillez entrer un code à 6 chiffres.";
+        messageElement.style.color = "red";
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/sellers/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, code })
+        });
+        const data = await response.json();
+        
+        if (response.ok) {
+          messageElement.innerText = data.message || "Validation réussie. Vous pouvez désormais vous connecter.";
+          messageElement.style.color = "green";
+          setTimeout(() => {
+            window.location.href = '/dashboard-vendeur';
+          }, 1500);
+        } else {
+          messageElement.innerText = data.message || "Code invalide ou expiré.";
+          messageElement.style.color = "red";
+        }
+      } catch (error) {
+        messageElement.innerText = "Erreur lors de la validation.";
         messageElement.style.color = "red";
       }
     });
