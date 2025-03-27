@@ -1,11 +1,10 @@
 const nodemailer = require('nodemailer');
-const jwt = require('jsonwebtoken'); // Plus utilisé dans cette version, peut être retiré si inutile ailleurs.
+const jwt = require('jsonwebtoken');
 const Seller = require('../models/seller'); 
 const bcrypt = require('bcryptjs');
 
-/**
- * Fonction pour supprimer les comptes non vérifiés après expiration du délai de validation.
- */
+// Fonction pour supprimer les comptes non vérifiés après expiration du token
+// (Note : cette fonction n'est plus utilisée si tous les comptes sont créés comme vérifiés)
 exports.deleteUnverifiedAccounts = async () => {
   try {
     const expirationDate = new Date(Date.now() - 5 * 60 * 1000);  // 5 minutes
@@ -22,26 +21,26 @@ exports.deleteUnverifiedAccounts = async () => {
   }
 };
 
-// Configuration du transporteur pour l'envoi d'e-mails
+// Configuration du transporteur SMTP pour Mailo
 const transporter = nodemailer.createTransport({
-  host: "mail.mailo.com",
+  host: 'mail.mailo.com',
   port: 465,
   secure: true,
   auth: {
-    user: "kolwazshopp@mailo.com",
-    pass: process.env.EMAIL_PASS, // Assurez-vous que cette variable d'environnement est définie
+    user: 'kolwazshopp@mailo.com',   // Remplacez par votre identifiant Mailo
+    pass: process.env.MAILO_PASSWORD || "1O0C4HbGFMSw"
   }
 });
 
 /**
- * Inscription d'un vendeur avec envoi d'email contenant un code de validation à 6 chiffres.
- * Le compte est créé en tant que non vérifié et doit être activé en fournissant le code reçu par email.
+ * Inscription d'un vendeur avec envoi d'email de confirmation.
+ * Le compte est créé et marqué comme vérifié immédiatement.
  */
 exports.signup = async (req, res) => {
-  const { name, email, password, storeName, phone, address, website, logoUrl, description, socialLinks } = req.body;
+  const { name, email, password, storeName } = req.body;
   
   if (!name || !email || !password || !storeName) {
-    return res.status(400).json({ message: "Tous les champs obligatoires sont requis." });
+    return res.status(400).json({ message: "Tous les champs sont requis." });
   }
   
   try {
@@ -54,99 +53,83 @@ exports.signup = async (req, res) => {
     // Hachage du mot de passe avant de créer le compte
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Génération d'un code de validation à 6 chiffres
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-    // Définir la date d'expiration du code (5 minutes)
-    const verificationExpires = new Date(Date.now() + 5 * 60 * 1000);
-    
-    // Création du compte vendeur dans la BDD en tant que non vérifié
+    // Création du compte vendeur dans la BDD et marquage immédiat comme vérifié
     const newSeller = new Seller({
       name,
       email,
       password: hashedPassword,
       storeName,
-      phone,
-      address,
-      website,
-      logoUrl,
-      description,
-      socialLinks,
-      verified: false,
-      verificationCode,      // Stockage du code
-      verificationExpires    // Stockage de la date d'expiration
+      verified: true
     });
-    
     await newSeller.save();
-
-    // Envoi d'un email de notification
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
+    
+    // Envoi de l'email de confirmation d'inscription
+    await transporter.sendMail({
+      from: 'kolwazshopp@mailo.com',
       to: email,
-      subject: "Validation de votre compte vendeur sur Kolwaz Shop",
+      subject: "Création de votre compte vendeur sur Kolwaz Shop",
       text: `Bonjour ${name},
 
 Votre compte vendeur sur Kolwaz Shop a été créé avec succès.
-Voici votre code de validation : ${verificationCode}
-
-Ce code est valable pendant 5 minutes.
+Vous pouvez désormais vous connecter et commencer à utiliser la plateforme.
 
 Cordialement,
 L'équipe Kolwaz Shop`,
       html: `<p>Bonjour ${name},</p>
              <p>Votre compte vendeur sur Kolwaz Shop a été créé avec succès.</p>
-             <p>Voici votre code de validation : <strong>${verificationCode}</strong></p>
-             <p>Ce code est valable pendant 5 minutes.</p>
+             <p>Vous pouvez désormais vous connecter et commencer à utiliser la plateforme.</p>
              <p>Cordialement,<br>L'équipe Kolwaz Shop</p>`
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    return res.status(200).json({ 
-      message: "Inscription réussie. Un email de confirmation vous a été envoyé avec un code de validation pour activer votre compte." 
     });
-
-  } catch (error) {  // 🔹 Ajout du bloc catch pour éviter l'erreur de syntaxe
+    
+    return res.status(200).json({ message: "Inscription réussie. Un email de confirmation vous a été envoyé." });
+  } catch (error) {
     console.error("Erreur lors de l'inscription :", error);
     return res.status(500).json({ message: "Erreur lors de l'inscription. Veuillez réessayer." });
   }
 };
+
 /**
- * Validation du compte via le code envoyé par email.
- * Le client doit fournir son email et le code reçu.
+ * Validation du compte via le token envoyé par email.
+ * (Cette fonction reste disponible au cas où vous souhaiteriez revenir à une vérification par email ultérieurement)
  */
 exports.verify = async (req, res) => {
-  const { email, code } = req.body;
-  
-  if (!email || !code) {
-    return res.status(400).json({ message: "Email et code de validation sont requis." });
+  let { token } = req.query;
+  if (!token) {
+    return res.status(400).send("Token manquant.");
   }
-  
+
+  let actualToken = token;
+
+  // Si le token commence par "http", c'est une URL imbriquée contenant le vrai token
+  if (token.startsWith("http")) {
+    try {
+      const decodedUrl = decodeURIComponent(token);
+      const nestedUrl = new URL(decodedUrl);
+      actualToken = nestedUrl.searchParams.get('token');
+      if (!actualToken) {
+        throw new Error("Token non trouvé dans l'URL imbriquée.");
+      }
+    } catch (e) {
+      console.error("Erreur d'extraction du token imbriqué :", e);
+      return res.status(400).send("Token invalide ou expiré.");
+    }
+  }
+
   try {
+    const decoded = jwt.verify(actualToken, process.env.JWT_SECRET);
+    const email = decoded.email;
+
     const seller = await Seller.findOne({ email });
     if (!seller) {
-      return res.status(400).json({ message: "Compte introuvable." });
+      return res.status(400).send("Compte introuvable.");
     }
-    
-    // Vérifier si le code est expiré
-    if (seller.verificationExpires < new Date()) {
-      return res.status(400).json({ message: "Le code de validation a expiré." });
-    }
-    
-    // Vérifier si le code correspond
-    if (seller.verificationCode !== code) {
-      return res.status(400).json({ message: "Code de validation invalide." });
-    }
-    
-    // Activer le compte
+
     seller.verified = true;
-    seller.verificationCode = undefined; // Supprimer le code après validation
-    seller.verificationExpires = undefined;
     await seller.save();
-    
-    return res.status(200).json({ message: "Votre compte a été validé avec succès. Vous pouvez maintenant vous connecter." });
+    res.send("Votre compte a été validé avec succès. Vous pouvez maintenant vous connecter.");
   } catch (error) {
-    console.error("Erreur lors de la validation du compte :", error);
-    return res.status(500).json({ message: "Erreur lors de la validation. Veuillez réessayer." });
+    console.error("Erreur de vérification du token :", error);
+    return res.status(400).send("Token invalide ou expiré.");
   }
 };
 
